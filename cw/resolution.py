@@ -12,7 +12,7 @@ Key functions:
 Example usage:
 
 The main function is `resolve_to_function`, which can be used to resolve a function
-from a string specification or directly from a callable. 
+from a string specification or directly from a callable.
 
 >>> def func(apple, banana, carrot):
 ...     return f"{apple=}, {banana=}, {carrot=}"
@@ -71,8 +71,8 @@ import re
 from functools import partial
 from typing import Callable, Mapping, Tuple, TypeVar, Union
 
-FuncSpec = TypeVar('FuncSpec')
-FuncKey = TypeVar('FuncKey', bound=str)
+FuncSpec = TypeVar("FuncSpec")
+FuncKey = TypeVar("FuncKey", bound=str)
 
 
 def _get_builtin(name: str):
@@ -108,26 +108,26 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
         >>> upper_func('hello')
         'HELLO'
     """
-    if '.' not in dot_path:
+    if "." not in dot_path:
         # Handle built-ins and single names
         try:
             return _get_builtin(dot_path)
         except AttributeError:
             raise ValueError(f"Cannot resolve '{dot_path}' as a built-in function")
 
-    parts = dot_path.split('.')
+    parts = dot_path.split(".")
 
     # Special handling for built-in types like str, int, float, etc.
     if len(parts) == 2 and parts[0] in (
-        'str',
-        'int',
-        'float',
-        'list',
-        'dict',
-        'set',
-        'tuple',
-        'bool',
-        'bytes',
+        "str",
+        "int",
+        "float",
+        "list",
+        "dict",
+        "set",
+        "tuple",
+        "bool",
+        "bytes",
     ):
         try:
             base_type = _get_builtin(parts[0])
@@ -140,7 +140,7 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
 
     # Standard module import path
     func_name = parts[-1]
-    module_path = '.'.join(parts[:-1])
+    module_path = ".".join(parts[:-1])
 
     try:
         module = importlib.import_module(module_path)
@@ -177,7 +177,7 @@ def parse_spec_with_dot_path(func_spec: str) -> Tuple[str, dict]:
     if not isinstance(func_spec, str):
         raise TypeError(f"func_spec must be a string, got {type(func_spec)}")
 
-    if not re.match(r'^[\w.]+$', func_spec):
+    if not re.match(r"^[\w.]+$", func_spec):
         raise ValueError(
             f"func_spec must contain only word characters and dots: '{func_spec}'"
         )
@@ -214,11 +214,11 @@ def parse_json_spec(func_spec: str) -> Tuple[str, dict]:
     if not isinstance(data, dict):
         raise ValueError("JSON func_spec must be a dictionary")
 
-    if 'func' not in data:
+    if "func" not in data:
         raise ValueError("JSON func_spec must contain 'func' key")
 
-    func_name = data['func']
-    params = data.get('params', {})
+    func_name = data["func"]
+    params = data.get("params", {})
 
     if not isinstance(func_name, str):
         raise ValueError("'func' value must be a string")
@@ -255,7 +255,7 @@ def parse_ast_spec(func_spec: str) -> Tuple[str, dict]:
     """
     try:
         # Parse the expression safely
-        tree = ast.parse(func_spec, mode='eval')
+        tree = ast.parse(func_spec, mode="eval")
     except SyntaxError as e:
         raise ValueError(f"Invalid syntax in func_spec: {e}")
 
