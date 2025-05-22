@@ -1,0 +1,4 @@
+cw.scrap
+========
+.. automodule:: cw.scrap
+   :members:

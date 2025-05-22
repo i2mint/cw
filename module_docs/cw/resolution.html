@@ -1,0 +1,420 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.resolution &mdash; cw 0.0.9 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f7cdbf68"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cw.scrap" href="scrap.html" />
+    <link rel="prev" title="cw" href="../cw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.resolution</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_ast_spec"><code class="docutils literal notranslate"><span class="pre">parse_ast_spec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_json_spec"><code class="docutils literal notranslate"><span class="pre">parse_json_spec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_spec_with_dot_path"><code class="docutils literal notranslate"><span class="pre">parse_spec_with_dot_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resolve_func_from_dot_path"><code class="docutils literal notranslate"><span class="pre">resolve_func_from_dot_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resolve_to_function"><code class="docutils literal notranslate"><span class="pre">resolve_to_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resource_inputs"><code class="docutils literal notranslate"><span class="pre">resource_inputs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scrap.html">cw.scrap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="util.html">cw.util</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.resolution</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/cw/resolution.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.resolution">
+<span id="cw-resolution"></span><h1>cw.resolution<a class="headerlink" href="#module-cw.resolution" title="Link to this heading"></a></h1>
+<p>Function resolution utilities for CLI parameterization.</p>
+<p>This module provides utilities to resolve function specifications from various formats
+(JSON, AST expressions, dot paths) into callable functions with optional parameter binding.</p>
+<p>Key functions:
+- resolve_to_function: Main resolution function supporting multiple spec formats
+- resolve_func_from_dot_path: Import and resolve functions from dot notation paths
+- parse_json_spec: Parse JSON-formatted function specifications
+- parse_ast_spec: Parse AST-formatted function call specifications</p>
+<p>Example usage:</p>
+<p>The main function is <cite>resolve_to_function</cite>, which can be used to resolve a function
+from a string specification or directly from a callable.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">apple</span><span class="p">,</span> <span class="n">banana</span><span class="p">,</span> <span class="n">carrot</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">&quot;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_ast_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">resource_inputs</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">func</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">resource</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">apple</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use default resolve_to_function</span>
+<span class="gp">... </span>        <span class="n">carrot</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">func_key_and_kwargs</span><span class="o">=</span><span class="n">parse_ast_spec</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">get_func</span><span class="o">=</span><span class="n">function_store</span><span class="o">.</span><span class="n">get</span>
+<span class="gp">... </span>        <span class="p">)</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Now apple will be resolved via resolve_to_function
+carrot will be resolved via resolve_to_function with custom params
+banana remains unchanged (passed through as-is)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;a()&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;apple=&lt;built-in function len&gt;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;banana=&#39;test&#39;&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;carrot=&lt;function&#39;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">&#39;lambda&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>An example of using the resolve_to_function function directly:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json_spec</span> <span class="o">=</span> <span class="s1">&#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="n">json_spec</span><span class="p">,</span> <span class="n">parse_json_spec</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Dot path format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s2">&quot;builtins.len&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.parse_ast_spec">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">parse_ast_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#parse_ast_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.parse_ast_spec" title="Link to this definition"></a></dt>
+<dd><p>Parse AST-formatted function call specification.</p>
+<p>Expected format: ‘function_name(arg1=value1, arg2=value2)’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func_spec</strong> – String representing a function call with keyword arguments</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (function_name, parameters_dict)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the expression is malformed or unsafe</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;len()&#39;</span><span class="p">)</span>
+<span class="go">(&#39;len&#39;, {})</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;str.replace(old=&quot;a&quot;, new=&quot;b&quot;)&#39;</span><span class="p">)</span>
+<span class="go">(&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;range(start=0, stop=10)&#39;</span><span class="p">)</span>
+<span class="go">(&#39;range&#39;, {&#39;start&#39;: 0, &#39;stop&#39;: 10})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.parse_json_spec">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">parse_json_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#parse_json_spec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.parse_json_spec" title="Link to this definition"></a></dt>
+<dd><p>Parse JSON-formatted function specification.</p>
+<p>Expected format: ‘{“func”: “function_name”, “params”: {“key”: “value”}}’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func_spec</strong> – JSON string with func and params keys</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (function_name, parameters_dict)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If JSON is malformed or missing required keys</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">&#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span><span class="p">)</span>
+<span class="go">(&#39;len&#39;, {})</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">&#39;{&quot;func&quot;: &quot;str.replace&quot;, &quot;params&quot;: {&quot;old&quot;: &quot;a&quot;, &quot;new&quot;: &quot;b&quot;}}&#39;</span><span class="p">)</span>
+<span class="go">(&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.parse_spec_with_dot_path">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">parse_spec_with_dot_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#parse_spec_with_dot_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.parse_spec_with_dot_path" title="Link to this definition"></a></dt>
+<dd><p>Default parser for simple dot-path function specifications.</p>
+<p>Validates that func_spec contains only word characters and dots,
+then returns it as-is with empty kwargs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func_spec</strong> – Function specification string</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple of (function_key, kwargs_dict)</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If func_spec contains invalid characters</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">&#39;os.path.join&#39;</span><span class="p">)</span>
+<span class="go">(&#39;os.path.join&#39;, {})</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">&#39;len&#39;</span><span class="p">)</span>
+<span class="go">(&#39;len&#39;, {})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.resolve_func_from_dot_path">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resolve_func_from_dot_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dot_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resolve_func_from_dot_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resolve_func_from_dot_path" title="Link to this definition"></a></dt>
+<dd><p>Resolve a function from a dot-separated import path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dot_path</strong> – String like ‘os.path.join’, ‘builtins.len’, or ‘str.upper’</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resolved callable function</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If the path cannot be resolved to a callable</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;os.path.join&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>  
+<span class="go">&#39;a/b&#39;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">len_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">len_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;str.upper&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
+<span class="go">&#39;HELLO&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.resolve_to_function">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resolve_to_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">func_spec:</span> <span class="pre">~typing.Callable</span> <span class="pre">|</span> <span class="pre">~cw.resolution.FuncSpec,</span> <span class="pre">func_key_and_kwargs:</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncSpec],</span> <span class="pre">~typing.Tuple[~cw.resolution.FuncKey,</span> <span class="pre">dict]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">parse_spec_with_dot_path&gt;,</span> <span class="pre">get_func:</span> <span class="pre">~typing.Mapping[~cw.resolution.FuncKey,</span> <span class="pre">~typing.Callable]</span> <span class="pre">|</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncKey],</span> <span class="pre">~typing.Callable]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">resolve_func_from_dot_path&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resolve_to_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resolve_to_function" title="Link to this definition"></a></dt>
+<dd><p>Resolve various function specifications into callable functions.</p>
+<p>This is the main entry point for function resolution. It handles:
+- Direct callable objects (returned as-is)
+- String specifications parsed via func_key_and_kwargs
+- Function lookup via get_func
+- Parameter binding via functools.partial</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func_spec</strong> – Function specification (callable, string, etc.)</p></li>
+<li><p><strong>func_key_and_kwargs</strong> – Parser function to extract key and params from spec</p></li>
+<li><p><strong>get_func</strong> – Function or mapping to resolve function keys to callables</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Resolved callable function, potentially with bound parameters</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TypeError</strong> – If func_spec type is unsupported or resolved function not callable</p></li>
+<li><p><strong>ValueError</strong> – If function resolution fails</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Direct callable</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resolve_to_function</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span>  
+<span class="go">&lt;built-in function len&gt;</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Simple string (dot path)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s1">&#39;{&quot;func&quot;: &quot;builtins.len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">parse_json_spec</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="go">3</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># AST format</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">&#39;str.upper()&#39;</span><span class="p">,</span> <span class="n">parse_ast_spec</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
+<span class="go">&#39;HELLO&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.resource_inputs">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resource_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">func:</span> <span class="pre">~typing.Callable,</span> <span class="pre">resource:</span> <span class="pre">~typing.Dict[str,</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~typing.Callable</span> <span class="pre">|</span> <span class="pre">~typing.Dict[str,</span> <span class="pre">~typing.Any]],</span> <span class="pre">*,</span> <span class="pre">default_ingress:</span> <span class="pre">~typing.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">resolve_to_function&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resource_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resource_inputs" title="Link to this definition"></a></dt>
+<dd><p>Wrap a function to source specified inputs through configurable resolvers.</p>
+<p>This decorator transforms specified function arguments using resolver functions,
+making it particularly useful for CLI contexts where string inputs need to be
+resolved to actual objects/functions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – The function to wrap</p></li>
+<li><p><strong>resource</strong> – Dict mapping parameter names to resource specifications:
+- None: use default_ingress (resolve_to_function by default)
+- Callable: use the callable directly as resolver
+- Dict: use as kwargs for partial(default_ingress, <a href="#id1"><span class="problematic" id="id2">**</span></a>dict)</p></li>
+<li><p><strong>default_ingress</strong> – Default resolver function (default: resolve_to_function)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Wrapped function with resource resolution applied to specified parameters</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">apple</span><span class="p">,</span> <span class="n">banana</span><span class="p">,</span> <span class="n">carrot</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">&quot;</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_ast_spec</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">resource_inputs</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">func</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">resource</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>        <span class="n">apple</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use default resolve_to_function</span>
+<span class="gp">... </span>        <span class="n">carrot</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">func_key_and_kwargs</span><span class="o">=</span><span class="n">parse_ast_spec</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="n">get_func</span><span class="o">=</span><span class="n">function_store</span><span class="o">.</span><span class="n">get</span>
+<span class="gp">... </span>        <span class="p">)</span>
+<span class="gp">... </span>    <span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>Now apple will be resolved via resolve_to_function
+carrot will be resolved via resolve_to_function with custom params
+banana remains unchanged (passed through as-is)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;a()&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;apple=&lt;built-in function len&gt;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;banana=&#39;test&#39;&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;carrot=&lt;function&#39;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">&#39;lambda&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cw.html" class="btn btn-neutral float-left" title="cw" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="scrap.html" class="btn btn-neutral float-right" title="cw.scrap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright NO COPYRIGHT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
