@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.10 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.11 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a83ce22a"></script>
+      <script src="../../_static/documentation_options.js?v=0c446633"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_json_spec"><code class="docutils literal notranslate"><span class="pre">parse_json_spec()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_spec_with_dot_path"><code class="docutils literal notranslate"><span class="pre">parse_spec_with_dot_path()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resolve_func_from_dot_path"><code class="docutils literal notranslate"><span class="pre">resolve_func_from_dot_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resolve_object"><code class="docutils literal notranslate"><span class="pre">resolve_object()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resolve_to_function"><code class="docutils literal notranslate"><span class="pre">resolve_to_function()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resource_inputs"><code class="docutils literal notranslate"><span class="pre">resource_inputs()</span></code></a></li>
 </ul>
@@ -267,6 +268,38 @@ then returns it as-is with empty kwargs.</p>
 <span class="go">&#39;HELLO&#39;</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.resolution.resolve_object">
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resolve_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">T</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resolve_object"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resolve_object" title="Link to this definition"></a></dt>
+<dd><p>Resolves an object by either returning it directly if it’s of the correct type,
+or looking it up in a mapping if it’s a string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> – The object to resolve. Can be a string (to be looked up in object_map)
+or the object itself (if it’s already of type T).</p></li>
+<li><p><strong>object_map</strong> – A dictionary mapping strings to objects of type T.</p></li>
+<li><p><strong>expected_type</strong> – (Optional) The expected type of the resolved object.
+If provided, raises a TypeError if the resolved object
+is not of this type.</p></li>
+<li><p><strong>error_message</strong> – (Optional) A custom error message to use if a ValueError
+or TypeError is raised. If None, a default message is used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The resolved object of type T.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>TypeError</strong> – If obj is not a string or of the expected type, or if the
+    resolved object from the map is not of the expected type
+    (when expected_type is provided).</p></li>
+<li><p><strong>ValueError</strong> – If obj is a string but is not found in object_map.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
