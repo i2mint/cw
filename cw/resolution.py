@@ -258,7 +258,7 @@ def parse_ast_spec(func_spec: str) -> Tuple[str, dict]:
     if not isinstance(func_spec, str):
         raise TypeError(f"func_spec must be a string, got {type(func_spec)}")
 
-    if not '(' in func_spec or not ')' in func_spec:
+    if not "(" in func_spec or not ")" in func_spec:
         return parse_spec_with_dot_path(func_spec)
 
     try:
