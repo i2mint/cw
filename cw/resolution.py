@@ -12,7 +12,7 @@ Key functions:
 Example usage:
 
 The main function is `resolve_to_function`, which can be used to resolve a function
-from a string specification or directly from a callable. 
+from a string specification or directly from a callable.
 
 >>> def func(apple, banana, carrot):
 ...     return f"{apple=}, {banana=}, {carrot=}"
@@ -253,6 +253,12 @@ def parse_ast_spec(func_spec: str) -> Tuple[str, dict]:
         >>> parse_ast_spec('range(start=0, stop=10)')
         ('range', {'start': 0, 'stop': 10})
     """
+    if not isinstance(func_spec, str):
+        raise TypeError(f"func_spec must be a string, got {type(func_spec)}")
+
+    if not '(' in func_spec or not ')' in func_spec:
+        return parse_spec_with_dot_path(func_spec)
+
     try:
         # Parse the expression safely
         tree = ast.parse(func_spec, mode='eval')
@@ -267,6 +273,7 @@ def parse_ast_spec(func_spec: str) -> Tuple[str, dict]:
     # Extract function name
     func_name = _extract_func_name(call_node.func)
 
+    # TODO: Should we generalize to support other types of arguments?
     # Only allow keyword arguments for safety and clarity
     if call_node.args:
         raise ValueError("Only keyword arguments are supported in AST format")
@@ -309,7 +316,7 @@ def resolve_to_function(
     func_spec: Union[Callable, FuncSpec],
     func_key_and_kwargs: Callable[
         [FuncSpec], Tuple[FuncKey, dict]
-    ] = parse_spec_with_dot_path,
+    ] = parse_ast_spec,  # also parse_json_spec and parse_spec_with_dot_path
     get_func: Union[
         Mapping[FuncKey, Callable], Callable[[FuncKey], Callable]
     ] = resolve_func_from_dot_path,
@@ -324,7 +331,8 @@ def resolve_to_function(
 
     Args:
         func_spec: Function specification (callable, string, etc.)
-        func_key_and_kwargs: Parser function to extract key and params from spec
+        func_key_and_kwargs: Parser function to extract key and params from spec.
+            By default, will parse dot-path function names and call expressions.
         get_func: Function or mapping to resolve function keys to callables
 
     Returns:
