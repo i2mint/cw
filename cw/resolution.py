@@ -574,7 +574,8 @@ def resource_inputs(
 # ------------------------------------------------------------------------------------
 # Generic type for object resolution
 
-T = TypeVar('T')
+T = TypeVar("T")
+
 
 # TODO: Expand and merge with resolve_to_function and resource_inputs
 def resolve_object(
