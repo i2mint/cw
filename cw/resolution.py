@@ -64,6 +64,8 @@ An example of using the resolve_to_function function directly:
 
 """
 
+# TODO: Expand and merge the resolve_object function (see at the end of the file)
+
 import ast
 import importlib
 import json
@@ -567,3 +569,61 @@ def resource_inputs(
 
     # Wrap the function using the ingress
     return wrap(func, ingress=ingress)
+
+
+# ------------------------------------------------------------------------------------
+# Generic type for object resolution
+
+T = TypeVar('T')
+
+# TODO: Expand and merge with resolve_to_function and resource_inputs
+def resolve_object(
+    obj: Union[str, T],
+    *,
+    object_map: Dict[str, T],
+    expected_type: type = None,
+    error_message: str = None,
+) -> T:
+    """
+    Resolves an object by either returning it directly if it's of the correct type,
+    or looking it up in a mapping if it's a string.
+
+    Args:
+        obj: The object to resolve. Can be a string (to be looked up in object_map)
+             or the object itself (if it's already of type T).
+        object_map: A dictionary mapping strings to objects of type T.
+        expected_type: (Optional) The expected type of the resolved object.
+                       If provided, raises a TypeError if the resolved object
+                       is not of this type.
+        error_message: (Optional) A custom error message to use if a ValueError
+                       or TypeError is raised. If None, a default message is used.
+
+    Returns:
+        The resolved object of type T.
+
+    Raises:
+        TypeError: If obj is not a string or of the expected type, or if the
+                   resolved object from the map is not of the expected type
+                   (when expected_type is provided).
+        ValueError: If obj is a string but is not found in object_map.
+    """
+    if isinstance(obj, str):
+        if obj in object_map:
+            resolved_obj = object_map[obj]
+        else:
+            msg = error_message or f"Unknown object identifier: {obj}"
+            raise ValueError(msg)
+    elif expected_type is None or isinstance(obj, expected_type):
+        resolved_obj = obj
+    else:
+        msg = error_message or f"Expected type {expected_type}, got {type(obj)}"
+        raise TypeError(msg)
+
+    if expected_type and not isinstance(resolved_obj, expected_type):
+        msg = (
+            error_message
+            or f"Resolved object should be of type {expected_type}, got {type(resolved_obj)}"
+        )
+        raise TypeError(msg)
+
+    return resolved_obj
