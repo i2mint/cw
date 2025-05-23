@@ -7,7 +7,7 @@ import inspect
 
 class NoDefault(object):
     def __repr__(self):
-        return 'no_default'
+        return "no_default"
 
 
 no_default = NoDefault()
@@ -76,7 +76,7 @@ def parser_for_class(o):
 
 
 def py2cli_test(cls, input_string):
-    sys.argv = input_string.split(' ')
+    sys.argv = input_string.split(" ")
     parser = parser_for_class(cls)
     cl_in = parser.parse_args()
     # print(cl_in)
