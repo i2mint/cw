@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.9 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=f7cdbf68"></script>
+      <script src="../../_static/documentation_options.js?v=a83ce22a"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -271,7 +271,7 @@ then returns it as-is with empty kwargs.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cw.resolution.resolve_to_function">
-<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resolve_to_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">func_spec:</span> <span class="pre">~typing.Callable</span> <span class="pre">|</span> <span class="pre">~cw.resolution.FuncSpec,</span> <span class="pre">func_key_and_kwargs:</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncSpec],</span> <span class="pre">~typing.Tuple[~cw.resolution.FuncKey,</span> <span class="pre">dict]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">parse_spec_with_dot_path&gt;,</span> <span class="pre">get_func:</span> <span class="pre">~typing.Mapping[~cw.resolution.FuncKey,</span> <span class="pre">~typing.Callable]</span> <span class="pre">|</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncKey],</span> <span class="pre">~typing.Callable]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">resolve_func_from_dot_path&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resolve_to_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resolve_to_function" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cw.resolution.</span></span><span class="sig-name descname"><span class="pre">resolve_to_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">func_spec:</span> <span class="pre">~typing.Callable</span> <span class="pre">|</span> <span class="pre">~cw.resolution.FuncSpec,</span> <span class="pre">func_key_and_kwargs:</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncSpec],</span> <span class="pre">~typing.Tuple[~cw.resolution.FuncKey,</span> <span class="pre">dict]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">parse_ast_spec&gt;,</span> <span class="pre">get_func:</span> <span class="pre">~typing.Mapping[~cw.resolution.FuncKey,</span> <span class="pre">~typing.Callable]</span> <span class="pre">|</span> <span class="pre">~typing.Callable[[~cw.resolution.FuncKey],</span> <span class="pre">~typing.Callable]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">resolve_func_from_dot_path&gt;</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span></span></span><a class="reference internal" href="../../_modules/cw/resolution.html#resolve_to_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.resolution.resolve_to_function" title="Link to this definition"></a></dt>
 <dd><p>Resolve various function specifications into callable functions.</p>
 <p>This is the main entry point for function resolution. It handles:
 - Direct callable objects (returned as-is)
@@ -282,7 +282,8 @@ then returns it as-is with empty kwargs.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func_spec</strong> – Function specification (callable, string, etc.)</p></li>
-<li><p><strong>func_key_and_kwargs</strong> – Parser function to extract key and params from spec</p></li>
+<li><p><strong>func_key_and_kwargs</strong> – Parser function to extract key and params from spec.
+By default, will parse dot-path function names and call expressions.</p></li>
 <li><p><strong>get_func</strong> – Function or mapping to resolve function keys to callables</p></li>
 </ul>
 </dd>

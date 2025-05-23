@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.9 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.10 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=f7cdbf68"></script>
+      <script src="../../_static/documentation_options.js?v=a83ce22a"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -91,7 +91,7 @@
 <span class="sd">Example usage:</span>
 
 <span class="sd">The main function is `resolve_to_function`, which can be used to resolve a function</span>
-<span class="sd">from a string specification or directly from a callable. </span>
+<span class="sd">from a string specification or directly from a callable.</span>
 
 <span class="sd">&gt;&gt;&gt; def func(apple, banana, carrot):</span>
 <span class="sd">...     return f&quot;{apple=}, {banana=}, {carrot=}&quot;</span>
@@ -150,8 +150,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="n">FuncSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;FuncSpec&#39;</span><span class="p">)</span>
-<span class="n">FuncKey</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;FuncKey&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">FuncSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncSpec&quot;</span><span class="p">)</span>
+<span class="n">FuncKey</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncKey&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_builtin</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -189,26 +189,26 @@
 <span class="sd">        &gt;&gt;&gt; upper_func(&#39;hello&#39;)</span>
 <span class="sd">        &#39;HELLO&#39;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dot_path</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dot_path</span><span class="p">:</span>
         <span class="c1"># Handle built-ins and single names</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_get_builtin</span><span class="p">(</span><span class="n">dot_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot resolve &#39;</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">&#39; as a built-in function&quot;</span><span class="p">)</span>
 
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">dot_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">dot_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
     <span class="c1"># Special handling for built-in types like str, int, float, etc.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="s1">&#39;str&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;int&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;float&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;list&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;dict&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;set&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;tuple&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;bool&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;bytes&#39;</span><span class="p">,</span>
+        <span class="s2">&quot;str&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;int&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;list&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;set&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tuple&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bytes&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">base_type</span> <span class="o">=</span> <span class="n">_get_builtin</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -221,7 +221,7 @@
 
     <span class="c1"># Standard module import path</span>
     <span class="n">func_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">module_path</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">module_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
@@ -261,7 +261,7 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^[\w.]+$&#39;</span><span class="p">,</span> <span class="n">func_spec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[\w.]+$&quot;</span><span class="p">,</span> <span class="n">func_spec</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;func_spec must contain only word characters and dots: &#39;</span><span class="si">{</span><span class="n">func_spec</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
         <span class="p">)</span>
@@ -301,11 +301,11 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON func_spec must be a dictionary&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s1">&#39;func&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;func&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON func_spec must contain &#39;func&#39; key&quot;</span><span class="p">)</span>
 
-    <span class="n">func_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;func&#39;</span><span class="p">]</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">func_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;func&quot;</span><span class="p">]</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;func&#39; value must be a string&quot;</span><span class="p">)</span>
@@ -343,9 +343,15 @@
 <span class="sd">        &gt;&gt;&gt; parse_ast_spec(&#39;range(start=0, stop=10)&#39;)</span>
 <span class="sd">        (&#39;range&#39;, {&#39;start&#39;: 0, &#39;stop&#39;: 10})</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="s1">&#39;(&#39;</span> <span class="ow">in</span> <span class="n">func_spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="s1">&#39;)&#39;</span> <span class="ow">in</span> <span class="n">func_spec</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Parse the expression safely</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;eval&#39;</span><span class="p">)</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid syntax in func_spec: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -357,6 +363,7 @@
     <span class="c1"># Extract function name</span>
     <span class="n">func_name</span> <span class="o">=</span> <span class="n">_extract_func_name</span><span class="p">(</span><span class="n">call_node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
 
+    <span class="c1"># TODO: Should we generalize to support other types of arguments?</span>
     <span class="c1"># Only allow keyword arguments for safety and clarity</span>
     <span class="k">if</span> <span class="n">call_node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only keyword arguments are supported in AST format&quot;</span><span class="p">)</span>
@@ -402,7 +409,7 @@
     <span class="n">func_spec</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="n">FuncSpec</span><span class="p">],</span>
     <span class="n">func_key_and_kwargs</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
         <span class="p">[</span><span class="n">FuncSpec</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="n">parse_spec_with_dot_path</span><span class="p">,</span>
+    <span class="p">]</span> <span class="o">=</span> <span class="n">parse_ast_spec</span><span class="p">,</span>  <span class="c1"># also parse_json_spec and parse_spec_with_dot_path</span>
     <span class="n">get_func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
         <span class="n">Mapping</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FuncKey</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">,</span>
@@ -417,7 +424,8 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        func_spec: Function specification (callable, string, etc.)</span>
-<span class="sd">        func_key_and_kwargs: Parser function to extract key and params from spec</span>
+<span class="sd">        func_key_and_kwargs: Parser function to extract key and params from spec.</span>
+<span class="sd">            By default, will parse dot-path function names and call expressions.</span>
 <span class="sd">        get_func: Function or mapping to resolve function keys to callables</span>
 
 <span class="sd">    Returns:</span>
