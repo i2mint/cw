@@ -71,7 +71,8 @@ import importlib
 import json
 import re
 from functools import partial
-from typing import Callable, Mapping, Tuple, TypeVar, Union
+from typing import Tuple, TypeVar, Union
+from collections.abc import Callable, Mapping
 
 FuncSpec = TypeVar("FuncSpec")
 FuncKey = TypeVar("FuncKey", bound=str)
@@ -154,7 +155,7 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
         raise ValueError(f"Cannot resolve '{dot_path}': {e}")
 
 
-def parse_spec_with_dot_path(func_spec: str) -> Tuple[str, dict]:
+def parse_spec_with_dot_path(func_spec: str) -> tuple[str, dict]:
     """Default parser for simple dot-path function specifications.
 
     Validates that func_spec contains only word characters and dots,
@@ -187,7 +188,7 @@ def parse_spec_with_dot_path(func_spec: str) -> Tuple[str, dict]:
     return func_spec, {}
 
 
-def parse_json_spec(func_spec: str) -> Tuple[str, dict]:
+def parse_json_spec(func_spec: str) -> tuple[str, dict]:
     """Parse JSON-formatted function specification.
 
     Expected format: '{"func": "function_name", "params": {"key": "value"}}'
@@ -231,7 +232,7 @@ def parse_json_spec(func_spec: str) -> Tuple[str, dict]:
     return func_name, params
 
 
-def parse_ast_spec(func_spec: str) -> Tuple[str, dict]:
+def parse_ast_spec(func_spec: str) -> tuple[str, dict]:
     """Parse AST-formatted function call specification.
 
     Expected format: 'function_name(arg1=value1, arg2=value2)'
@@ -315,13 +316,13 @@ def _extract_func_name(node: ast.AST) -> str:
 
 
 def resolve_to_function(
-    func_spec: Union[Callable, FuncSpec],
+    func_spec: Callable | FuncSpec,
     func_key_and_kwargs: Callable[
-        [FuncSpec], Tuple[FuncKey, dict]
+        [FuncSpec], tuple[FuncKey, dict]
     ] = parse_ast_spec,  # also parse_json_spec and parse_spec_with_dot_path
-    get_func: Union[
-        Mapping[FuncKey, Callable], Callable[[FuncKey], Callable]
-    ] = resolve_func_from_dot_path,
+    get_func: (
+        Mapping[FuncKey, Callable] | Callable[[FuncKey], Callable]
+    ) = resolve_func_from_dot_path,
 ) -> Callable:
     """Resolve various function specifications into callable functions.
 
@@ -420,7 +421,8 @@ where string inputs need to be resolved to actual objects/functions.
 """
 
 from functools import partial
-from typing import Callable, Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union
+from collections.abc import Callable
 from cw.resolution import resolve_to_function
 from i2.wrapper import Ingress, wrap
 
@@ -462,7 +464,7 @@ def _resolve_resource_spec(resource_spec, default_ingress: Callable) -> Callable
 
 
 def _create_resource_kwargs_trans(
-    resource_resolvers: Dict[str, Callable],
+    resource_resolvers: dict[str, Callable],
 ) -> Callable[[dict], dict]:
     """Create a kwargs transformation function for resource resolution.
 
@@ -492,7 +494,7 @@ def _create_resource_kwargs_trans(
 
 def resource_inputs(
     func: Callable,
-    resource: Dict[str, Union[None, Callable, Dict[str, Any]]],
+    resource: dict[str, None | Callable | dict[str, Any]],
     *,
     default_ingress: Callable = resolve_to_function,
 ) -> Callable:
@@ -579,9 +581,9 @@ T = TypeVar("T")
 
 # TODO: Expand and merge with resolve_to_function and resource_inputs
 def resolve_object(
-    obj: Union[str, T],
+    obj: str | T,
     *,
-    object_map: Dict[str, T],
+    object_map: dict[str, T],
     expected_type: type = None,
     error_message: str = None,
 ) -> T:
