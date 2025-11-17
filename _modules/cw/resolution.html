@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.11 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.12 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=0c446633"></script>
+      <script src="../../_static/documentation_options.js?v=3bbcec59"></script>
       <script src="../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -150,7 +150,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="n">FuncSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncSpec&quot;</span><span class="p">)</span>
 <span class="n">FuncKey</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncKey&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
@@ -238,7 +239,7 @@
 
 <div class="viewcode-block" id="parse_spec_with_dot_path">
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_spec_with_dot_path">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_spec_with_dot_path</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_spec_with_dot_path</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Default parser for simple dot-path function specifications.</span>
 
 <span class="sd">    Validates that func_spec contains only word characters and dots,</span>
@@ -274,7 +275,7 @@
 
 <div class="viewcode-block" id="parse_json_spec">
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_json_spec">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_json_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_json_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse JSON-formatted function specification.</span>
 
 <span class="sd">    Expected format: &#39;{&quot;func&quot;: &quot;function_name&quot;, &quot;params&quot;: {&quot;key&quot;: &quot;value&quot;}}&#39;</span>
@@ -321,7 +322,7 @@
 
 <div class="viewcode-block" id="parse_ast_spec">
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_ast_spec">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_ast_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_ast_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse AST-formatted function call specification.</span>
 
 <span class="sd">    Expected format: &#39;function_name(arg1=value1, arg2=value2)&#39;</span>
@@ -408,13 +409,13 @@
 <div class="viewcode-block" id="resolve_to_function">
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resolve_to_function">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_to_function</span><span class="p">(</span>
-    <span class="n">func_spec</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="n">FuncSpec</span><span class="p">],</span>
+    <span class="n">func_spec</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="n">FuncSpec</span><span class="p">,</span>
     <span class="n">func_key_and_kwargs</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
-        <span class="p">[</span><span class="n">FuncSpec</span><span class="p">],</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
+        <span class="p">[</span><span class="n">FuncSpec</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>
     <span class="p">]</span> <span class="o">=</span> <span class="n">parse_ast_spec</span><span class="p">,</span>  <span class="c1"># also parse_json_spec and parse_spec_with_dot_path</span>
-    <span class="n">get_func</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-        <span class="n">Mapping</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FuncKey</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">,</span>
+    <span class="n">get_func</span><span class="p">:</span> <span class="p">(</span>
+        <span class="n">Mapping</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FuncKey</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve various function specifications into callable functions.</span>
 
@@ -514,7 +515,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_to_function</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">i2.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ingress</span><span class="p">,</span> <span class="n">wrap</span>
 
@@ -556,7 +558,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_create_resource_kwargs_trans</span><span class="p">(</span>
-    <span class="n">resource_resolvers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+    <span class="n">resource_resolvers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a kwargs transformation function for resource resolution.</span>
 
@@ -588,7 +590,7 @@
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resource_inputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resource_inputs</span><span class="p">(</span>
     <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-    <span class="n">resource</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]],</span>
+    <span class="n">resource</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">default_ingress</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
@@ -671,15 +673,16 @@
 <span class="c1"># ------------------------------------------------------------------------------------</span>
 <span class="c1"># Generic type for object resolution</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
 
 <span class="c1"># TODO: Expand and merge with resolve_to_function and resource_inputs</span>
 <div class="viewcode-block" id="resolve_object">
 <a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resolve_object">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_object</span><span class="p">(</span>
-    <span class="n">obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">T</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
-    <span class="n">object_map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
+    <span class="n">object_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span>
     <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
