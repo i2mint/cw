@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "cw"
-version = "0.0.13"
+version = "0.0.14"
 description = "Command line Wizard - Transform your python functions into CLI tools"
 readme = "README.md"
 requires-python = ">=3.10"
