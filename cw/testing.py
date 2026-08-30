@@ -55,8 +55,8 @@ Windows (ADR: option A, "normalise")
 Recorded text is stored newline-normalised (``\\r\\n`` and ``\\r`` both become ``\\n``) and
 every comparison normalises both sides, so a golden recorded on a Mac asserts cleanly on a
 Windows runner. The subprocess environment pins ``COLUMNS``, ``PYTHONUTF8``,
-``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM`` so the bytes are reproducible rather
-than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``
+``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM``, and ``stdin`` is pinned closed, so
+the bytes are reproducible rather than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``
 line, because ``shlex`` is POSIX-only and a Windows user must never need it. And
 :func:`parity` spawns no subprocess at all -- it runs in-process against shipped fixtures --
 so the ``.exe`` console-script shim and the cp1252 console never enter the picture.
@@ -437,8 +437,14 @@ def capture(call) -> dict:
     _flush(sys.stdout, sys.stderr)
     with tempfile.TemporaryFile() as out_file, tempfile.TemporaryFile() as err_file:
         saved_fds = (os.dup(1), os.dup(2))
+        # Descriptor 0 is pinned closed for the same reason the subprocess path pins it --
+        # see _run_subprocess. A command with an interactive path must read EOF here, not
+        # whatever console the recorder happens to be attached to.
+        saved_stdin_fd = os.dup(0)
+        null_fd = os.open(os.devnull, os.O_RDONLY)
         trailer = ""
         try:
+            os.dup2(null_fd, 0)
             os.dup2(out_file.fileno(), 1)
             os.dup2(err_file.fileno(), 2)
             sys.stdout = _stream_on_fd(1)
@@ -465,6 +471,9 @@ def capture(call) -> dict:
             for saved, fd in zip(saved_fds, (1, 2)):
                 os.dup2(saved, fd)
                 os.close(saved)
+            os.dup2(saved_stdin_fd, 0)
+            os.close(saved_stdin_fd)
+            os.close(null_fd)
         out_file.seek(0)
         err_file.seek(0)
         stdout = out_file.read().decode("utf-8", "replace")
@@ -516,7 +525,17 @@ def _as_command(prog) -> list:
 
 
 def _run_subprocess(command, argv, *, env, cwd, timeout) -> dict:
-    """One case, run as a real subprocess. The heart of the standalone half."""
+    """One case, run as a real subprocess. The heart of the standalone half.
+
+    ``stdin`` is :data:`subprocess.DEVNULL`, not the recorder's own. A CLI with an
+    interactive path -- a REPL entered when a query is omitted, a ``confirm()`` prompt --
+    reads stdin, and inheriting the recorder's makes the *recording itself* depend on where
+    it was run: at a terminal the child blocks on a prompt nobody answers and the case is
+    recorded as a timeout, while under CI or pytest the same case sees an immediate EOF and
+    records the real behaviour. A golden is a claim about a CLI, so it must not be a claim
+    about the console that recorded it; pinning stdin closed is the same measure as pinning
+    ``COLUMNS``, and it belongs for the same reason.
+    """
     try:
         done = subprocess.run(
             command + list(argv),
@@ -527,6 +546,7 @@ def _run_subprocess(command, argv, *, env, cwd, timeout) -> dict:
             env=env,
             cwd=cwd,
             timeout=timeout,
+            stdin=subprocess.DEVNULL,
         )
     except subprocess.TimeoutExpired:
         return {

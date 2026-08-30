@@ -9,6 +9,7 @@ import ast
 import io
 import json
 import os
+import pathlib
 import subprocess
 import sys
 import textwrap
@@ -401,6 +402,78 @@ class TestPinnedEnv:
             assert os.environ["_ARGCOMPLETE"] == "1"
         finally:
             os.environ.pop("_ARGCOMPLETE", None)
+
+
+class TestPinnedStdin:
+    """A recording must describe the CLI, not the console that recorded it.
+
+    A CLI with an interactive path -- grub drops into a REPL when the query is omitted,
+    `cw.confirm` asks a question -- reads stdin. If the recorded child inherits the
+    recorder's stdin, the *same case* records two different facts: at a terminal the child
+    blocks on a prompt nobody will answer and the case is recorded as a timeout, while
+    under CI or pytest it sees an immediate EOF and records the real behaviour. Then a
+    golden recorded in CI fails when a developer replays it locally, for a reason that has
+    nothing to do with the CLI.
+    """
+
+    READS_STDIN = (
+        'import sys\n'
+        'try:\n'
+        '    line = input("prompt> ")\n'
+        'except EOFError:\n'
+        '    line = "<EOF>"\n'
+        'print("read:", line)\n'
+    )
+
+    @pytest.fixture
+    def reads_stdin(self, tmp_path):
+        path = tmp_path / "reads_stdin.py"
+        path.write_text(self.READS_STDIN, encoding="utf-8")
+        return [sys.executable, str(path)]
+
+    def test_a_command_that_reads_stdin_records_eof_not_a_timeout(self, reads_stdin):
+        golden = testing.characterize(reads_stdin, [[]], timeout=10)
+        case = golden["cases"][0]
+        assert case["returncode"] == 0
+        assert "<EOF>" in case["stdout"]
+
+    def test_the_recording_does_not_depend_on_the_recorder_s_own_stdin(
+        self, reads_stdin, tmp_path
+    ):
+        """Record the same case twice, under two different stdins, and compare."""
+        driver = tmp_path / "driver.py"
+        driver.write_text(
+            "import json, sys\n"
+            f"sys.path.insert(0, {str(pathlib.Path(testing.__file__).parent.parent)!r})\n"
+            "from cw import testing\n"
+            f"golden = testing.characterize({reads_stdin!r}, [[]], timeout=10)\n"
+            "print(json.dumps(golden['cases'][0]))\n",
+            encoding="utf-8",
+        )
+
+        def record_with(stdin):
+            done = subprocess.run(
+                [sys.executable, str(driver)],
+                stdin=stdin,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            assert done.returncode == 0, done.stderr
+            return json.loads(done.stdout)
+
+        # An open pipe nobody writes to is what a terminal looks like to the child.
+        read_fd, write_fd = os.pipe()
+        try:
+            from_terminal = record_with(read_fd)
+        finally:
+            os.close(read_fd)
+            os.close(write_fd)
+        with open(os.devnull, "rb") as devnull:
+            from_devnull = record_with(devnull)
+
+        assert from_terminal == from_devnull
+        assert from_terminal["returncode"] == 0
 
 
 class TestExitStatus:
