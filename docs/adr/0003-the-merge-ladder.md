@@ -18,13 +18,13 @@ unclosed hole in the thing everything else sits on.
 def update(self, other):
     for name in other.cli_arg_names:
         if name not in self.cli_arg_names:
-            self.cli_arg_names.append(name)        # APPEND if absent
+            self.cli_arg_names.append(name)  # APPEND if absent
     if other.is_required != NotDefined:
-        self.is_required = other.is_required       # only if defined
+        self.is_required = other.is_required  # only if defined
     if other.default_value != NotDefined:
-        self.default_value = other.default_value   # only if defined
+        self.default_value = other.default_value  # only if defined
     if other.nargs:
-        self.nargs = other.nargs                   # only if TRUTHY
+        self.nargs = other.nargs  # only if TRUTHY
     if other.completer:
         self.completer = other.completer
     self.other_add_parser_kwargs.update(other.other_add_parser_kwargs)
@@ -50,18 +50,18 @@ carry annotations argh currently ignores.
 `cw.grammar.ArgSpec.update` is four rules, none of which is `dict.update`:
 
 ```python
-for flag in other.flags:                 # APPEND, never replace
+for flag in other.flags:  # APPEND, never replace
     if flag not in self.flags:
         self.flags.append(flag)
-if other.required is not MISSING:        # only when the override HAS one
+if other.required is not MISSING:  # only when the override HAS one
     self.required = other.required
 if other.default is not MISSING:
     self.default = other.default
-if other.nargs:                          # only when TRUTHY
+if other.nargs:  # only when TRUTHY
     self.nargs = other.nargs
 if other.codec is not None:
     self.codec = other.codec
-self.extra.update(other.extra)           # everything else
+self.extra.update(other.extra)  # everything else
 ```
 
 `cw.MISSING` plays argh's `NotDefined` role, which is why `required=False` and

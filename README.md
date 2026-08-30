@@ -3,11 +3,13 @@
 ```python
 import cw
 
+
 def greet(name, *, loudly=False):
     """Say hello to someone."""
-    return f'HELLO {name}' if loudly else f'hello {name}'
+    return f"HELLO {name}" if loudly else f"hello {name}"
 
-raise SystemExit(cw.dispatch(greet))          # that is the whole CLI
+
+raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
 ```
 
 ```console
@@ -58,16 +60,19 @@ or iterable value is a group**:
 ```python
 import cw
 
+
 def add(a: int, b: int):
     """Add two numbers."""
     return a + b
 
-def ls(path='.', *, long=False):
-    """List a directory."""
-    return [f'{path}/one', f'{path}/two']
 
-COMMANDS = {'add': add, 'list': ls, 'git-ops': {'add': add}}
-raise SystemExit(cw.dispatch(COMMANDS, prog='tool'))
+def ls(path=".", *, long=False):
+    """List a directory."""
+    return [f"{path}/one", f"{path}/two"]
+
+
+COMMANDS = {"add": add, "list": ls, "git-ops": {"add": add}}
+raise SystemExit(cw.dispatch(COMMANDS, prog="tool"))
 ```
 
 ```console
@@ -130,10 +135,10 @@ command line. Its leaves are `add_argument` keyword arguments:
 
 ```python
 CONFIG = {
-    'path': {'help': 'the directory to list', 'metavar': 'DIR'},
-    'long': {'flags': ['-l', '--long'], 'help': 'one line per entry'},
+    "path": {"help": "the directory to list", "metavar": "DIR"},
+    "long": {"flags": ["-l", "--long"], "help": "one line per entry"},
 }
-cw.dispatch(ls, config=CONFIG, prog='ls')
+cw.dispatch(ls, config=CONFIG, prog="ls")
 ```
 
 ```console
@@ -219,7 +224,8 @@ no third value and no `Convention(...)` you are expected to build; if you want o
 
 ```python
 import functools, cw
-dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog='mytool')
+
+dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog="mytool")
 ```
 
 **One `ARGH` behaviour worth knowing before it surprises you:** under `cw.ARGH`, *any*

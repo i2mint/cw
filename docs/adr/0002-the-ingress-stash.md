@@ -50,7 +50,7 @@ extra namespace entry under that key, holding a frozen `_Stash`:
 @dataclass(frozen=True)
 class _Stash:
     convention: Convention
-    func: Optional[Callable] = None      # None on a parser that only holds subcommands
+    func: Optional[Callable] = None  # None on a parser that only holds subcommands
     ingress: Optional[Callable] = None
     config: Optional[Mapping] = None
 ```
@@ -84,9 +84,9 @@ mentioning neither cw nor the parameter. `cw.HIDE` is the documented workaround.
 the stash's". Resolution order, in `run`:
 
 ```python
-stash = parser.get_default(RESERVED_DEST)          # the top parser's
-stash = getattr(namespace, RESERVED_DEST, None) or stash   # the CHOSEN subcommand's wins
-convention = convention or stash.convention        # run's keyword wins over both
+stash = parser.get_default(RESERVED_DEST)  # the top parser's
+stash = getattr(namespace, RESERVED_DEST, None) or stash  # the CHOSEN subcommand's wins
+convention = convention or stash.convention  # run's keyword wins over both
 egress = egress if egress is not None else convention.egress
 ```
 

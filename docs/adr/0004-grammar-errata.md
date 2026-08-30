@@ -19,9 +19,7 @@ the boundary between cw's vocabulary and argparse's, where "obviously equivalent
 argh (`assembling.py:669-672`):
 
 ```python
-subsubparser = subparsers_action.add_parser(
-    group_name, help=group_kwargs.get("title")
-)
+subsubparser = subparsers_action.add_parser(group_name, help=group_kwargs.get("title"))
 subparsers_action = subsubparser.add_subparsers(**group_kwargs)
 ```
 
@@ -139,8 +137,11 @@ column, and D2's promise is that `MODERN` is an *improvement*.
 argparse names it:
 
 ```python
-cw.dispatch(COMMANDS, convention=cw.MODERN,
-            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+cw.dispatch(
+    COMMANDS,
+    convention=cw.MODERN,
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+)
 ```
 
 ## Consequences
