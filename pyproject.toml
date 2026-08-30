@@ -12,10 +12,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 keywords = []
 authors = []
-dependencies = [
-    "i2",
-    "argh",
-]
+dependencies = []
 
 [project.license]
 text = "MIT"
@@ -24,6 +21,12 @@ text = "MIT"
 Homepage = "https://github.com/i2mint/cw"
 
 [project.optional-dependencies]
+resource = [
+    "i2",
+]
+completion = [
+    "argcomplete>=3",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -76,7 +79,9 @@ convention = "google"
 minversion = "6.0"
 testpaths = [
     "tests",
+    "cw",
 ]
+addopts = "--doctest-modules"
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "ELLIPSIS",

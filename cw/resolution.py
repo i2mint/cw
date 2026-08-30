@@ -424,7 +424,30 @@ from functools import partial
 from typing import Dict, Any, Optional, Union
 from collections.abc import Callable
 from cw.resolution import resolve_to_function
-from i2.wrapper import Ingress, wrap
+
+
+def _i2_wrapper():
+    """Import ``i2.wrapper``'s ``Ingress`` and ``wrap``, lazily.
+
+    ``i2`` is the only third-party dependency ``cw`` has, it is used by exactly one
+    function (:func:`resource_inputs`), and importing it costs ~35 ms. Keeping the
+    import here is what makes ``import cw`` stdlib-only -- which is load-bearing for
+    the repos that ship their CLI as an optional extra to keep the base install thin.
+
+    Returns:
+        The ``(Ingress, wrap)`` pair from :mod:`i2.wrapper`.
+
+    Raises:
+        ImportError: with the install command, when ``i2`` is not available.
+    """
+    try:
+        from i2.wrapper import Ingress, wrap
+    except ImportError as error:
+        raise ImportError(
+            "cw.resource_inputs needs the optional 'i2' dependency. "
+            "Install it with:  pip install 'cw[resource]'  (or:  pip install i2)"
+        ) from error
+    return Ingress, wrap
 
 
 def _resolve_resource_spec(resource_spec, default_ingress: Callable) -> Callable:
@@ -559,6 +582,8 @@ def resource_inputs(
 
     # Create the kwargs transformation function
     kwargs_trans = _create_resource_kwargs_trans(resource_resolvers)
+
+    Ingress, wrap = _i2_wrapper()
 
     # Create ingress using the Ingress class
     ingress = Ingress(
