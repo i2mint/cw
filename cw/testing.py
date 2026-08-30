@@ -57,9 +57,13 @@ every comparison normalises both sides, so a golden recorded on a Mac asserts cl
 Windows runner. The subprocess environment pins ``COLUMNS``, ``PYTHONUTF8``,
 ``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM``, and ``stdin`` is pinned closed, so
 the bytes are reproducible rather than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``
-line, because ``shlex`` is POSIX-only and a Windows user must never need it. And
-:func:`parity` spawns no subprocess at all -- it runs in-process against shipped fixtures --
-so the ``.exe`` console-script shim and the cp1252 console never enter the picture.
+line, because ``shlex`` is POSIX-only and a Windows user must never need it. The ``.exe``
+a console script is installed as on Windows is scrubbed out of recorded text by
+:func:`scrub_exe_suffix`, because ``argparse`` takes its ``prog`` from
+``basename(sys.argv[0])`` and would otherwise report ``usage: opsward.EXE`` on the runner
+and ``usage: opsward`` everywhere else. And :func:`parity` spawns no subprocess at all --
+it runs in-process against shipped fixtures -- so the console-script shim and the cp1252
+console never enter the picture there either.
 
     >>> normalise_text('a\\r\\nb\\r\\n')
     'a\\nb\\n'
@@ -92,6 +96,8 @@ __all__ = [
     "pinned_env",
     "read_cases",
     "replay",
+    "scrub_addresses",
+    "scrub_exe_suffix",
 ]
 
 #: Bumped when the golden JSON schema changes incompatibly. A golden that does not carry
@@ -264,6 +270,45 @@ def scrub_addresses(text: str) -> str:
     '<map object at 0xADDR>'
     """
     return _ADDRESS.sub("0xADDR", text) if text else text
+
+
+def scrub_exe_suffix(text: str, program: str) -> str:
+    """Strip Windows' ``.exe`` off the program name a CLI prints about itself.
+
+    ``argparse`` derives ``prog`` from ``os.path.basename(sys.argv[0])``, and on Windows a
+    console script is installed as ``opsward.exe``. So the *same* CLI, at the same commit,
+    reports ``usage: opsward ...`` on a Mac and ``usage: opsward.EXE ...`` on a Windows
+    runner -- and every case that prints a usage line or an error prefix differs. That is a
+    fact about packaging, not about the command line, and this module promises that "a
+    golden recorded on a Mac asserts cleanly on a Windows runner".
+
+    Only the *program's own* stem is rewritten, so a CLI that talks about some other
+    ``.exe`` is left alone. The match is case-insensitive because the shim's extension is
+    reported as ``.EXE`` on some Windows configurations and ``.exe`` on others -- which
+    would otherwise make two Windows runners disagree with each other.
+
+    Both path separators are handled, and the replacement is a function rather than a
+    template string, because a Windows path reaches this on a POSIX host -- through a
+    golden's recorded ``prog`` -- where ``os.path.basename`` does not split on a backslash
+    and ``re.sub`` would read the remaining ``\\p`` as a bad escape.
+
+    >>> scrub_exe_suffix('usage: opsward.EXE [-h]', r'C:\\Scripts\\opsward.exe')
+    'usage: opsward [-h]'
+    >>> scrub_exe_suffix('usage: opsward [-h]', '/usr/local/bin/opsward')
+    'usage: opsward [-h]'
+    >>> scrub_exe_suffix('run setup.exe first', '/usr/local/bin/opsward')
+    'run setup.exe first'
+    """
+    if not text or not program:
+        return text
+    stem = re.split(r"[\\/]", program)[-1]
+    if stem[-4:].lower() == ".exe":
+        stem = stem[:-4]
+    if not stem:
+        return text
+    return re.sub(
+        re.escape(stem) + r"\.exe\b", lambda _match: stem, text, flags=re.IGNORECASE
+    )
 
 
 def _usage_of(stdout: str, stderr: str) -> str:
@@ -554,10 +599,11 @@ def _run_subprocess(command, argv, *, env, cwd, timeout) -> dict:
             "stdout": "",
             "stderr": f"cw.testing: timed out after {timeout}s\n",
         }
+    program = command[0] if command else ""
     return {
         "returncode": done.returncode,
-        "stdout": normalise_text(done.stdout),
-        "stderr": normalise_text(done.stderr),
+        "stdout": scrub_exe_suffix(normalise_text(done.stdout), program),
+        "stderr": scrub_exe_suffix(normalise_text(done.stderr), program),
     }
 
 
