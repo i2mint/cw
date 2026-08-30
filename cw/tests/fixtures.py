@@ -46,6 +46,7 @@ covered by nothing.
 """
 
 import functools
+from typing import Literal
 
 __all__ = [
     "SHAPES",
@@ -893,6 +894,20 @@ def list_formats():
     return ["annot", "csv", "json"]
 
 
+# `convert_tree` below is a hyphenated positional that ALSO carries `choices` -- a shape
+# both corpora were structurally blind to until an adversarial review found it. argparse
+# reads a positional's registered name twice: as the displayed name in `usage:` and
+# `--help`, and as the name in `error: argument ...`. A synthesised `metavar` wins only the
+# second reading, so cw's old `add_argument('source_dir', metavar='source-dir')` printed
+# `source-dir` where argh prints `{annots,csvs}` -- with an identical error message, which
+# is why no error-level case could see it. Every `choices` case in both corpora was on an
+# OPTION, and every `Literal` positional had a one-word name. Keep the docstring short:
+# argh renders the RAW docstring into the parent's command listing.
+def convert_tree(source_dir: Literal["annots", "csvs"], *, dry_run=False):
+    """Convert a whole tree of annotation files."""
+    return f"convert_tree({source_dir!r}, dry_run={dry_run!r})"
+
+
 LACING = Shape(
     "lacing",
     prog="lacing",
@@ -901,15 +916,16 @@ LACING = Shape(
         "A quoted annotation -- `to_version: 'int | None'` -- is read raw and matches "
         "nothing, so the value arrives as a str and `repr` shows the quotes. This is live "
         "in ~32 fleet files. Under cw.MODERN it would resolve to int; under cw.ARGH, which "
-        "is the default and what parity asserts, it must NOT."
+        "is the default and what parity asserts, it must NOT. `convert-tree` adds the "
+        "hyphenated-positional-with-choices shape that both corpora were blind to."
     ),
     rows=(1, 13, 16),
-    cw_obj=[migrate, convert, list_formats],
+    cw_obj=[migrate, convert, list_formats, convert_tree],
     cw_kwargs={"description": "Annotation store tooling."},
     argh_build=lambda argh, argparse: _subcommands(
         argh,
         argparse,
-        [migrate, convert, list_formats],
+        [migrate, convert, list_formats, convert_tree],
         prog="lacing",
         description="Annotation store tooling.",
     ),
@@ -925,6 +941,13 @@ LACING = Shape(
         # A list return iterates, one line each -- row 16, the egress whitelist.
         ["list-formats"],
         ["migrate"],
+        # The hyphenated-positional-with-choices shape. The `--help` case is the one that
+        # bites: a metavar-based dest repair prints `source-dir` where argh prints
+        # `{annots,csvs}`, and the two error cases below stay identical either way.
+        ["convert-tree", "--help"],
+        ["convert-tree", "annots"],
+        ["convert-tree", "zzz"],
+        ["convert-tree"],
     ],
 )
 

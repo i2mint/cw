@@ -266,6 +266,46 @@ hi
 0
 ```
 
+**Grow a parser one group at a time.** The shape `t/priv` and `i/wads` use — a parser
+object, then repeated `add_commands` — is `cw.add_commands`, and it is the only way to pass
+per-group `add_subparsers` keywords such as `title`:
+
+```python
+>>> parser = cw.mk_parser([], prog='priv')
+>>> def status(): "Say how things are."
+>>> _ = cw.add_commands(parser, [status], group_name='git_ops',
+...                     group_kwargs={'title': 'Git operations'})
+>>> cw.run(parser, ['git_ops', 'status'])
+0
+```
+
+`cw.mk_parser([], prog=...)` is the empty-parser seed. A plain `argparse.ArgumentParser()`
+works too and renders identically — `add_commands` gives every subparser
+`cw.ArghHelpFormatter` when the parent still carries argparse's stock one, which is exactly
+what argh does — but then the *root* parser's own `--help` uses argparse's formatter, again
+exactly as under argh. Pass `formatter_class=cw.ArghHelpFormatter` yourself if you want the
+root to match too.
+
+`dispatch({'archive': {...}})` has no channel for `group_kwargs`; a group declared that way
+gets an empty listing row where argh printed its `title`. Use `mk_parser` + `add_commands` +
+`run` when you need one ([#31](https://github.com/i2mint/cw/issues/31)).
+
+**A mapping value must be the commands, not the factory that returns them.** A callable
+value is always a *command*, because there is no way to tell a zero-argument factory from a
+command that takes no arguments — so write the parentheses:
+
+```python
+>>> def dispatch_funcs():
+...     return [status]
+>>> list(cw.commands_from({'git_ops': dispatch_funcs()}))     # a GROUP
+['git_ops']
+>>> list(cw.commands_from({'git_ops': dispatch_funcs}))       # a COMMAND
+['git-ops']
+```
+
+Note the hyphen in the second one: `{'git_ops': dispatch_funcs}` — no parentheses — gives
+you a *command* called `git-ops` that prints the reprs of the group's members, exit 0.
+
 **Capture the output.** `out=` and `err=` are plain parameters resolved at *call* time, so a
 test can pass a `StringIO` — something an `argh` CLI cannot do, because argh binds
 `output_file=sys.stdout` in a signature default:
@@ -340,11 +380,17 @@ decided to live here for a while. Declare the dependency as:
 dependencies = ["cw>=0.1,<0.2"]
 ```
 
-**Before you do it, grep for `from argh import CommandError`.** A module that imported the
-*name* rather than the module still imports argh after the one-line change, and cw will not
-catch an exception class it has never heard of — `CommandError: boom` / exit 1 becomes an
-unhandled traceback. The shim structurally cannot fix this one; it is the single
-highest-value line on the checklist.
+**Grep for three import forms before you do it.** The one-line change rewrites `import
+argh`; it cannot rewrite a name or a submodule somebody imported directly.
+
+| grep for | why it breaks | write instead |
+|---|---|---|
+| `from argh import CommandError` | the module still imports argh, and cw will not catch an exception class it has never heard of — `CommandError: boom` / exit 1 becomes an unhandled traceback. **The shim structurally cannot fix this one**; it is the single highest-value line on the checklist. | `from cw import CommandError` |
+| `from argh.assembling import NameMappingPolicy` | `cw.compat` is a module, not a package, so there is no `cw.compat.assembling` | `from cw.compat import NameMappingPolicy` |
+| `argh.interaction.confirm` | same reason — there is no `interaction` namespace | `argh.confirm` (i.e. `cw.confirm`) |
+
+Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
+startup failure rather than a silent change.
 
 **Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes
 `cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`'s
@@ -358,7 +404,16 @@ and replays it after:
 python -m cw.testing characterize 'mytool' --cases ./cases.txt -o before.json
 # on the new
 python -m cw.testing replay before.json --prog 'mytool'
+# ... and, when the migration promised --help would not move:
+python -m cw.testing replay before.json --prog 'mytool' --strict-help
+python -m cw.testing diff-help before.json --prog 'mytool'   # read it, do not assert it
 ```
+
+`replay` asserts the exit code and both streams in full for every non-`--help` case, and the
+normalised `usage:` line for a `--help` one. A `--help` **body** that moved is reported as
+the non-fatal `help-differs` — never as `identical` — because a change of *formatter* moves
+only the help column and the description block and would otherwise be invisible.
+`--strict-help` makes it fatal; `diff-help` prints it for a human.
 
 The recording half **imports no `cw`** — it is one file you can copy into a repo that will
 never depend on cw, which is most of them.
@@ -376,7 +431,7 @@ Two things to expect, both argh's rules that cw reproduces:
 ```bash
 python -m cw specs 'mypkg.cli:main'    # what flags would this function get, and why?
 python -m cw help  'mypkg.cli:main'    # the --help cw would print for it
-python -m cw parity                    # cw's own migration gate, 8 shapes / 133 cases
+python -m cw parity                    # cw's own migration gate, 8 shapes / 137 cases
 ```
 
 `specs` is the one that earns its place day to day — it answers *"why did that parameter not

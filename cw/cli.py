@@ -39,6 +39,7 @@ import contextlib
 import dataclasses
 import functools
 import inspect
+import os
 import sys
 import warnings
 from collections.abc import Mapping
@@ -58,8 +59,20 @@ __all__ = [
     "add_commands",
     "set_default_command",
     "enable_completion",
+    "BoundKeywordWarning",
     "RESERVED_DEST",
 ]
+
+
+class BoundKeywordWarning(UserWarning):
+    """A ``functools.partial``'s pre-bound keyword is still exposed as a CLI option.
+
+    Its own category so that a repo which has decided the flag is fine can silence exactly
+    this warning without changing its CLI, and without silencing anything else::
+
+        warnings.filterwarnings('ignore', category=cw.BoundKeywordWarning)
+    """
+
 
 #: The one ``set_defaults`` key cw reserves on the parsers it builds. Everything a built
 #: parser needs to tell :func:`run` -- which function this subcommand is, how to call it,
@@ -69,6 +82,30 @@ RESERVED_DEST = "_cw"
 #: The exit code argparse itself uses for a usage error, and therefore the one :func:`run`
 #: reports when it catches one.
 USAGE_ERROR_CODE = 2
+
+#: cw keywords that are real, but not on *this* call. Without this, ``mk_parser(f,
+#: egress=...)`` reports that ``argparse.ArgumentParser`` has no such keyword and lists
+#: argparse's parameters -- true, and the least useful true thing to say. A seam is one
+#: keyword argument, but not every seam is on every entry point: ``egress`` runs after the
+#: call, so it belongs to :func:`run` and :func:`dispatch`, and ``decode`` shapes the
+#: parser, so it belongs to :func:`mk_parser`, :func:`dispatch` and :func:`add_commands`.
+SEAMS_ELSEWHERE = {
+    "egress": (
+        "cw's egress seam turns a return value into output, which happens when a command "
+        "runs -- so it is a keyword of cw.run and cw.dispatch, not of cw.mk_parser. To "
+        "bind it to a parser instead, put it on the convention: "
+        "convention=dataclasses.replace(cw.ARGH, egress=my_egress)."
+    ),
+    "ingress": (
+        "cw has no `ingress=` keyword. The namespace-to-call step is built from the "
+        "function's own signature (cw.ingress.mk_ingress); per-parameter conversion is "
+        "spelled config={'param': {'codec': ...}} or, for a whole convention, decode=."
+    ),
+}
+
+#: Set it to silence :class:`BoundKeywordWarning` for a console script that has nowhere to
+#: put a ``warnings.filterwarnings`` line. Named to rhyme with ``CW_COMPAT_QUIET``.
+QUIET_ENV = "CW_QUIET"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -83,6 +120,9 @@ class _Stash:
     func: Optional[Callable] = None
     ingress: Optional[Callable] = None
     config: Optional[Mapping] = None
+    #: ``{argparse dest: python parameter name}``, for the hyphenated positionals argh
+    #: registers under a name no Python call can use. Empty for every other argument.
+    renames: Mapping[str, str] = dataclasses.field(default_factory=dict)
 
 
 # --------------------------------------------------------------------------------------
@@ -98,6 +138,11 @@ def _new_parser(convention: Convention, parser_kwargs: dict) -> argparse.Argumen
     ``TypeError`` that never mentions cw.
     """
     parser_kwargs.setdefault("formatter_class", ArghHelpFormatter)
+    misplaced = sorted(set(parser_kwargs) & set(SEAMS_ELSEWHERE))
+    if misplaced:
+        raise TypeError(
+            "; ".join(f"{name}: {SEAMS_ELSEWHERE[name]}" for name in misplaced)
+        )
     try:
         return argparse.ArgumentParser(**parser_kwargs)
     except TypeError as exc:
@@ -113,7 +158,42 @@ def _new_parser(convention: Convention, parser_kwargs: dict) -> argparse.Argumen
         ) from exc
 
 
-def _warn_bound_keywords(func: Any, specs) -> None:
+def _child_formatter(formatter_class) -> type:
+    """The formatter every subparser gets, given the one its parent carries.
+
+    argh hands ``PARSER_FORMATTER`` to every subparser it creates -- *unconditionally*,
+    even under a plain ``argparse.ArgumentParser`` whose own formatter it leaves alone
+    (verified against argh 0.31.3). So ``argparse.ArgumentParser() + add_commands`` gives
+    argh-looking subcommands and a stock root, and cw must do the same or the one-line
+    migration changes ``--help`` for every repo that holds a parser object: a ``None``
+    default printing ``None`` instead of ``-``, a string default losing its quotes, and a
+    multi-paragraph docstring reflowed into one.
+
+    cw promotes only the *stock* formatter rather than overriding unconditionally, so an
+    explicit ``formatter_class=`` still means what it says. The root parser is never
+    touched here -- :func:`mk_parser` defaults it at construction, ``ArghParser.__init__``
+    defaults it for the 27 fleet call sites that use it, and a parser somebody else built
+    keeps whatever they gave it, exactly as under argh.
+    """
+    return (
+        ArghHelpFormatter
+        if formatter_class is argparse.HelpFormatter
+        else formatter_class
+    )
+
+
+def _func_label(func: Any) -> str:
+    """A stable, address-free name for ``func``, partials included.
+
+    ``repr(functools.partial(f))`` embeds ``f``'s hex ``id()``, which makes any message
+    built from it differ on every run -- unusable in a golden, and noise in a warning.
+    """
+    if isinstance(func, functools.partial):
+        return f"functools.partial({_func_label(func.func)})"
+    return getattr(func, "__name__", None) or type(func).__name__
+
+
+def _warn_bound_keywords(func: Any, specs, *, command: Optional[str] = None) -> None:
     """Warn about a ``functools.partial``'s pre-bound keyword that is still a CLI flag.
 
     :func:`inspect.signature` keeps a partial's bound keyword (Python moves it to
@@ -123,18 +203,34 @@ def _warn_bound_keywords(func: Any, specs) -> None:
     A warning names the leak and the one line that closes it.
 
     It reads the finished ``specs`` rather than the signature, so that hiding the keyword
-    silences the warning -- a warning you cannot act on is noise.
+    silences the warning -- a warning you cannot act on is noise. Three further properties
+    matter, because this fires on *every* invocation of a CLI that has such a command,
+    ``--help`` included:
+
+    * it names the **command** whose config key would close it, not a ``'<command>'``
+      placeholder, so the suggested line can be pasted;
+    * it carries no ``id()``, so the text is the same on every run; and
+    * it is a :class:`BoundKeywordWarning`, so a repo that has decided the flag is fine can
+      silence exactly this one -- ``warnings.filterwarnings('ignore',
+      category=cw.BoundKeywordWarning)``, or :data:`QUIET_ENV` for a console script that
+      has nowhere to put that line -- **without** changing its CLI. Hiding the parameter
+      also silences it, but that removes a flag argh exposed, which is not the same thing.
     """
-    if not isinstance(func, functools.partial):
+    if not isinstance(func, functools.partial) or os.environ.get(QUIET_ENV):
         return
     bound = set(func.keywords or ())
     for spec in specs:
         if spec.param_name in bound:
+            key = (
+                f"{{{command!r}: {{{spec.param_name!r}: cw.HIDE}}}}"
+                if command is not None
+                else f"{{{spec.param_name!r}: cw.HIDE}}"
+            )
             warnings.warn(
-                f"{func!r}: the pre-bound keyword {spec.param_name!r} is still exposed "
-                f"as a command-line option. Hide it with "
-                f"config={{'<command>': {{{spec.param_name!r}: cw.HIDE}}}}",
-                UserWarning,
+                f"{_func_label(func)}: the pre-bound keyword {spec.param_name!r} is "
+                f"still exposed as a command-line option. Hide it with config={key}, or "
+                f"silence this with {QUIET_ENV}=1 to keep the flag.",
+                BoundKeywordWarning,
                 stacklevel=4,
             )
 
@@ -146,6 +242,7 @@ def set_default_command(
     *,
     config: Optional[Mapping] = None,
     convention: Convention = ARGH,
+    command: Optional[str] = None,
 ) -> argparse.ArgumentParser:
     """Bind one function to ``parser``: add its arguments, and stash how to call it.
 
@@ -167,29 +264,40 @@ def set_default_command(
 
     The function's docstring becomes the parser's description, unless the parser already
     has one -- argh's rule, and it is what lets ``description=`` override it.
+
+    ``command`` is the command word this function is bound to, when there is one. It is used
+    only in messages -- it is what lets the ``functools.partial`` warning print the
+    ``config`` key you would actually paste rather than a ``'<command>'`` placeholder -- so
+    a caller binding a single command has no reason to pass it.
     """
     specs = specs_for_function(
         func, convention=convention, config=config, parser_adds_help=parser.add_help
     )
-    _warn_bound_keywords(func, specs)
+    _warn_bound_keywords(func, specs, command=command)
     for spec in specs:
         if spec.param_name == RESERVED_DEST:
             raise GrammarError(
-                f"{getattr(func, '__name__', func)}: the parameter {RESERVED_DEST!r} "
+                f"{_func_label(func)}: the parameter {RESERVED_DEST!r} "
                 "collides with the namespace key cw reserves for its own use. Rename the "
                 "parameter, or hide it with cw.HIDE."
             )
         args, kwargs = spec.add_argument_args()
         try:
-            parser.add_argument(*args, **kwargs)
-        except argparse.ArgumentError as exc:
-            raise GrammarError(
-                f"{getattr(func, '__name__', func)}: cannot add {spec.param_name!r} as "
-                f"{'/'.join(spec.flags)}: {exc}"
-            ) from exc
+            action = parser.add_argument(*args, **kwargs)
+        except Exception as exc:
+            raise GrammarError(_cannot_add(func, spec, exc)) from exc
+        if spec.completer is not None:
+            # argcomplete reads it off the action, which is why it cannot be an
+            # add_argument keyword. argh assigns it in the same place.
+            action.completer = spec.completer
     if not parser.description:
         parser.description = inspect.getdoc(func)
     codecs = {spec.param_name: spec.codec for spec in specs if spec.codec is not None}
+    renames = {
+        spec.argparse_dest: spec.param_name
+        for spec in specs
+        if spec.argparse_dest != spec.param_name
+    }
     _stash(
         parser,
         _Stash(
@@ -197,9 +305,33 @@ def set_default_command(
             func=func,
             ingress=mk_ingress(func, codecs=codecs),
             config=config,
+            renames=renames,
         ),
     )
     return parser
+
+
+def _cannot_add(func: Any, spec, exc: Exception) -> str:
+    """The message for an ``add_argument`` call argparse refused.
+
+    argparse says ``no`` in three different exception types and none of the messages names
+    the function, the parameter or the flags -- ``ValueError: dest= is required for options
+    like '---pool'`` is the whole of what a user sees otherwise. argh wraps all of them
+    (``AssemblingError: {func}: cannot add {param} as {flags}: {reason}``) and cw must not
+    be *worse* than the library it replaces at the one moment a migration goes wrong.
+
+    The leading-underscore case gets an extra sentence, because it is a reproduced argh
+    footgun with a documented one-line fix that the raw message cannot mention.
+    """
+    flags = "/".join(spec.flags)
+    message = f"{_func_label(func)}: cannot add {spec.param_name!r} as {flags}: {exc}"
+    if any(flag.startswith("---") or flag == "--" for flag in spec.flags):
+        message += (
+            f". A parameter named {spec.param_name!r} starts with an underscore, which "
+            "argh -- and therefore cw -- hyphenates into an unusable flag. Hide it with "
+            f"config={{{spec.param_name!r}: cw.HIDE}} (it keeps its default), or rename it."
+        )
+    return message
 
 
 def _stash(parser: argparse.ArgumentParser, stash: _Stash) -> None:
@@ -231,7 +363,9 @@ def _add_command(
     command_parser = subparsers.add_parser(
         name, help=func.__doc__, formatter_class=formatter_class
     )
-    set_default_command(command_parser, func, config=config, convention=convention)
+    set_default_command(
+        command_parser, func, config=config, convention=convention, command=name
+    )
 
 
 def _add_group(
@@ -380,7 +514,7 @@ def mk_parser(
             commands_from(obj, convention=convention),
             config=config or {},
             convention=convention,
-            formatter_class=parser.formatter_class,
+            formatter_class=_child_formatter(parser.formatter_class),
         )
     return parser
 
@@ -429,7 +563,7 @@ def add_commands(
             tree,
             config=config,
             convention=convention,
-            formatter_class=parser.formatter_class,
+            formatter_class=_child_formatter(parser.formatter_class),
         )
         return parser
     _check_config_keys(tree, config, what="command")
@@ -439,7 +573,7 @@ def add_commands(
         tree,
         config=config,
         convention=convention,
-        formatter_class=parser.formatter_class,
+        formatter_class=_child_formatter(parser.formatter_class),
         group_kwargs=group_kwargs,
     )
     return parser
@@ -628,8 +762,11 @@ def run(
 
 def _call_args(stash: _Stash, namespace, *, config, convention) -> tuple:
     """``(args, kwargs)`` for the stashed command, from the parsed namespace."""
+    renames = stash.renames or {}
     values = {
-        name: value for name, value in vars(namespace).items() if name != RESERVED_DEST
+        renames.get(name, name): value
+        for name, value in vars(namespace).items()
+        if name != RESERVED_DEST
     }
     ingress = stash.ingress
     if config is not None:

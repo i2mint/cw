@@ -6,6 +6,7 @@ change -- a negative control, not a description.
 """
 
 import dataclasses
+import enum
 import io
 import pathlib
 
@@ -158,3 +159,58 @@ def test_convention_imports_no_argparse():
     """It has no formatter reference to place, which is what makes the guard honest."""
     source = pathlib.Path(cw.convention.__file__).read_text()
     assert "import argparse" not in source
+
+
+# =======================================================================================
+# MODERN's Enum support advertises what it accepts
+# =======================================================================================
+
+
+class TestModernEnumChoices:
+    """The help column must not advertise tokens the converter rejects.
+
+    `choices` has to hold the CONVERTED values -- argparse checks membership after `type=`
+    runs -- so it holds Enum members, which render as `{Col.RED,Col.BLUE}`. Those are
+    exactly the strings the converter does *not* accept. `metavar` decides what is
+    displayed, so it carries the member names.
+    """
+
+    class Colour(enum.Enum):
+        RED = "r"
+        BLUE = "b"
+
+    @staticmethod
+    def paint(*, colour=None):
+        """Paint."""
+        return colour
+
+    def _parser(self):
+        def paint(*, colour: TestModernEnumChoices.Colour = self.Colour.RED):
+            return colour
+
+        return cw.mk_parser(paint, convention=cw.MODERN, prog="p"), paint
+
+    def test_the_usage_line_shows_the_member_names(self):
+        parser, _ = self._parser()
+        assert "{RED,BLUE}" in parser.format_usage()
+
+    def test_and_a_displayed_token_round_trips(self):
+        _, paint = self._parser()
+        out = io.StringIO()
+        code = cw.dispatch(
+            paint, ["--colour", "RED"], out=out, convention=cw.MODERN, prog="p"
+        )
+        assert (code, out.getvalue()) == (0, "Colour.RED\n")
+
+    def test_a_value_still_works_too(self):
+        _, paint = self._parser()
+        assert (
+            cw.dispatch(
+                paint,
+                ["--colour", "b"],
+                standalone=False,
+                convention=cw.MODERN,
+                prog="p",
+            )
+            is self.Colour.BLUE
+        )

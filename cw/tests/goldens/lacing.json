@@ -4,9 +4,9 @@
       "argv": [],
       "returncode": 0,
       "stderr": "",
-      "stdout": "usage: lacing [-h] {migrate,convert,list-formats} ...\n",
+      "stdout": "usage: lacing [-h] {migrate,convert,list-formats,convert-tree} ...\n",
       "tier": 1,
-      "usage": "usage: lacing [-h] {migrate,convert,list-formats} ..."
+      "usage": "usage: lacing [-h] {migrate,convert,list-formats,convert-tree} ..."
     },
     {
       "argv": [
@@ -14,9 +14,9 @@
       ],
       "returncode": 0,
       "stderr": "",
-      "stdout": "usage: lacing [-h] {migrate,convert,list-formats} ...\n\nAnnotation store tooling.\n\npositional arguments:\n  {migrate,convert,list-formats}\n    migrate             Upgrade PATH to the current store schema, in place. Row 13: argh reads\n                        `__annotations__` raw, so this annotation is the STRING `'int | None'`,\n                        which is not in its if-chain. The guesser returns nothing, the default is\n                        None so the default-value path yields nothing either, and `to_version`\n                        arrives as a `str`. That is why lacing's own body says \"argh delivers\n                        option values as strings; coerce here\" -- and why the coercion may not be\n                        deleted until MODERN is opted into.\n    convert             Convert an annotation file between formats.\n    list-formats        List the annotation formats lacing understands.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stdout": "usage: lacing [-h] {migrate,convert,list-formats,convert-tree} ...\n\nAnnotation store tooling.\n\npositional arguments:\n  {migrate,convert,list-formats,convert-tree}\n    migrate             Upgrade PATH to the current store schema, in place. Row 13: argh reads\n                        `__annotations__` raw, so this annotation is the STRING `'int | None'`,\n                        which is not in its if-chain. The guesser returns nothing, the default is\n                        None so the default-value path yields nothing either, and `to_version`\n                        arrives as a `str`. That is why lacing's own body says \"argh delivers\n                        option values as strings; coerce here\" -- and why the coercion may not be\n                        deleted until MODERN is opted into.\n    convert             Convert an annotation file between formats.\n    list-formats        List the annotation formats lacing understands.\n    convert-tree        Convert a whole tree of annotation files.\n\noptions:\n  -h, --help            show this help message and exit\n",
       "tier": 3,
-      "usage": "usage: lacing [-h] {migrate,convert,list-formats} ..."
+      "usage": "usage: lacing [-h] {migrate,convert,list-formats,convert-tree} ..."
     },
     {
       "argv": [
@@ -100,6 +100,49 @@
       "stdout": "",
       "tier": 1,
       "usage": "usage: lacing migrate [-h] [-t TO_VERSION] path lacing migrate: error: the following arguments are required: path"
+    },
+    {
+      "argv": [
+        "convert-tree",
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: lacing convert-tree [-h] [-d] {annots,csvs}\n\nConvert a whole tree of annotation files.\n\npositional arguments:\n  {annots,csvs}  -\n\noptions:\n  -h, --help     show this help message and exit\n  -d, --dry-run  False\n",
+      "tier": 3,
+      "usage": "usage: lacing convert-tree [-h] [-d] {annots,csvs}"
+    },
+    {
+      "argv": [
+        "convert-tree",
+        "annots"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "convert_tree('annots', dry_run=False)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "convert-tree",
+        "zzz"
+      ],
+      "returncode": 2,
+      "stderr": "usage: lacing convert-tree [-h] [-d] {annots,csvs}\nlacing convert-tree: error: argument source-dir: invalid choice: 'zzz' (choose from annots, csvs)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: lacing convert-tree [-h] [-d] {annots,csvs} lacing convert-tree: error: argument source-dir: invalid choice: 'zzz' (choose from annots, csvs)"
+    },
+    {
+      "argv": [
+        "convert-tree"
+      ],
+      "returncode": 2,
+      "stderr": "usage: lacing convert-tree [-h] [-d] {annots,csvs}\nlacing convert-tree: error: the following arguments are required: source-dir\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: lacing convert-tree [-h] [-d] {annots,csvs} lacing convert-tree: error: the following arguments are required: source-dir"
     }
   ],
   "cw_golden": 1,
@@ -114,7 +157,7 @@
   "models": "t/lacing",
   "newlines": "lf",
   "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
-  "pins": "A quoted annotation -- `to_version: 'int | None'` -- is read raw and matches nothing, so the value arrives as a str and `repr` shows the quotes. This is live in ~32 fleet files. Under cw.MODERN it would resolve to int; under cw.ARGH, which is the default and what parity asserts, it must NOT.",
+  "pins": "A quoted annotation -- `to_version: 'int | None'` -- is read raw and matches nothing, so the value arrives as a str and `repr` shows the quotes. This is live in ~32 fleet files. Under cw.MODERN it would resolve to int; under cw.ARGH, which is the default and what parity asserts, it must NOT. `convert-tree` adds the hyphenated-positional-with-choices shape that both corpora were blind to.",
   "prog": [
     "lacing"
   ],

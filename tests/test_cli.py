@@ -17,12 +17,13 @@ import io
 import pathlib
 import re
 import sys
+import warnings
 
 import pytest
 
 import cw
 from cw.cli import RESERVED_DEST, add_commands, enable_completion, set_default_command
-from cw.grammar import GrammarError
+from cw.grammar import ArgSpec, GrammarError
 
 
 def echo(word, *, loud=False):
@@ -476,3 +477,190 @@ def test_a_group_built_with_another_convention_keeps_it():
     out = io.StringIO()
     cw.run(parser, ["modern", "counted"], out=out)
     assert out.getvalue() == "0\n1\n"
+
+
+# =======================================================================================
+# add_argument failures name cw, the function and the parameter
+# =======================================================================================
+
+
+class TestAnAddArgumentFailureIsInformative:
+    """argparse refuses an argument in three different exception types.
+
+    None of its messages names the function, the parameter or the flags. argh wraps all of
+    them (`AssemblingError: {func}: cannot add {param} as {flags}: {reason}`), and cw must
+    not be *worse* than the library it replaces at the one moment a migration goes wrong.
+    Only `argparse.ArgumentError` was caught before, so `config=` -- a brand new surface
+    with no argh equivalent, and therefore the likeliest place to make a mistake -- raised
+    bare `ValueError`s and `TypeError`s.
+    """
+
+    @staticmethod
+    def leaf(alpha=1):
+        """A command."""
+
+    @pytest.mark.parametrize(
+        "leaf_config, underlying",
+        [
+            ({"bogus": 1}, TypeError),  # unknown add_argument keyword
+            ({"nargs": 2, "metavar": ("A",)}, ValueError),  # metavar/nargs mismatch
+            ({"action": "nope"}, ValueError),  # unknown action
+            ({"type": "notacallable"}, ValueError),  # non-callable type
+        ],
+    )
+    def test_every_argparse_refusal_is_wrapped(self, leaf_config, underlying):
+        with pytest.raises(cw.GrammarError) as error:
+            cw.mk_parser(self.leaf, config={"alpha": leaf_config}, prog="p")
+        message = str(error.value)
+        assert "leaf: cannot add 'alpha' as -a/--alpha" in message
+        assert isinstance(error.value.__cause__, underlying)
+
+    def test_a_duplicate_flag_is_wrapped_too(self):
+        """The `argparse.ArgumentError` case, which was the only one caught before."""
+
+        def two(pool=1, port=2): ...
+
+        with pytest.raises(cw.GrammarError) as error:
+            cw.mk_parser(
+                two, config={"port": {"flags": ["-p", "--port"]}}, prog="p"
+            ) if False else cw.mk_parser(
+                two,
+                config={"pool": {"flags": ["--pool"]}, "port": {"flags": ["--pool"]}},
+                prog="p",
+            )
+        assert "cannot add 'port'" in str(error.value)
+        assert isinstance(error.value.__cause__, argparse.ArgumentError)
+
+    def test_the_underscore_footgun_names_its_documented_fix(self):
+        """A leading-underscore parameter hyphenates into `--` / `---pool`, which argparse
+        rejects. cw reproduces that argh bug on purpose (D2), so the message has to carry
+        the workaround `cw.HIDE` that the grammar's docstring promises."""
+
+        def serve(host="0.0.0.0", _pool=4): ...
+
+        with pytest.raises(cw.GrammarError) as error:
+            cw.mk_parser(serve, prog="p")
+        message = str(error.value)
+        assert "serve: cannot add '_pool' as --/---pool" in message
+        assert "cw.HIDE" in message
+
+    def test_and_hiding_it_really_does_fix_it(self):
+        def serve(host="0.0.0.0", _pool=4):
+            return f"{host}/{_pool}"
+
+        assert (
+            cw.dispatch(
+                serve, [], config={"_pool": cw.HIDE}, standalone=False, prog="p"
+            )
+            == "0.0.0.0/4"
+        )
+
+
+class TestTheBoundKeywordWarning:
+    """A `functools.partial`'s pre-bound keyword still showing as a flag.
+
+    It fires on every invocation of a CLI that has one -- `--help` included -- so its text
+    is part of the product: it must name the command whose config key closes it, carry no
+    `id()` (which would make it differ every run), and be silenceable without changing the
+    CLI.
+    """
+
+    @staticmethod
+    def packages(project=None, *, config_type="setup.cfg"):
+        """Packages."""
+
+    @property
+    def bound(self):
+        return functools.partial(self.packages, config_type="setup.cfg")
+
+    def test_it_names_the_command_and_carries_no_address(self):
+        with pytest.warns(cw.BoundKeywordWarning) as caught:
+            cw.mk_parser({"packages-from-all": self.bound}, prog="p")
+        message = str(caught[0].message)
+        assert "config={'packages-from-all': {'config_type': cw.HIDE}}" in message
+        assert "0x" not in message
+        assert "packages" in message
+
+    def test_a_single_command_needs_no_command_key(self):
+        with pytest.warns(cw.BoundKeywordWarning) as caught:
+            cw.mk_parser(self.bound, prog="p")
+        assert "config={'config_type': cw.HIDE}" in str(caught[0].message)
+
+    def test_it_can_be_silenced_without_changing_the_parser(self, monkeypatch):
+        monkeypatch.setenv("CW_QUIET", "1")
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            parser = cw.mk_parser({"go": self.bound}, prog="p")
+        assert "--config-type" in _sub(parser, "go").format_help()
+
+    def test_filtering_the_category_works_too(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            warnings.filterwarnings("ignore", category=cw.BoundKeywordWarning)
+            cw.mk_parser({"go": self.bound}, prog="p")
+
+    def test_hiding_the_parameter_still_silences_it(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            parser = cw.mk_parser(
+                {"go": self.bound}, config={"go": {"config_type": cw.HIDE}}, prog="p"
+            )
+        assert "--config-type" not in _sub(parser, "go").format_help()
+
+
+class TestArgcompleteCompleters:
+    """`completer=` is argcomplete's per-argument hook, and not an `add_argument` keyword.
+
+    cw is argparse-based *specifically* so that argcomplete keeps working for the ten fleet
+    files marked `# PYTHON_ARGCOMPLETE_OK`; a shim through which those repos migrate must
+    be able to express a completer, and it used to raise a raw argparse `TypeError`.
+    """
+
+    def test_a_config_leaf_carries_it_to_the_action(self):
+        def serve(host="0.0.0.0"): ...
+
+        completer = lambda **kwargs: ["localhost"]  # noqa: E731
+        parser = cw.mk_parser(
+            serve, config={"host": {"completer": completer}}, prog="p"
+        )
+        assert parser._actions[-1].completer is completer
+
+    def test_it_is_not_passed_to_add_argument(self):
+        """The failure mode: `_StoreAction.__init__() got an unexpected keyword
+        argument 'completer'`, with no mention of cw anywhere in it."""
+        spec = ArgSpec("host", ["--host"], extra={})
+        spec.completer = print
+        assert "completer" not in spec.add_argument_kwargs()
+
+
+def _sub(parser, name):
+    """The subparser called ``name``."""
+    for action in parser._actions:
+        if isinstance(action, argparse._SubParsersAction):
+            return action.choices[name]
+    raise AssertionError(f"no subparser {name!r}")
+
+
+class TestASeamNamedOnTheWrongCall:
+    """`egress=` is a real seam; it is just not a `mk_parser` keyword.
+
+    ADR-0001 says each seam is one keyword argument, and it is -- but not every seam is on
+    every entry point, because `egress` runs after the call and `mk_parser` never calls
+    anything. Blaming argparse and listing argparse's parameters was true and useless.
+    """
+
+    def test_egress_on_mk_parser_names_the_right_call(self):
+        with pytest.raises(TypeError) as error:
+            cw.mk_parser(echo, egress=lambda *a, **k: 0)
+        message = str(error.value)
+        assert "cw.run and cw.dispatch" in message
+        assert "dataclasses.replace(cw.ARGH, egress=" in message
+
+    def test_ingress_says_there_is_no_such_keyword_anywhere(self):
+        with pytest.raises(TypeError) as error:
+            cw.mk_parser(echo, ingress=print)
+        assert "no `ingress=` keyword" in str(error.value)
+
+    def test_an_ordinary_typo_still_blames_argparse(self):
+        with pytest.raises(TypeError, match="argparse.ArgumentParser accepts"):
+            cw.mk_parser(echo, prgo="x")

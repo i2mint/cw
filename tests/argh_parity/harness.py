@@ -10,14 +10,18 @@ Two comparisons run on every corpus case:
   in order;
 * the rendered **`--help`** text, byte for byte, at a pinned terminal width.
 
-Exactly one divergence is normalised away, the one spec section 9.3 permits, and it is
-invisible to a user: argh registers a hyphenated positional as
-`add_argument('project-dir')`, giving a `dest` with a hyphen in it that no Python call can
-use, then repairs it downstream; cw registers
-`add_argument('project_dir', metavar='project-dir')`. `usage:`, `--help` and argparse's
-error messages come out identical, and `normalise_action` compares the name the user sees.
-Nothing else is forgiven -- `type`, `nargs`, `const`, `choices`, `default`, `required`,
-`help` and the action class are compared as they are.
+**Nothing is forgiven.** Every field is compared as it is -- `dest`, `metavar`, `type`,
+`nargs`, `const`, `choices`, `default`, `required`, `help` and the action class.
+
+This file used to forgive one divergence, the one spec section 9.3 permitted and asserted
+was invisible: argh registers a hyphenated positional as `add_argument('project-dir')`,
+giving a `dest` no Python call can use, and cw registered
+`add_argument('project_dir', metavar='project-dir')` instead. It was not invisible. argparse
+reads that one string twice -- as the displayed name AND as the name in `error: argument
+...` -- and a `metavar` wins only the second, so a hyphenated positional carrying `choices`
+printed `project-dir` where argh printed `{a,b}`. cw now registers the hyphenated name and
+renames the `dest` back on the way into the call, so there is no divergence left to forgive
+and this docstring is the only trace of it.
 """
 
 import argparse
@@ -35,8 +39,7 @@ from cw.grammar import specs_for_function
 HELP_COLUMNS = "100"
 
 #: Every ``argparse.Action`` field the diff looks at. ``dest`` and ``metavar`` are in the
-#: list on purpose: they are where the one permitted divergence shows up, and
-#: :func:`normalise_action` is the only place that is allowed to forgive it.
+#: list on purpose: they are where cw's one former divergence used to hide.
 ACTION_FIELDS = (
     "dest",
     "option_strings",
@@ -77,7 +80,7 @@ def cw_parser(func, *, convention=ARGH, config=None, prog="prog"):
 
 
 def normalise_action(action: argparse.Action) -> Dict[str, Any]:
-    """One action as a comparable dict, with the permitted divergences collapsed."""
+    """One action as a comparable dict. Nothing is collapsed; see the module docstring."""
     row = {
         "dest": action.dest,
         "option_strings": tuple(action.option_strings),
@@ -91,11 +94,6 @@ def normalise_action(action: argparse.Action) -> Dict[str, Any]:
         "choices": action.choices,
         "metavar": action.metavar,
     }
-    if not action.option_strings:
-        # Spec 9.3: a positional's CLI name is `dest` in argh and `metavar` in cw. Compare
-        # the name the user actually sees, which is what both spellings produce.
-        row["dest"] = (action.metavar or action.dest).replace("_", "-")
-        row["metavar"] = None
     return row
 
 

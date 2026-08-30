@@ -155,19 +155,38 @@ def test_parsed_values_match_argh(name, func, argv, expected):
         assert from_argh[key] == value, f"argh parsed {key}={from_argh[key]!r}"
 
 
-def test_hyphenated_positional_is_reachable_by_a_python_name():
-    """The permitted divergence, stated as a property rather than hidden by the diff.
+def test_hyphenated_positional_registers_exactly_as_argh_does():
+    """There is no permitted divergence here any more: the `dest`s are the same too.
 
-    argh's `dest` is `'project-dir'`, which no Python call can use; cw's is
-    `'project_dir'`, which is the parameter's own name. Both render `project-dir`.
+    cw used to register `add_argument('project_dir', metavar='project-dir')` to avoid a
+    `dest` no Python call can use. argparse reads that one string twice -- as the displayed
+    name AND as the name in its error messages -- and a `metavar` wins only the second,
+    which silently turned `{a,b}` into `project-dir` for a hyphenated positional carrying
+    `choices`. cw now registers the hyphenated name, exactly as argh does, and renames the
+    `dest` back on the way into the call.
     """
     argh_ns = vars(argh_parser(corpus.hyphenated_positional).parse_args(["here"]))
     argh_ns.pop("function")  # argh stashes the endpoint in the namespace; cw does not
     cw_ns = vars(cw_parser(corpus.hyphenated_positional).parse_args(["here"]))
     assert argh_ns == {"project-dir": "here", "dry_run": False}
-    assert cw_ns == {"project_dir": "here", "dry_run": False}
+    assert cw_ns == argh_ns
     assert "project-dir" in argh_parser(corpus.hyphenated_positional).format_usage()
     assert "project-dir" in cw_parser(corpus.hyphenated_positional).format_usage()
+
+
+def test_the_hyphenated_dest_is_renamed_back_before_the_call():
+    """...and the function still receives its argument under its own parameter name."""
+    import io
+
+    import cw
+
+    def quickstart(project_dir, *, dry_run=False):
+        return f"{project_dir}/{dry_run}"
+
+    assert cw.dispatch(quickstart, ["here"], standalone=False) == "here/False"
+    out = io.StringIO()
+    assert cw.dispatch(quickstart, ["here"], out=out) == 0
+    assert out.getvalue() == "here/False\n"
 
 
 def test_missing_positional_error_names_it_the_same_way():

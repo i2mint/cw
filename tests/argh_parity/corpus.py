@@ -210,6 +210,23 @@ def declared_extra_into_kwargs(alpha, **kwargs):
     """argh's rule: an override naming no parameter is legal iff `**kwargs` exists."""
 
 
+def hyphenated_positional_with_literal(project_dir: Literal["src", "dist"]):
+    """The case a `metavar`-based dest repair renders WRONG, in `usage:` and in `--help`.
+
+    argparse reads a positional's registered name twice -- as the displayed name and as the
+    name in `error: argument ...` -- and `metavar` wins only the second. So a hyphenated
+    positional carrying `choices` printed `project-dir` where argh printed `{src,dist}`,
+    with an identical error message, which is why no error-level test could see it. Both
+    corpora had `choices` on OPTIONS only, and every `Literal` positional had a one-word
+    name; this case is both at once.
+    """
+
+
+@declare("project_dir", choices=["src", "dist"])
+def hyphenated_positional_with_declared_choices(project_dir):
+    """The same shape reached through the decorator, with no annotation involved."""
+
+
 def many_parameters(
     pkg_dir=".",
     project_name="",
@@ -283,6 +300,11 @@ CASES = [
     Case("declared_falsy_nargs", declared_falsy_nargs),
     Case("declared_optional_positional", declared_optional_positional),
     Case("declared_extra_into_kwargs", declared_extra_into_kwargs),
+    Case("hyphenated_positional_with_literal", hyphenated_positional_with_literal),
+    Case(
+        "hyphenated_positional_with_declared_choices",
+        hyphenated_positional_with_declared_choices,
+    ),
     Case("many_parameters", many_parameters),
 ]
 

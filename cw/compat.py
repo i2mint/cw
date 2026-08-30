@@ -75,7 +75,7 @@ import warnings
 from typing import Any, Callable, Mapping, Optional
 
 import cw
-from cw.base import MISSING
+from cw.base import MISSING, ArghHelpFormatter
 from cw.cli import add_commands as _cw_add_commands
 from cw.cli import dispatch as _cw_dispatch
 from cw.cli import mk_parser as _cw_mk_parser
@@ -383,10 +383,29 @@ def arg(*flags: str, **add_argument_kwargs) -> Callable:
     ...     '''Start a project.'''
     >>> quickstart._cw['params']['ignore']
     {'nargs': '*', 'flags': ['-i', '--ignore']}
+
+    Two argh keywords are *not* ``add_argument`` keywords and are handled the way argh
+    handles them. ``dest=`` says which parameter a differently-spelt flag refers to
+    (``argh/decorators.py:143-146``), so it decides the key rather than being passed on:
+
+    >>> @argh.arg('--al', dest='alpha', help='aliased')
+    ... def scale(alpha=1): ...
+    >>> sorted(scale._cw['params'])
+    ['alpha']
+
+    And ``completer=`` is argcomplete's per-argument hook, which ``add_argument`` rejects;
+    it travels in the leaf and :mod:`cw.cli` assigns it to the action it creates.
+
+    >>> @argh.arg('--host', completer=lambda **kw: ['localhost'])
+    ... def serve(host='0.0.0.0'): ...
+    >>> callable(serve._cw['params']['host']['completer'])
+    True
     """
 
     def decorate(func):
-        param = _param_name_of(flags)
+        # argh pops `dest` and uses it as the parameter name; without this, `@arg('--al',
+        # dest='alpha')` looks like a declaration for a parameter called `al`.
+        param = add_argument_kwargs.pop("dest", None) or _param_name_of(flags)
         # Innermost decorator runs first but must read last: argh's own `insert(0, ...)`.
         declared = {
             param: dict(add_argument_kwargs, flags=list(flags)),
@@ -427,7 +446,20 @@ class ArghParser(argparse.ArgumentParser):
     >>> parser.add_commands([ping])
     >>> parser.dispatch(['ping'], output_file=None)
     'pong\\n'
+
+    It defaults ``formatter_class`` exactly as argh's own ``ArghParser.__init__`` does.
+    Without that line the one-line migration changes ``--help`` for every repo that holds
+    a parser object: a ``None`` default renders ``None`` instead of argh's ``-``, a string
+    default loses its quotes, and a multi-paragraph docstring is reflowed into one.
+
+    >>> from cw import ArghHelpFormatter
+    >>> ArghParser(prog='demo').formatter_class is ArghHelpFormatter
+    True
     """
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("formatter_class", ArghHelpFormatter)
+        super().__init__(*args, **kwargs)
 
     def add_commands(self, *args, **kwargs) -> None:
         """:func:`cw.compat.add_commands`, on this parser."""
@@ -537,6 +569,26 @@ _NOT_SHIPPED = {
     "wrap_errors": "Zero fleet uses. Raise cw.CommandError from the command instead.",
     "raw_output": "Not a name -- it is a `dispatch` keyword, and it is accepted as one.",
     "ArghNamespace": "An argh internal. cw's parsers produce a plain argparse.Namespace.",
+    "assembling": (
+        "cw.compat is a single module, not a package, so there is no `cw.compat."
+        "assembling`. The one name four fleet files import from it is exported here "
+        "directly: `from cw.compat import NameMappingPolicy`."
+    ),
+    "interaction": (
+        "cw.compat is a single module, not a package. `argh.interaction.confirm` is "
+        "`cw.compat.confirm` (and `cw.confirm`)."
+    ),
+    "PARSER_FORMATTER": (
+        "argh's `PARSER_FORMATTER` is `cw.ArghHelpFormatter`, which cw.compat.ArghParser "
+        "and cw.mk_parser already default to. Pass it as "
+        "`formatter_class=cw.ArghHelpFormatter` if you are building the parser yourself."
+    ),
+    "expects_obj": (
+        "argh's `expects_obj` hands the raw argparse Namespace to the function instead of "
+        "calling it with its own parameters. Zero fleet uses, and it is the opposite of "
+        "what cw is for: take the Namespace yourself with "
+        "`cw.mk_parser(...).parse_args(argv)`."
+    ),
 }
 
 

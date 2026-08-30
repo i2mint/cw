@@ -7,6 +7,7 @@ word, and it is the reason `t/xa` can have two different commands both called `l
 """
 
 import functools
+import io
 import types
 
 import pytest
@@ -181,3 +182,74 @@ class TestImportObject:
 def test_the_discriminator_is_the_value():
     assert is_command(ls) and is_command(functools.partial(ls)) and is_command(Runner())
     assert not is_command([ls]) and not is_command({"a": ls}) and not is_command("ls")
+
+
+# =======================================================================================
+# Two commands may not share a derived name
+# =======================================================================================
+
+
+class TestNameCollisionsAreRefused:
+    """argh raises `ArgumentError: conflicting subparser`. cw used to keep the last one.
+
+    Silently losing a command is worse than the crash it replaces: `dispatch([run_a,
+    run_b])` where the two share a `__name__` returned 0 and ran the wrong function, with
+    no warning and no row in `--help`.
+    """
+
+    @staticmethod
+    def _two_functions_called_first():
+        def first():
+            """First."""
+            return "FIRST"
+
+        def second():
+            """Second."""
+            return "SECOND"
+
+        second.__name__ = "first"
+        return first, second
+
+    def test_an_iterable_refuses_it(self):
+        first, second = self._two_functions_called_first()
+        with pytest.raises(CommandTreeError) as error:
+            commands_from([first, second])
+        message = str(error.value)
+        assert "'first'" in message
+        assert message.count("first") >= 2 and "second" in message
+
+    def test_a_mapping_refuses_it_after_hyphenation(self):
+        """`git_ops` and `git-ops` derive the same command name under ARGH."""
+
+        def one():
+            """One."""
+
+        def two():
+            """Two."""
+
+        with pytest.raises(CommandTreeError):
+            commands_from({"git_ops": one, "git-ops": two})
+
+    def test_a_module_whose_names_collide_after_hyphenation_refuses_it(self):
+        """`__all__ = ['git_ops', 'git-ops']` derives one command name from two
+        attributes. (A name listed twice is not a collision: it is the same object.)"""
+        module = types.ModuleType("toy")
+        module.__all__ = ["do_it", "do-it"]
+        module.do_it = lambda: None
+        setattr(module, "do-it", lambda: None)
+        with pytest.raises(CommandTreeError):
+            commands_from(module)
+
+    def test_dispatch_refuses_it_rather_than_running_the_last_one(self):
+        first, second = self._two_functions_called_first()
+        with pytest.raises(CommandTreeError):
+            cw.dispatch([first, second], ["first"], out=io.StringIO(), prog="p")
+
+    def test_two_groups_may_still_hold_the_same_command_name(self):
+        """The point of grouping: `xa list` and `xa archive list` both exist."""
+
+        def ls():
+            """List."""
+
+        tree = commands_from({"list": ls, "archive": {"list": ls}})
+        assert sorted(tree) == ["archive", "list"]

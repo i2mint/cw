@@ -20,9 +20,24 @@ substance of this ADR, not a footnote to it.
 
 ## Decision
 
-**Three seams. Each is exactly one keyword argument on `cw.dispatch` / `cw.mk_parser`.
-Each default is a real, complete implementation — never a stub. Each has a replacement
-that exists on disk today.**
+**Three seams. Each is exactly one keyword argument — never a registry, a base class or a
+plugin loader. Each default is a real, complete implementation, never a stub. Each has a
+replacement that exists on disk today.**
+
+Which entry point carries which keyword follows from *when* the seam runs, and `cw.dispatch`
+— being `run ∘ mk_parser` — carries all three:
+
+| seam | `mk_parser` | `add_commands` | `run` | `dispatch` |
+|---|---|---|---|---|
+| `decode=` — shapes the parser | ✅ | ✅ | — | ✅ |
+| `egress=` — runs after the call | — | — | ✅ | ✅ |
+| `convention=` — carries both, per context | ✅ | ✅ | ✅ | ✅ |
+
+A seam named on a call that cannot honour it says so and names the call that can
+(`cw.cli.SEAMS_ELSEWHERE`), rather than reporting that `argparse.ArgumentParser` has no
+such keyword. To bind an egress to a *parser*, put it on the convention:
+`convention=dataclasses.replace(cw.ARGH, egress=my_egress)` — which is the same one keyword
+argument, and the reason `decode` and `egress` are convention fields at all.
 
 | # | Seam (one kwarg) | v1 default — real, not a stub | Replacement you can point at |
 |---|---|---|---|
@@ -138,7 +153,7 @@ three.
   binding; a fourth keyword argument that switches behaviour is a change to this table,
   written as a new ADR that supersedes it.
 - Every default named here is a working implementation, asserted by
-  `python -m cw.testing parity` (8 shapes / 133 cases against goldens recorded from live
+  `python -m cw.testing parity` (8 shapes / 137 cases against goldens recorded from live
   argh 0.31.3) and by `tests/argh_parity/` (a live differential when `cw[dev]` is
   installed). A seam whose default became a stub would fail the gate, not merely read
   badly.

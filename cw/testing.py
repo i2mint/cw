@@ -32,11 +32,22 @@ tier  content                                                     treatment
 3     the full ``--help`` body                                     snapshot only
 ===== =========================================================== =================
 
-Tier 3 is never asserted because ``--help`` wraps to ``COLUMNS`` and a big CLI's help is
-hundreds of lines; asserting it would produce false failures forever. It is diffed
-advisorily by :func:`diff_help`. Tier 2 does most of the work tier 3 looks like it would:
-argparse's ``usage:`` line names **every** option a parser has, so a lost flag, a lost short
-flag or a changed ``nargs`` all show up there, whitespace-collapsed and width-independent.
+Tier 3's body is not asserted by default because ``--help`` wraps to ``COLUMNS`` and
+because CPython itself rewrites it between versions (3.13 renders ``-i, --ignore VALUE``
+where 3.12 rendered ``-i VALUE, --ignore VALUE``), so a committed golden replayed across a
+matrix would fail for reasons nobody caused. Tier 2 does most of the work tier 3 looks like
+it would: argparse's ``usage:`` line names **every** option a parser has, so a lost flag, a
+lost short flag or a changed ``nargs`` all show up there, whitespace-collapsed and
+width-independent.
+
+**What tier 2 cannot see, and what to do about it.** A change of *formatter* -- which is
+exactly what swapping one dispatcher for another can do -- moves the help column and the
+description block and touches neither the ``usage:`` line nor any exit code. So
+:func:`replay` compares the tier-3 body anyway, through :func:`normalise_help`, and reports
+a case whose body moved as the non-fatal status ``help-differs`` rather than calling it
+``identical``. ``replay(..., strict_help=True)`` (``--strict-help`` on the command line)
+makes it fatal, which is the right setting for a migration that promised ``--help`` would
+not move; :func:`diff_help` prints the unnormalised difference for a human to read.
 
 Windows (ADR: option A, "normalise")
 ------------------------------------
@@ -118,6 +129,10 @@ TIER3_FIELDS = ("returncode", "usage")
 #: Seconds a single recorded case may take before it is reported as a failure.
 DFLT_TIMEOUT = 30
 
+#: A blank line -- the one whitespace that means something in a ``--help`` body, because a
+#: paragraph break survives wrapping and a line break inside a paragraph does not.
+_BLANK_LINE = re.compile(r"\n[ \t]*\n")
+
 #: Where :func:`parity` looks when it is not told. Ships inside the package, so the gate
 #: runs from an installed ``cw`` and not only from a checkout.
 DFLT_GOLDENS_DIR = os.path.join(
@@ -183,6 +198,29 @@ def canonical_argparse_text(text: str) -> str:
         return None
     text = _CHOOSE_FROM.sub(lambda m: m.group(0).replace("'", ""), text)
     return _USAGE.sub(lambda m: " ".join(m.group(0).split()), text)
+
+
+def normalise_help(text: str) -> str:
+    """A ``--help`` body with wrapping removed but paragraph structure kept.
+
+    Everything the terminal width controls is whitespace *inside* a paragraph, so collapsing
+    each paragraph to single-spaced words makes the body width-independent while still
+    showing that ``argh``'s ``RawDescriptionHelpFormatter`` was lost (a multi-paragraph
+    docstring reflowed into one paragraph) and that a default rendered ``None`` where it
+    rendered ``-``.
+
+    It is what ``--strict-help`` compares. It is deliberately **not** what :func:`parity`
+    compares: parity replays goldens across a CPython matrix, and 3.13 rewrote argparse's
+    own option column (``-i, --ignore [IGNORE ...]`` where 3.12 wrote
+    ``-i [IGNORE ...], --ignore [IGNORE ...]``), which is CPython's change and not cw's.
+    A ``characterize`` / ``replay`` pair runs on one machine at one interpreter, where that
+    cannot happen.
+
+    >>> normalise_help('Serve it.\\n\\nSecond para,\\nwrapped.\\n')
+    'Serve it.\\n\\nSecond para, wrapped.'
+    """
+    blocks = _BLANK_LINE.split(normalise_text(text or ""))
+    return "\n\n".join(" ".join(block.split()) for block in blocks if block.strip())
 
 
 def normalise_usage(text: str) -> str:
@@ -619,12 +657,18 @@ def load_golden(golden) -> dict:
 # ---------------------------------------------------------------------------------------
 
 
-def compare_case(recorded: dict, fresh: dict) -> str:
+def compare_case(recorded: dict, fresh: dict, *, strict_help: bool = False) -> str:
     """The empty string if ``fresh`` matches ``recorded``, else a readable diff.
 
     Which fields are compared is the tier rule and nothing else: tier 1 asserts the
     return code and both streams in full, tier 3 asserts the return code and the normalised
     ``usage:`` line and leaves the ``--help`` body to :func:`diff_help`.
+
+    ``strict_help=True`` adds the ``--help`` body to a tier-3 case, compared through
+    :func:`normalise_help` so that the terminal width cannot decide the verdict. Use it when
+    the *rendering* is part of what the migration promised not to change -- swapping argh's
+    formatter for argparse's stock one is invisible to the tier-3 fields, because it moves
+    only the help column and the description block.
 
     >>> a = {'tier': 1, 'returncode': 0, 'stdout': 'hi\\n', 'stderr': '', 'usage': ''}
     >>> compare_case(a, dict(a))
@@ -644,7 +688,8 @@ def compare_case(recorded: dict, fresh: dict) -> str:
     ...              {'tier': 3, 'returncode': 2, 'usage': bare})
     ''
     """
-    fields = TIER1_FIELDS if recorded.get("tier", 1) == 1 else TIER3_FIELDS
+    tier = recorded.get("tier", 1)
+    fields = TIER1_FIELDS if tier == 1 else TIER3_FIELDS
     chunks = []
     for field in fields:
         want, got = recorded.get(field), fresh.get(field)
@@ -656,7 +701,16 @@ def compare_case(recorded: dict, fresh: dict) -> str:
         got = canonical_argparse_text(normalise_text(got))
         if want != got:
             chunks.append(f"{field}:\n" + _text_diff(want, got))
+    if strict_help and tier != 1:
+        chunks.extend(help_body_diff(recorded, fresh))
     return "\n".join(chunks)
+
+
+def help_body_diff(recorded: dict, fresh: dict) -> list:
+    """``['help:\n<diff>']`` when the two ``--help`` bodies differ, else ``[]``."""
+    want = canonical_argparse_text(normalise_help(recorded.get("stdout")))
+    got = canonical_argparse_text(normalise_help(fresh.get("stdout")))
+    return [] if want == got else ["help:\n" + _text_diff(want, got)]
 
 
 def _text_diff(want, got) -> str:
@@ -685,6 +739,7 @@ def replay(
     cwd=None,
     expect_diff=(),
     timeout=DFLT_TIMEOUT,
+    strict_help=False,
 ) -> list:
     """Re-run a golden's cases and report, per case, whether the behaviour survived.
 
@@ -699,11 +754,19 @@ def replay(
             entry that turns out identical is reported as ``unexpected-match``, because a
             migration note claiming a break that did not happen is also wrong.
 
+        strict_help: Also assert each tier-3 case's ``--help`` **body**, through
+            :func:`normalise_help`. Off by default, because a wider ``--help`` is usually
+            not what a migration promised; on, because a *formatter* change is not visible
+            in any of the fields tier 3 asserts. When it is off, a body that moved is still
+            reported -- as the non-fatal status ``help-differs`` -- so that a migration is
+            never told "identical" about output that visibly changed.
+
     Returns:
         One dict per case: ``argv``, ``status`` and ``diff``.
 
-    Statuses are ``identical``, ``differs``, ``expected-diff`` and ``unexpected-match``.
-    :func:`assert_replay` is the version that raises.
+    Statuses are ``identical``, ``differs``, ``help-differs``, ``expected-diff`` and
+    ``unexpected-match``. :func:`assert_replay` is the version that raises, and it raises
+    on ``differs`` and ``unexpected-match`` only.
     """
     golden = load_golden(golden)
     command = _as_command(prog if prog is not None else golden["prog"])
@@ -718,19 +781,28 @@ def replay(
             ),
             argv,
         )
-        results.append(_verdict(recorded, fresh, intended))
+        results.append(_verdict(recorded, fresh, intended, strict_help=strict_help))
     return results
 
 
-def _verdict(recorded: dict, fresh: dict, intended: set) -> dict:
+def _verdict(recorded: dict, fresh: dict, intended: set, *, strict_help=False) -> dict:
     """One case's outcome, with ``expect_diff`` applied in both directions."""
     argv = list(recorded["argv"])
-    diff = compare_case(recorded, fresh)
+    diff = compare_case(recorded, fresh, strict_help=strict_help)
     if tuple(argv) in intended:
-        status = "expected-diff" if diff else "unexpected-match"
-    else:
-        status = "differs" if diff else "identical"
-    return {"argv": argv, "status": status, "diff": diff}
+        return {
+            "argv": argv,
+            "status": "expected-diff" if diff else "unexpected-match",
+            "diff": diff,
+        }
+    if diff:
+        return {"argv": argv, "status": "differs", "diff": diff}
+    # Nothing asserted moved. Say so, but do not say "identical" about a `--help` whose
+    # body changed: that is the exact sentence this tool exists to be trusted about.
+    advisory = [] if strict_help else help_body_diff(recorded, fresh)
+    if advisory:
+        return {"argv": argv, "status": "help-differs", "diff": "\n".join(advisory)}
+    return {"argv": argv, "status": "identical", "diff": ""}
 
 
 def assert_replay(golden, **kwargs) -> None:
@@ -883,6 +955,11 @@ def _cli() -> argparse.ArgumentParser:
     again.add_argument("golden")
     again.add_argument("--prog", default=None)
     again.add_argument("--expect-diff", action="append", default=[])
+    again.add_argument(
+        "--strict-help",
+        action="store_true",
+        help="fail on a changed --help body too, not just report it",
+    )
 
     advisory = subs.add_parser("diff-help", help="the advisory tier-3 --help diff")
     advisory.add_argument("golden")
@@ -908,11 +985,23 @@ def main(argv=None) -> int:
     if args.command == "diff-help":
         print(diff_help(args.golden, prog=args.prog) or "no --help changes")
         return 0
-    results = replay(args.golden, prog=args.prog, expect_diff=args.expect_diff)
+    results = replay(
+        args.golden,
+        prog=args.prog,
+        expect_diff=args.expect_diff,
+        strict_help=args.strict_help,
+    )
     bad = [r for r in results if r["status"] in ("differs", "unexpected-match")]
-    for result in bad:
+    advisory = [r for r in results if r["status"] == "help-differs"]
+    for result in bad + advisory:
         print(_report_line(result))
-    print(f"{len(results) - len(bad)}/{len(results)} identical")
+    line = f"{len(results) - len(bad) - len(advisory)}/{len(results)} identical"
+    if advisory:
+        line += (
+            f", {len(advisory)} with a changed --help body (advisory; "
+            "re-run with --strict-help to fail on it, or `diff-help` to read it)"
+        )
+    print(line)
     return 1 if bad else 0
 
 

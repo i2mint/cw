@@ -133,6 +133,34 @@ def _public_callables(obj: Any) -> Dict[str, Callable]:
     return found
 
 
+def _label(value: Any) -> str:
+    """``module.qualname`` for a callable, so a collision message names both sides."""
+    module = getattr(value, "__module__", None)
+    qualname = getattr(value, "__qualname__", None) or getattr(value, "__name__", None)
+    if qualname is None:
+        return repr(value)
+    return f"{module}.{qualname}" if module else qualname
+
+
+def _put(tree: CommandTree, name: str, value: Any) -> None:
+    """Add one command to ``tree``, refusing to overwrite a name already taken.
+
+    argh raises ``ArgumentError: conflicting subparser`` for this; cw used to keep the last
+    one, so ``dispatch([run_a, run_b])`` -- two functions imported from different modules
+    that happen to share a ``__name__``, or an ``__all__`` listing a name twice -- silently
+    lost a command and ran the wrong one with exit 0. A crash is strictly better than a
+    wrong answer, and this is the one place a derived name is written down.
+    """
+    if name in tree:
+        raise CommandTreeError(
+            f"two commands are both called {name!r}: {_label(tree[name])} and "
+            f"{_label(value)}. argh refuses this too (`conflicting subparser`). Name them "
+            "apart with the mapping form -- cw.dispatch({'run-a': first, 'run-b': "
+            "second}) -- or put them in different groups."
+        )
+    tree[name] = value
+
+
 def _named(name: str, *, convention, group: bool = False) -> str:
     """One naming function for derived names, mapping keys and group names alike.
 
@@ -207,10 +235,10 @@ def commands_from(obj: Any, /, *, convention=None, _depth: int = 0) -> CommandTr
     if isinstance(obj, Iterable):
         return _from_iterable(obj, convention=convention)
     if inspect.ismodule(obj) or hasattr(obj, "__dict__"):
-        return {
-            _named(name, convention=convention): func
-            for name, func in _public_callables(obj).items()
-        }
+        tree: CommandTree = {}
+        for name, func in _public_callables(obj).items():
+            _put(tree, _named(name, convention=convention), func)
+        return tree
     raise CommandTreeError(
         f"cannot derive commands from {obj!r}: it is not a callable, a mapping, an "
         "iterable of callables, a module, or a 'pkg.mod:name' reference."
@@ -224,7 +252,7 @@ def _from_mapping(obj: Mapping, *, convention, _depth: int) -> CommandTree:
         if isinstance(value, str):
             value = import_object(value)
         if is_command(value):
-            tree[_named(key, convention=convention)] = value
+            _put(tree, _named(key, convention=convention), value)
         elif _depth >= MAX_GROUP_DEPTH:
             raise CommandTreeError(
                 f"group {key!r} is nested more than {MAX_GROUP_DEPTH} level deep. argh "
@@ -232,8 +260,10 @@ def _from_mapping(obj: Mapping, *, convention, _depth: int) -> CommandTree:
                 "or give its commands longer names."
             )
         else:
-            tree[_named(key, convention=convention, group=True)] = commands_from(
-                value, convention=convention, _depth=_depth + 1
+            _put(
+                tree,
+                _named(key, convention=convention, group=True),
+                commands_from(value, convention=convention, _depth=_depth + 1),
             )
     return tree
 
@@ -249,7 +279,7 @@ def _from_iterable(obj: Iterable, *, convention) -> CommandTree:
                 "__all__ is used), or spell the mapping: "
                 "{name: getattr(module, name) for name in module.__all__}."
             )
-        tree[command_name(value, hyphenate=convention.hyphenate_commands)] = value
+        _put(tree, command_name(value, hyphenate=convention.hyphenate_commands), value)
     return tree
 
 

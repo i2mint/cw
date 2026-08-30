@@ -53,8 +53,13 @@ resource = [
 completion = [
     "argcomplete>=3",
 ]
-# What CI installs. Deliberately NO argh: `python -m cw.testing parity` -- the definition
-# of v1 -- runs against committed goldens and must prove it needs nothing but cw. The
+# The extra CI installs -- and CI really does install it, because
+# `[tool.wads.ci.install].extras` below says so. Without that section wads' reusable
+# workflow runs a bare `uv pip install -e .` and three shipped `cw.resolution` tests fail
+# on a missing i2.
+#
+# Deliberately NO argh: `python -m cw.testing parity` -- the definition of v1 -- runs
+# against committed goldens and must prove it needs nothing but cw. The
 # `tests/argh_parity` differential (and the two tests outside it that share its corpus)
 # skip themselves when argh is absent.
 #
@@ -132,6 +137,12 @@ doctest_optionflags = [
 
 [tool.wads.ci]
 project_name = ""
+
+# What `uv pip install -e ".[...]"` gets in CI. wads' reusable workflow reads this key
+# (`wads/ci_config.py:install_extras`); with no section it installs the package bare, and
+# `cw[resource]`'s i2 is then missing for `cw.resolution`'s test and two doctests.
+[tool.wads.ci.install]
+extras = "test"
 
 [tool.wads.ci.commands]
 pre_test = []

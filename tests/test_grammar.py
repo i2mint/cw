@@ -448,17 +448,26 @@ def test_convention_is_frozen_and_hashable():
 # ArgSpec itself
 
 
-def test_add_argument_args_repairs_a_hyphenated_positional():
+def test_add_argument_args_registers_a_positional_under_its_cli_name():
+    """argh's spelling exactly: the hyphen goes into the `dest`, not into a `metavar`."""
     assert ArgSpec("project_dir", ["project-dir"]).add_argument_args() == (
-        ("project_dir",),
-        {"metavar": "project-dir"},
+        ("project-dir",),
+        {},
     )
     assert ArgSpec("path", ["path"]).add_argument_args() == (("path",), {})
 
 
 def test_add_argument_args_leaves_an_explicit_metavar_alone():
     spec = ArgSpec("project_dir", ["project-dir"], extra={"metavar": "DIR"})
-    assert spec.add_argument_args() == (("project_dir",), {"metavar": "DIR"})
+    assert spec.add_argument_args() == (("project-dir",), {"metavar": "DIR"})
+
+
+def test_argparse_dest_names_the_namespace_key():
+    assert ArgSpec("project_dir", ["project-dir"]).argparse_dest == "project-dir"
+    assert (
+        ArgSpec("project_dir", ["-p", "--project-dir"]).argparse_dest == "project_dir"
+    )
+    assert ArgSpec("x", ["--x"], extra={"dest": "y"}).argparse_dest == "y"
 
 
 def test_missing_fields_are_simply_not_passed():

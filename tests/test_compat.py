@@ -476,3 +476,34 @@ class TestFuncKwargs:
         parser = compat.ArghParser(prog="x")
         with pytest.raises(NotImplementedError, match="no fleet call site passes it"):
             compat.add_commands(parser, [hello], func_kwargs={"help": "hi"})
+
+
+class TestTheImportFormsThatDoNotSurviveTheSwap:
+    """`from cw import compat as argh` is one line, and three spellings still break.
+
+    Each one is a real fleet import form, and each used to fail with a bare error that did
+    not name the working replacement. The README's grep list carries the same three.
+    """
+
+    def test_compat_is_a_module_not_a_package(self):
+        with pytest.raises(ModuleNotFoundError):
+            __import__("cw.compat.assembling")
+
+    @pytest.mark.parametrize(
+        "name, must_mention",
+        [
+            ("assembling", "from cw.compat import NameMappingPolicy"),
+            ("interaction", "cw.compat.confirm"),
+            ("PARSER_FORMATTER", "cw.ArghHelpFormatter"),
+            ("expects_obj", "parse_args"),
+        ],
+    )
+    def test_the_error_names_the_working_spelling(self, name, must_mention):
+        with pytest.raises(AttributeError) as error:
+            getattr(compat, name)
+        assert must_mention in str(error.value)
+
+    def test_the_replacements_really_are_reachable(self):
+        assert compat.NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT
+        assert callable(compat.confirm)
+        assert cw.ArghHelpFormatter is not None

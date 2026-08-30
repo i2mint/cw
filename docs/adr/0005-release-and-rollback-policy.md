@@ -60,7 +60,7 @@ This is the load-bearing rule of the whole policy. `ARGH` means "argh 0.31.3's g
 
 ### 3. The grammar-freeze test — cw's CI is the release gate
 
-`python -m cw.testing parity` replays 8 shapes / 133 cases against goldens recorded from
+`python -m cw.testing parity` replays 8 shapes / 137 cases against goldens recorded from
 live argh 0.31.3 and committed to the repo. It runs in cw's own CI on every push, on
 3.10 and 3.12, on Linux, macOS and Windows. **An `ARGH` drift therefore fails cw's CI
 before the publish step runs**, because wads' publish job is gated on the test job.
@@ -130,7 +130,7 @@ stderr:
   + GrammarError: theremin_cli: cannot add 'log_knobs' as -l/--log-knobs: argument
     -l/--log-knobs: conflicting option string: -l
   ...
-8 shapes / 133 cases: 36 DIFFER
+8 shapes / 137 cases: 36 DIFFER
 exit=1
 ```
 
@@ -153,7 +153,7 @@ options:
   --pool POOL  -
 
 $ python -m cw.testing parity
-8 shapes / 133 cases: identical
+8 shapes / 137 cases: identical
 exit=0
 ```
 

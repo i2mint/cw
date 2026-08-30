@@ -56,6 +56,7 @@ from cw.base import (
     MISSING,
 )
 from cw.cli import (
+    BoundKeywordWarning,
     add_commands,
     dispatch,
     enable_completion,
@@ -63,7 +64,7 @@ from cw.cli import (
     run,
     set_default_command,
 )
-from cw.commands import commands_from
+from cw.commands import CommandTreeError, commands_from
 from cw.convention import (
     ARGH,
     BY_NAME_IF_HAS_DEFAULT,
@@ -85,12 +86,12 @@ from cw.grammar import (
     command_name,
     modern_decode,
 )
+from cw.ingress import IngressError
 from cw.resolution import (
     parse_ast_spec,
     parse_json_spec,
     parse_spec_with_dot_path,
     resolve_func_from_dot_path,
-    resolve_object,
     resolve_to_function,
     resource_inputs,
 )
@@ -105,6 +106,7 @@ __all__ = [
     "HIDE",
     "MISSING",
     # -- cli: building a parser, and running one ----------------------------------------
+    "BoundKeywordWarning",
     "add_commands",
     "dispatch",
     "enable_completion",
@@ -112,9 +114,11 @@ __all__ = [
     "run",
     "set_default_command",
     # -- commands: an object becomes a {name: callable} tree -----------------------------
+    "CommandTreeError",
     "commands_from",
     # -- grammar: a signature becomes command-line arguments ----------------------------
     "GrammarError",
+    "IngressError",
     "argh_decode",
     "cli_name",
     "command_name",
@@ -136,7 +140,6 @@ __all__ = [
     "parse_json_spec",
     "parse_spec_with_dot_path",
     "resolve_func_from_dot_path",
-    "resolve_object",
     "resolve_to_function",
     "resource_inputs",
 ]

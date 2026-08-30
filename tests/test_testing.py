@@ -268,7 +268,48 @@ class TestRoundTrip:
         path.write_text(
             TOY_CLI.replace('description="A toy."', 'description="Toy!"'), "utf-8"
         )
-        assert all(r["status"] == "identical" for r in testing.replay(golden))
+        results = testing.replay(golden)
+        assert not [r for r in results if r["status"] == "differs"]
+        testing.assert_replay(golden)  # ... and it does not raise
+
+    def test_but_it_is_no_longer_called_identical_either(self, toy):
+        """A changed `--help` body is reported as `help-differs`, not swallowed.
+
+        The defect this closes: swapping a dispatcher for one with a different
+        `formatter_class` moves every default's rendering and every multi-paragraph
+        description, and touches neither the `usage:` line nor any exit code -- so `replay`
+        used to print `N/N identical` on a migration whose `--help` visibly changed.
+        """
+        path, prog = toy
+        golden = testing.characterize(prog, TOY_CASES)
+        path.write_text(
+            TOY_CLI.replace('description="A toy."', 'description="Toy!"'), "utf-8"
+        )
+        statuses = {r["status"] for r in testing.replay(golden)}
+        assert "help-differs" in statuses
+        assert "identical" in statuses  # the non-help cases are still identical
+
+    def test_strict_help_makes_it_a_failure(self, toy):
+        path, prog = toy
+        golden = testing.characterize(prog, TOY_CASES)
+        path.write_text(
+            TOY_CLI.replace('description="A toy."', 'description="Toy!"'), "utf-8"
+        )
+        bad = [
+            r
+            for r in testing.replay(golden, strict_help=True)
+            if r["status"] == "differs"
+        ]
+        assert bad and "help:" in bad[0]["diff"]
+        with pytest.raises(AssertionError):
+            testing.assert_replay(golden, strict_help=True)
+
+    def test_a_pure_rewrap_is_not_reported(self, toy):
+        """`normalise_help` is width-independent, so COLUMNS alone never trips it."""
+        _, prog = toy
+        golden = testing.characterize(prog, TOY_CASES)
+        results = testing.replay(golden, env={"COLUMNS": "40"})
+        assert all(r["status"] == "identical" for r in results)
 
     def test_but_diff_help_reports_it_advisorily(self, toy):
         path, prog = toy

@@ -4,7 +4,7 @@
 python -m cw.testing parity
 ```
 
-> **v1 is done when that prints `8 shapes / 133 cases: identical` and exits 0.**
+> **v1 is done when that prints `8 shapes / 137 cases: identical` and exits 0.**
 
 `fixtures.py` holds eight self-contained shapes; `goldens/*.json` holds what **real argh
 0.31.3** did with each of their argv vectors, recorded once and committed. `parity` replays
@@ -20,14 +20,14 @@ the normalised `usage:` line.**
 | `coact` | `t/coact` | 19 |
 | `xa` | `t/xa` | 17 |
 | `wads_pack` | `i/wads` | 17 |
-| `lacing` | `t/lacing` | 9 |
+| `lacing` | `t/lacing` | 13 |
 | `contract` | the D2 contract's egress and error rows | 17 |
-| **total** | | **133** |
+| **total** | | **137** |
 
 That total is **counted**, not asserted:
 `tests/test_corpus_coverage.py::test_the_case_count_is_counted_rather_than_asserted`
 recomputes it from `fixtures.SHAPES`. The canonical spec's "7 repos / 214 cases" was an
-invented number with no file behind it; this one has 133 argv vectors in a file, each with a
+invented number with no file behind it; this one has 137 argv vectors in a file, each with a
 comment saying which argh rule it pins.
 
 ## Why shapes and not the seven repos

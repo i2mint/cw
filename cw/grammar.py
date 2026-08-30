@@ -146,6 +146,10 @@ class ArgSpec:
     codec: Optional[Codec] = None
     #: Set by a ``cw.HIDE`` override: keep the parameter, drop the CLI argument.
     hidden: bool = False
+    #: argcomplete's per-argument completer. Not an ``add_argument`` keyword -- argparse
+    #: rejects it -- so it travels here and ``cw.cli`` assigns it to the created action,
+    #: which is where ``argcomplete`` looks for it.
+    completer: Any = None
 
     @property
     def is_positional(self) -> bool:
@@ -186,6 +190,8 @@ class ArgSpec:
             self.nargs = other.nargs
         if other.codec is not None:
             self.codec = other.codec
+        if other.completer is not None:
+            self.completer = other.completer
         self.extra.update(other.extra)
 
     def add_argument_kwargs(self) -> Dict[str, Any]:
@@ -207,22 +213,49 @@ class ArgSpec:
     def add_argument_args(self) -> tuple:
         """The full ``(args, kwargs)`` of the ``add_argument`` call this spec describes.
 
-        One divergence from argh lives here and only here. argh registers a hyphenated
-        positional as ``add_argument('project-dir')``, producing a ``dest`` that literally
-        contains a hyphen, and then repairs it downstream. cw registers
-        ``add_argument('project_dir', metavar='project-dir')``, which renders identically
-        in ``usage:``, in ``--help`` and in argparse's error messages, and needs no repair.
+        A positional is registered under its **command-line** name, hyphens and all --
+        exactly as argh does -- because argparse reads that one string twice, and the two
+        readings cannot be separated: it is the ``{a,b}``-or-``project-dir`` displayed in
+        ``usage:`` *and* the name in ``error: argument project-dir: ...``. Synthesising a
+        ``metavar`` instead would win the second reading and lose the first, silently
+        turning ``{a,b}`` into ``project-dir`` for any hyphenated positional carrying
+        ``choices``.
 
-        >>> ArgSpec('project_dir', ['project-dir']).add_argument_args()
-        (('project_dir',), {'metavar': 'project-dir'})
+        The price is a ``dest`` with a hyphen in it, which no Python call can use.
+        :attr:`argparse_dest` names it and :mod:`cw.cli` renames it back on the way into
+        the call -- one dictionary lookup, in one place.
+
+        >>> spec = ArgSpec('project_dir', ['project-dir'])
+        >>> spec.add_argument_args()
+        (('project-dir',), {})
+        >>> spec.argparse_dest
+        'project-dir'
         """
         kwargs = self.add_argument_kwargs()
         if self.is_positional:
-            kwargs.setdefault("metavar", self.flags[0])
-            if kwargs["metavar"] == self.param_name:
-                del kwargs["metavar"]
-            return (self.param_name,), kwargs
+            return (self.flags[0],), kwargs
         return tuple(self.flags), kwargs
+
+    @property
+    def argparse_dest(self) -> str:
+        """The namespace key argparse will store this argument under.
+
+        argparse derives it from the first long option (``--project-dir`` ->
+        ``project_dir``) or, for a positional, from the name itself -- hyphens intact.
+
+        >>> ArgSpec('project_dir', ['-p', '--project-dir']).argparse_dest
+        'project_dir'
+        >>> ArgSpec('project_dir', ['project-dir']).argparse_dest
+        'project-dir'
+        """
+        if "dest" in self.extra:
+            return self.extra["dest"]
+        if self.is_positional:
+            return self.flags[0]
+        long = next(
+            (flag for flag in self.flags if flag.startswith("--")), self.flags[0]
+        )
+        return long.lstrip("-").replace("-", "_")
 
     @classmethod
     def from_override(cls, param_name: str, override: Mapping[str, Any]) -> "ArgSpec":
@@ -235,7 +268,7 @@ class ArgSpec:
 
         >>> ArgSpec.from_override('synth', {'flags': ['-s'], 'nargs': '?'})
         ArgSpec(param_name='synth', flags=['-s'], required=cw.MISSING, default=cw.MISSING,
-                nargs='?', extra={}, codec=None, hidden=False)
+                nargs='?', extra={}, codec=None, hidden=False, completer=None)
         """
         if not isinstance(override, Mapping):
             raise GrammarError(
@@ -247,7 +280,10 @@ class ArgSpec:
         codec = rest.pop("codec", None)
         if codec is not None and not isinstance(codec, Codec):
             codec = Codec(decode=codec)
-        spec = cls(param_name=param_name, flags=flags, codec=codec)
+        # argcomplete's own keyword, which argparse's add_argument rejects. argh pops it
+        # the same way and assigns it to the action it just created.
+        completer = rest.pop("completer", None)
+        spec = cls(param_name=param_name, flags=flags, codec=codec, completer=completer)
         # argh's `make_from_kwargs` POPS these three out of the kwargs dict so that
         # `update` can merge them by their own rules. Same here.
         for key in FIELD_MERGED_KEYS:
@@ -340,10 +376,24 @@ def modern_decode(param: inspect.Parameter, hint: Any) -> Mapping[str, Any]:
     >>> decoded = modern_decode(p, Colour)
     >>> decoded['type']('RED'), decoded['type']('r')
     (<Colour.RED: 'r'>, <Colour.RED: 'r'>)
+
+    The help column advertises what the converter accepts, rather than member ``repr``\\ s
+    the converter would reject:
+
+    >>> decoded['metavar']
+    '{RED}'
     """
     hint = _unwrap_optional(hint)
     if isinstance(hint, type) and issubclass(hint, enum.Enum):
-        return {"type": _enum_by_name_then_value(hint), "choices": tuple(hint)}
+        # `choices` must hold the CONVERTED values (argparse checks after `type` runs), so
+        # it holds members -- but members render as `Col.RED`, which the converter would
+        # then reject. `metavar` decides what is displayed, so it advertises the member
+        # names, which are exactly what may be typed.
+        return {
+            "type": _enum_by_name_then_value(hint),
+            "choices": tuple(hint),
+            "metavar": "{" + ",".join(member.name for member in hint) + "}",
+        }
     if isinstance(hint, type) and issubclass(hint, pathlib.PurePath):
         return {"type": pathlib.Path}
     return argh_decode(param, hint)

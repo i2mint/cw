@@ -20,10 +20,23 @@ PUBLIC_RESOLUTION_NAMES = (
     "parse_json_spec",
     "parse_spec_with_dot_path",
     "resolve_func_from_dot_path",
-    "resolve_object",
     "resolve_to_function",
     "resource_inputs",
 )
+
+
+def test_resolve_object_is_not_promoted_to_the_package_root():
+    """It has zero call sites in cw and zero across the fleet, its body is uncovered, and
+    `cw/resolution.py:67` carries a TODO saying it should be merged away.
+    `architecture-first`'s pre-commit check 5 says an unreachable name is code written for
+    iteration 2. It stays where it has always been -- `cw.resolution` shipped it in 0.0.15
+    -- but v1 does not commit to it at the facade, where nothing has ever asked for it.
+    """
+    from cw import resolution
+
+    assert callable(resolution.resolve_object)
+    assert not hasattr(cw, "resolve_object")
+    assert "resolve_object" not in cw.__all__
 
 
 @pytest.mark.parametrize("name", PUBLIC_RESOLUTION_NAMES)
