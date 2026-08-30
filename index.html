@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to cw’s documentation! &mdash; cw 0.0.14 documentation</title>
+  <title>Welcome to cw’s documentation! &mdash; cw 0.0.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=544df88d"></script>
+      <script src="_static/documentation_options.js?v=f0357c94"></script>
       <script src="_static/doctools.js?v=fd6eb6e6"></script>
       <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -49,9 +49,19 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/ingress.html">cw.ingress</a></li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/cw/resolution.html">cw.resolution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/scrap.html">cw.scrap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/util.html">cw.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
 </ul>
 
         </div>
@@ -83,7 +93,123 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw.html">cw</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.ArghHelpFormatter"><code class="docutils literal notranslate"><span class="pre">ArghHelpFormatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.BoundKeywordWarning"><code class="docutils literal notranslate"><span class="pre">BoundKeywordWarning</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.Codec"><code class="docutils literal notranslate"><span class="pre">Codec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.CommandError"><code class="docutils literal notranslate"><span class="pre">CommandError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.CommandTreeError"><code class="docutils literal notranslate"><span class="pre">CommandTreeError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.Convention"><code class="docutils literal notranslate"><span class="pre">Convention</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.GrammarError"><code class="docutils literal notranslate"><span class="pre">GrammarError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.IngressError"><code class="docutils literal notranslate"><span class="pre">IngressError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.add_commands"><code class="docutils literal notranslate"><span class="pre">add_commands()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.argh_decode"><code class="docutils literal notranslate"><span class="pre">argh_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.argh_egress"><code class="docutils literal notranslate"><span class="pre">argh_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.cli_name"><code class="docutils literal notranslate"><span class="pre">cli_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.command_name"><code class="docutils literal notranslate"><span class="pre">command_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.commands_from"><code class="docutils literal notranslate"><span class="pre">commands_from()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.confirm"><code class="docutils literal notranslate"><span class="pre">confirm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.dispatch"><code class="docutils literal notranslate"><span class="pre">dispatch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.enable_completion"><code class="docutils literal notranslate"><span class="pre">enable_completion()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.iterable_egress"><code class="docutils literal notranslate"><span class="pre">iterable_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.json_egress"><code class="docutils literal notranslate"><span class="pre">json_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.mk_parser"><code class="docutils literal notranslate"><span class="pre">mk_parser()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.modern_decode"><code class="docutils literal notranslate"><span class="pre">modern_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.parse_ast_spec"><code class="docutils literal notranslate"><span class="pre">parse_ast_spec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.parse_json_spec"><code class="docutils literal notranslate"><span class="pre">parse_json_spec()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.parse_spec_with_dot_path"><code class="docutils literal notranslate"><span class="pre">parse_spec_with_dot_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.resolve_func_from_dot_path"><code class="docutils literal notranslate"><span class="pre">resolve_func_from_dot_path()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.resolve_to_function"><code class="docutils literal notranslate"><span class="pre">resolve_to_function()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.resource_inputs"><code class="docutils literal notranslate"><span class="pre">resource_inputs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.set_default_command"><code class="docutils literal notranslate"><span class="pre">set_default_command()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw.html#cw.write_lines"><code class="docutils literal notranslate"><span class="pre">write_lines()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/__main__.html">cw.__main__</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/__main__.html#cw.__main__.COMMANDS"><code class="docutils literal notranslate"><span class="pre">COMMANDS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/__main__.html#cw.__main__.help_for"><code class="docutils literal notranslate"><span class="pre">help_for()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/__main__.html#cw.__main__.parity"><code class="docutils literal notranslate"><span class="pre">parity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/__main__.html#cw.__main__.specs"><code class="docutils literal notranslate"><span class="pre">specs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/base.html">cw.base</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.ArghHelpFormatter"><code class="docutils literal notranslate"><span class="pre">ArghHelpFormatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.Codec"><code class="docutils literal notranslate"><span class="pre">Codec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.CommandError"><code class="docutils literal notranslate"><span class="pre">CommandError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.DFLT_ERROR_CODE"><code class="docutils literal notranslate"><span class="pre">DFLT_ERROR_CODE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.DFLT_HELP"><code class="docutils literal notranslate"><span class="pre">DFLT_HELP</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.Decode"><code class="docutils literal notranslate"><span class="pre">Decode</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.Egress"><code class="docutils literal notranslate"><span class="pre">Egress</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.HIDE"><code class="docutils literal notranslate"><span class="pre">HIDE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/base.html#cw.base.MISSING"><code class="docutils literal notranslate"><span class="pre">MISSING</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/cli.html">cw.cli</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.BoundKeywordWarning"><code class="docutils literal notranslate"><span class="pre">BoundKeywordWarning</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.RESERVED_DEST"><code class="docutils literal notranslate"><span class="pre">RESERVED_DEST</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.add_commands"><code class="docutils literal notranslate"><span class="pre">add_commands()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.dispatch"><code class="docutils literal notranslate"><span class="pre">dispatch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.enable_completion"><code class="docutils literal notranslate"><span class="pre">enable_completion()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.mk_parser"><code class="docutils literal notranslate"><span class="pre">mk_parser()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/cli.html#cw.cli.set_default_command"><code class="docutils literal notranslate"><span class="pre">set_default_command()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/commands.html">cw.commands</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/commands.html#cw.commands.CommandTreeError"><code class="docutils literal notranslate"><span class="pre">CommandTreeError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/commands.html#cw.commands.commands_from"><code class="docutils literal notranslate"><span class="pre">commands_from()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/commands.html#cw.commands.import_object"><code class="docutils literal notranslate"><span class="pre">import_object()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/compat.html">cw.compat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.ArghParser"><code class="docutils literal notranslate"><span class="pre">ArghParser</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.CommandError"><code class="docutils literal notranslate"><span class="pre">CommandError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.NameMappingPolicy"><code class="docutils literal notranslate"><span class="pre">NameMappingPolicy</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.add_commands"><code class="docutils literal notranslate"><span class="pre">add_commands()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.arg"><code class="docutils literal notranslate"><span class="pre">arg()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.completion"><code class="docutils literal notranslate"><span class="pre">completion</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.confirm"><code class="docutils literal notranslate"><span class="pre">confirm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.dispatch"><code class="docutils literal notranslate"><span class="pre">dispatch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.dispatch_command"><code class="docutils literal notranslate"><span class="pre">dispatch_command()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.dispatch_commands"><code class="docutils literal notranslate"><span class="pre">dispatch_commands()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/compat.html#cw.compat.set_default_command"><code class="docutils literal notranslate"><span class="pre">set_default_command()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/convention.html">cw.convention</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/convention.html#cw.convention.ARGH"><code class="docutils literal notranslate"><span class="pre">ARGH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/convention.html#cw.convention.Convention"><code class="docutils literal notranslate"><span class="pre">Convention</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/convention.html#cw.convention.MODERN"><code class="docutils literal notranslate"><span class="pre">MODERN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/egress.html">cw.egress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.argh_egress"><code class="docutils literal notranslate"><span class="pre">argh_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.confirm"><code class="docutils literal notranslate"><span class="pre">confirm()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.guard_no_coroutine"><code class="docutils literal notranslate"><span class="pre">guard_no_coroutine()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.iterable_egress"><code class="docutils literal notranslate"><span class="pre">iterable_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.json_egress"><code class="docutils literal notranslate"><span class="pre">json_egress()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/egress.html#cw.egress.write_lines"><code class="docutils literal notranslate"><span class="pre">write_lines()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/grammar.html">cw.grammar</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.ArgSpec"><code class="docutils literal notranslate"><span class="pre">ArgSpec</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.BY_NAME_IF_HAS_DEFAULT"><code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.BY_NAME_IF_KWONLY"><code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.GrammarError"><code class="docutils literal notranslate"><span class="pre">GrammarError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.OPTIONAL"><code class="docutils literal notranslate"><span class="pre">OPTIONAL</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.ZERO_OR_MORE"><code class="docutils literal notranslate"><span class="pre">ZERO_OR_MORE</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.argh_decode"><code class="docutils literal notranslate"><span class="pre">argh_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.cli_name"><code class="docutils literal notranslate"><span class="pre">cli_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.command_name"><code class="docutils literal notranslate"><span class="pre">command_name()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.infer_specs"><code class="docutils literal notranslate"><span class="pre">infer_specs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.modern_decode"><code class="docutils literal notranslate"><span class="pre">modern_decode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/grammar.html#cw.grammar.specs_for_function"><code class="docutils literal notranslate"><span class="pre">specs_for_function()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/ingress.html">cw.ingress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/ingress.html#cw.ingress.mk_ingress"><code class="docutils literal notranslate"><span class="pre">mk_ingress()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="module_docs/cw/resolution.html">cw.resolution</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/cw/resolution.html#cw.resolution.parse_ast_spec"><code class="docutils literal notranslate"><span class="pre">parse_ast_spec()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="module_docs/cw/resolution.html#cw.resolution.parse_json_spec"><code class="docutils literal notranslate"><span class="pre">parse_json_spec()</span></code></a></li>
@@ -94,12 +220,36 @@
 <li class="toctree-l2"><a class="reference internal" href="module_docs/cw/resolution.html#cw.resolution.resource_inputs"><code class="docutils literal notranslate"><span class="pre">resource_inputs()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/scrap.html">cw.scrap</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/scrap.html#cw.scrap.arg_dflt_dict_of_callable"><code class="docutils literal notranslate"><span class="pre">arg_dflt_dict_of_callable()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/scrap.html#cw.scrap.subparser_for_func"><code class="docutils literal notranslate"><span class="pre">subparser_for_func()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/testing.html">cw.testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#the-golden-format-one-format-three-tiers">The golden format: one format, three tiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#windows-adr-option-a-normalise">Windows (ADR: option A, “normalise”)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.GOLDEN_VERSION"><code class="docutils literal notranslate"><span class="pre">GOLDEN_VERSION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.RECORDING_ENV"><code class="docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.assert_replay"><code class="docutils literal notranslate"><span class="pre">assert_replay()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.capture"><code class="docutils literal notranslate"><span class="pre">capture()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.characterize"><code class="docutils literal notranslate"><span class="pre">characterize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.compare_case"><code class="docutils literal notranslate"><span class="pre">compare_case()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.diff_help"><code class="docutils literal notranslate"><span class="pre">diff_help()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.load_golden"><code class="docutils literal notranslate"><span class="pre">load_golden()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.normalise_text"><code class="docutils literal notranslate"><span class="pre">normalise_text()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.normalise_usage"><code class="docutils literal notranslate"><span class="pre">normalise_usage()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.parity"><code class="docutils literal notranslate"><span class="pre">parity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.pinned_env"><code class="docutils literal notranslate"><span class="pre">pinned_env</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.read_cases"><code class="docutils literal notranslate"><span class="pre">read_cases()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/testing.html#cw.testing.replay"><code class="docutils literal notranslate"><span class="pre">replay()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/util.html">cw.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.SHAPES"><code class="docutils literal notranslate"><span class="pre">SHAPES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.Shape"><code class="docutils literal notranslate"><span class="pre">Shape</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.case_count"><code class="docutils literal notranslate"><span class="pre">case_count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.cw_outcome"><code class="docutils literal notranslate"><span class="pre">cw_outcome()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.shape_named"><code class="docutils literal notranslate"><span class="pre">shape_named()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="module_docs/cw/tests/fixtures.html#cw.tests.fixtures.use_command_error"><code class="docutils literal notranslate"><span class="pre">use_command_error()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </div>
 </section>
@@ -110,8 +260,8 @@
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-<p>Release: 0.0.14</p>
-<p>Last change: May 27, 2026</p>
+<p>Release: 0.0.15</p>
+<p>Last change: Aug 30, 2026</p>
 </section>
 
 
@@ -124,7 +274,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright NO COPYRIGHT.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

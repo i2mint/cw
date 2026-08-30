@@ -1,0 +1,1354 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.tests.fixtures &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.tests.fixtures</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.tests.fixtures</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The parity corpus: the fleet's hard cases reproduced as *shapes*, not as repos.</span>
+
+<span class="sd">:func:`cw.testing.parity` is the definition of v1, and it must run in cw's own CI. As the</span>
+<span class="sd">canonical spec first wrote it -- "for each of the seven hard-case repos ... rebuilds that</span>
+<span class="sd">repo's command set through cw" -- it cannot, for reasons that are structural rather than</span>
+<span class="sd">fixable: three of those repos ``import argh`` at module scope, one of them *depends on cw*,</span>
+<span class="sd">and cw's whole selling point is that it installs nothing. A gate that needs seven fleet</span>
+<span class="sd">packages checked out is a gate that is red on somebody else's commit.</span>
+
+<span class="sd">So the corpus reproduces the seven repos' **shapes**. Each one is a small, self-contained</span>
+<span class="sd">module of plain functions that exercises the same grammar the real repo does, recorded once</span>
+<span class="sd">against real argh 0.31.3 and committed. Parity then needs stdlib plus cw, installs no fleet</span>
+<span class="sd">package, pulls no argh, and runs on Windows. The seven real repos are gated separately, by</span>
+<span class="sd">:func:`cw.testing.replay` in each repo's own CI, which is what a migration test is for.</span>
+
+<span class="sd">Nothing here imports ``argh``: a shape carries an ``argh_build`` callable that *receives*</span>
+<span class="sd">the ``argh`` module, so only the dev-only recorder (``misc/record_goldens.py``) ever needs</span>
+<span class="sd">it installed. Nothing here is imported by ``cw`` either -- :func:`cw.testing.parity` imports</span>
+<span class="sd">this module lazily, when it runs.</span>
+
+<span class="sd">Eight shapes:</span>
+
+<span class="sd">===============  ===================  =====================================================</span>
+<span class="sd">shape            models               what it pins</span>
+<span class="sd">===============  ===================  =====================================================</span>
+<span class="sd">``theremin``     ``t/theremin``       ten overrides, ``nargs='?' const='list'``, the ``s``</span>
+<span class="sd">                                      collision that makes ``--synth`` render long-first and</span>
+<span class="sd">                                      leaves ``--scale`` with no short at all</span>
+<span class="sd">``priv``         ``t/priv``           a mapping whose keys name the commands, a</span>
+<span class="sd">                                      ``functools.partial`` with its bound keyword hidden,</span>
+<span class="sd">                                      and a group whose name stays verbatim</span>
+<span class="sd">``epythet``      ``i/epythet``        ``list[str]`` inference, and the CI-critical</span>
+<span class="sd">                                      ``quickstart . --ignore`` -&gt; ``[]``</span>
+<span class="sd">``coact``        ``t/coact``          three ``nargs`` shapes and ``*args``</span>
+<span class="sd">``xa``           ``t/xa``             non-identifier keys, two commands both called ``list``</span>
+<span class="sd">                                      in different dicts, and a group</span>
+<span class="sd">``wads_pack``    ``i/wads``           34 parameters, ``**configs``, and ``verbose=True``</span>
+<span class="sd">                                      becoming ``store_false``</span>
+<span class="sd">``lacing``       ``t/lacing``         a quoted annotation, PEP 563-blind under ``ARGH``</span>
+<span class="sd">``contract``     the D2 contract      the egress and error rows, which no repo shape reaches</span>
+<span class="sd">===============  ===================  =====================================================</span>
+
+<span class="sd">The ``rows`` field of each shape names which rows of the argh compatibility contract</span>
+<span class="sd">(canonical spec section 9) it pins, and ``tests/test_corpus_coverage.py`` fails if a row is</span>
+<span class="sd">covered by nothing.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"SHAPES"</span><span class="p">,</span>
+    <span class="s2">"Shape"</span><span class="p">,</span>
+    <span class="s2">"case_count"</span><span class="p">,</span>
+    <span class="s2">"cw_outcome"</span><span class="p">,</span>
+    <span class="s2">"shape_named"</span><span class="p">,</span>
+    <span class="s2">"use_command_error"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># The shape record</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<div class="viewcode-block" id="Shape">
+<a class="viewcode-back" href="../../../module_docs/cw/tests/fixtures.html#cw.tests.fixtures.Shape">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Shape</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One hard case: what cw is given, how argh was asked the same question, and the argv.</span>
+
+<span class="sd">    ``argh_build`` takes the ``argh`` and ``argparse`` modules and returns the parser argh</span>
+<span class="sd">    builds. Taking them as arguments rather than importing them is what keeps this module</span>
+<span class="sd">    argh-free, and therefore shippable inside ``cw``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">prog</span><span class="p">,</span>
+        <span class="n">models</span><span class="p">,</span>
+        <span class="n">pins</span><span class="p">,</span>
+        <span class="n">rows</span><span class="p">,</span>
+        <span class="n">cases</span><span class="p">,</span>
+        <span class="n">cw_obj</span><span class="p">,</span>
+        <span class="n">argh_build</span><span class="p">,</span>
+        <span class="n">cw_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cw_call</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prog</span> <span class="o">=</span> <span class="n">prog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">models</span> <span class="o">=</span> <span class="n">models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pins</span> <span class="o">=</span> <span class="n">pins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">case</span><span class="p">)</span> <span class="k">for</span> <span class="n">case</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cw_obj</span> <span class="o">=</span> <span class="n">cw_obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cw_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cw_kwargs</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argh_build</span> <span class="o">=</span> <span class="n">argh_build</span>
+        <span class="c1">#: ``(cw, argv, **kwargs) -&gt; exit code``. The default is ``cw.dispatch``, the</span>
+        <span class="c1">#: idiom every migration in the spec uses. A shape overrides it only when it needs</span>
+        <span class="c1">#: a build-time keyword ``dispatch`` does not carry -- ``xa``'s ``group_kwargs``</span>
+        <span class="c1">#: being the one case, which is why ``add_commands`` still exists.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cw_call</span> <span class="o">=</span> <span class="n">cw_call</span> <span class="ow">or</span> <span class="n">_dispatch_call</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"&lt;Shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cases</span><span class="p">)</span><span class="si">}</span><span class="s2"> cases, rows </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span><span class="si">}</span><span class="s2">&gt;"</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_call</span><span class="p">(</span><span class="n">cw</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The default cw side of a shape: ``cw.dispatch``, exactly as a migration writes it."""</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"obj"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_xa_call</span><span class="p">(</span><span class="n">cw</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""xa's cw side: ``mk_parser`` + ``add_commands`` + ``run``, for one keyword.</span>
+
+<span class="sd">    ``group_kwargs`` is a build-time fact about *one group*, so it has no place in</span>
+<span class="sd">    ``dispatch``'s flat keyword space -- and ``add_commands`` is where argh put it too.</span>
+<span class="sd">    This is the one shape that needs it, and having it means the parity gate asserts</span>
+<span class="sd">    contract row 20 (a group's listing row reads ``title``, never ``help``) rather than</span>
+<span class="sd">    quietly dropping the only case that exercises it.</span>
+<span class="sd">    """</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"obj"</span><span class="p">))</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"archive"</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">cw</span><span class="o">.</span><span class="n">mk_parser</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cw</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">"archive"</span><span class="p">,</span> <span class="n">group_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">XA_GROUP_KWARGS</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cw</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">declare</span><span class="p">(</span><span class="n">argh</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">decls</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Apply ``@argh.arg`` declarations to ``func``, idempotently.</span>
+
+<span class="sd">    ``argh.arg`` mutates ``func`` in place -- it ``insert(0, ...)``s into a list it hangs</span>
+<span class="sd">    off the function -- so building the same parser twice would double every declaration.</span>
+<span class="sd">    Clearing first makes a rebuild mean what it says. ``reversed`` reproduces stacked</span>
+<span class="sd">    decorators, where the outermost is applied last and therefore ends up first.</span>
+
+<span class="sd">    Only the dev-only recorder calls this; it takes ``argh`` as an argument for the same</span>
+<span class="sd">    reason the rest of this module does.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">argh.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ATTR_ARGS</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ATTR_ARGS</span><span class="p">):</span>
+        <span class="nb">delattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ATTR_ARGS</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">flags</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">decls</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">argh</span><span class="o">.</span><span class="n">arg</span><span class="p">(</span><span class="o">*</span><span class="n">flags</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">config_from</span><span class="p">(</span><span class="n">decls</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The cw ``config`` leaf equivalent of a list of ``@argh.arg`` declarations.</span>
+
+<span class="sd">    Written once, from one source, so the two spellings cannot drift. The difference</span>
+<span class="sd">    between them is exactly one rule: ``@argh.arg`` must be given the long flag, because</span>
+<span class="sd">    that is how argh guesses which parameter is meant; cw already knows the parameter, so</span>
+<span class="sd">    its ``flags`` key carries only what the inference did *not* produce, and the</span>
+<span class="sd">    append-merge does the rest.</span>
+
+<span class="sd">    &gt;&gt;&gt; config_from([(('-p', '--pipeline'), {'nargs': '?'}), (('--scale',), {})])</span>
+<span class="sd">    {'pipeline': {'nargs': '?', 'flags': ['-p']}, 'scale': {}}</span>
+<span class="sd">    """</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">flags</span><span class="p">,</span> <span class="n">kwargs</span> <span class="ow">in</span> <span class="n">decls</span><span class="p">:</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">_param_name_of</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">flag</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span> <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'_'</span><span class="p">,</span><span class="w"> </span><span class="s1">'-'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="n">config</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span> <span class="k">if</span> <span class="n">extra</span> <span class="k">else</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_name_of</span><span class="p">(</span><span class="n">flags</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``('-i', '--ignore') -&gt; 'ignore'`` -- argh's ``naive_guess_func_arg_name``.</span>
+
+<span class="sd">    &gt;&gt;&gt; _param_name_of(('-i', '--ignore')), _param_name_of(('project',))</span>
+<span class="sd">    ('ignore', 'project')</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"--"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cannot guess a parameter name from </span><span class="si">{</span><span class="n">flags</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_single_command</span><span class="p">(</span><span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prog</span><span class="p">,</span> <span class="n">decls</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">"""The parser argh builds for one command -- the ``set_default_command`` shape."""</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="n">declare</span><span class="p">(</span><span class="n">argh</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">decls</span><span class="p">)</span> <span class="k">if</span> <span class="n">decls</span> <span class="k">else</span> <span class="n">func</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">argh</span><span class="o">.</span><span class="n">PARSER_FORMATTER</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span>
+    <span class="p">)</span>
+    <span class="n">argh</span><span class="o">.</span><span class="n">set_default_command</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_subcommands</span><span class="p">(</span><span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">,</span> <span class="n">funcs</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prog</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="p">(),</span> <span class="n">decls</span><span class="o">=</span><span class="p">()):</span>
+<span class="w">    </span><span class="sd">"""The parser argh builds for a command set -- the ``add_commands`` shape."""</span>
+    <span class="k">for</span> <span class="n">func</span><span class="p">,</span> <span class="n">func_decls</span> <span class="ow">in</span> <span class="n">decls</span><span class="p">:</span>
+        <span class="n">declare</span><span class="p">(</span><span class="n">argh</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">func_decls</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">argh</span><span class="o">.</span><span class="n">PARSER_FORMATTER</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span>
+    <span class="p">)</span>
+    <span class="n">argh</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">funcs</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">group_name</span><span class="p">,</span> <span class="n">group_funcs</span><span class="p">,</span> <span class="n">group_kwargs</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">argh</span><span class="o">.</span><span class="n">add_commands</span><span class="p">(</span>
+            <span class="n">parser</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">group_funcs</span><span class="p">),</span> <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span> <span class="n">group_kwargs</span><span class="o">=</span><span class="n">group_kwargs</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 1 -- t/theremin. Ten overrides, five `nargs='?' const='list'`, the `s` collision.</span>
+<span class="c1"># =======================================================================================</span>
+
+<span class="c1">#: A bare flag means "list the options" -- theremin's real UX, and the reason five of its</span>
+<span class="c1">#: ten declarations carry a `const`.</span>
+<span class="n">_LIST</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span> <span class="n">const</span><span class="o">=</span><span class="s2">"list"</span><span class="p">)</span>
+
+<span class="c1">#: The ten declarations, in theremin's own order. `flags` is the *declared* flag list argh</span>
+<span class="c1">#: needs; `config_from` derives what cw's config says from the same data.</span>
+<span class="n">THEREMIN_DECLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">((</span><span class="s2">"-p"</span><span class="p">,</span> <span class="s2">"--pipeline"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LIST</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Audio pipeline name"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"-v"</span><span class="p">,</span> <span class="s2">"--video-features"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LIST</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Video features function name"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"-k"</span><span class="p">,</span> <span class="s2">"--knobs"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LIST</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Audio knobs function name"</span><span class="p">)),</span>
+    <span class="c1"># Declared long-first, which is what makes `--synth [SYNTH], -s [SYNTH]` render in that</span>
+    <span class="c1"># order: the inferred `-s` was suppressed by the collision with `scale`, so the</span>
+    <span class="c1"># declared `-s` is *appended* to the inferred `['--synth']` rather than leading it.</span>
+    <span class="p">((</span><span class="s2">"--synth"</span><span class="p">,</span> <span class="s2">"-s"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LIST</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Synthesizer function name"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"--log-video-features"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">"Log hand features"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"--log-knobs"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">"Log audio features"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"--record-to-file"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">"Filename to save recording"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"-n"</span><span class="p">,</span> <span class="s2">"--no-recording"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">"Disable recording"</span><span class="p">)),</span>
+    <span class="p">((</span><span class="s2">"-w"</span><span class="p">,</span> <span class="s2">"--window-name"</span><span class="p">),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s2">"Window title"</span><span class="p">)),</span>
+    <span class="c1"># No short flag is declared and none is inferred: `scale` collides with `synth` on `s`,</span>
+    <span class="c1"># and argh's collision pass suppresses the short for BOTH parameters.</span>
+    <span class="p">((</span><span class="s2">"--scale"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_LIST</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Scale for snapping; 'none' disables"</span><span class="p">)),</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">theremin_cli</span><span class="p">(</span>
+    <span class="n">pipeline</span><span class="o">=</span><span class="s2">"theremin"</span><span class="p">,</span>
+    <span class="n">video_features</span><span class="o">=</span><span class="s2">"many_video_features"</span><span class="p">,</span>
+    <span class="n">knobs</span><span class="o">=</span><span class="s2">"theremin_knobs"</span><span class="p">,</span>
+    <span class="n">synth</span><span class="o">=</span><span class="s2">"theremin_synth"</span><span class="p">,</span>
+    <span class="n">log_video_features</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">log_knobs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">record_to_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">no_recording</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">window_name</span><span class="o">=</span><span class="s2">"theremin"</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Run the theremin.</span>
+
+<span class="sd">    Every parameter has a default, so every one becomes an option under</span>
+<span class="sd">    BY_NAME_IF_HAS_DEFAULT -- which is the policy argh's dispatch entry points default to</span>
+<span class="sd">    and the only one cw offers as ARGH.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"pipeline=</span><span class="si">{</span><span class="n">pipeline</span><span class="si">!r}</span><span class="s2"> video_features=</span><span class="si">{</span><span class="n">video_features</span><span class="si">!r}</span><span class="s2"> knobs=</span><span class="si">{</span><span class="n">knobs</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"synth=</span><span class="si">{</span><span class="n">synth</span><span class="si">!r}</span><span class="s2"> scale=</span><span class="si">{</span><span class="n">scale</span><span class="si">!r}</span><span class="s2"> record_to_file=</span><span class="si">{</span><span class="n">record_to_file</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"window_name=</span><span class="si">{</span><span class="n">window_name</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"flags=</span><span class="si">{</span><span class="n">log_video_features</span><span class="si">!r}</span><span class="s2">,</span><span class="si">{</span><span class="n">log_knobs</span><span class="si">!r}</span><span class="s2">,</span><span class="si">{</span><span class="n">no_recording</span><span class="si">!r}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="n">THEREMIN</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"theremin"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"theremin"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"t/theremin"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Ten @argh.arg overrides on a single command. The parameters `synth` and `scale` "</span>
+        <span class="s2">"both start with `s`, so NEITHER gets an inferred short flag; the declared "</span>
+        <span class="s2">"['--synth', '-s'] then appends `-s` for synth only. `--scale` ends with no short "</span>
+        <span class="s2">"at all. That falls out of the append-merge rule and is not special-cased."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="n">theremin_cli</span><span class="p">,</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"config"</span><span class="p">:</span> <span class="n">config_from</span><span class="p">(</span><span class="n">THEREMIN_DECLS</span><span class="p">)},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_single_command</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">,</span> <span class="n">theremin_cli</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s2">"theremin"</span><span class="p">,</span> <span class="n">decls</span><span class="o">=</span><span class="n">THEREMIN_DECLS</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="c1"># `-p` with a value, and `-p` bare -- the const='list' sentinel.</span>
+        <span class="p">[</span><span class="s2">"-p"</span><span class="p">,</span> <span class="s2">"flute"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-p"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--pipeline"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--pipeline"</span><span class="p">,</span> <span class="s2">"flute"</span><span class="p">],</span>
+        <span class="c1"># The whole point of the shape: `-s` reaches synth, long-first rendering and all.</span>
+        <span class="p">[</span><span class="s2">"-s"</span><span class="p">,</span> <span class="s2">"saw"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-s"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--synth"</span><span class="p">,</span> <span class="s2">"saw"</span><span class="p">],</span>
+        <span class="c1"># ... and `scale` has no short, so `-c`/`-a` are usage errors, not scale.</span>
+        <span class="p">[</span><span class="s2">"--scale"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--scale"</span><span class="p">,</span> <span class="s2">"minor"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-a"</span><span class="p">,</span> <span class="s2">"minor"</span><span class="p">],</span>
+        <span class="c1"># `-l` would be log_video_features' or log_knobs' short if the collision pass did</span>
+        <span class="c1"># not suppress both. It is a usage error, and that is the assertion.</span>
+        <span class="p">[</span><span class="s2">"-l"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--log-knobs"</span><span class="p">,</span> <span class="s2">"--log-video-features"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-v"</span><span class="p">,</span> <span class="s2">"hands"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-k"</span><span class="p">,</span> <span class="s2">"smooth"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-r"</span><span class="p">,</span> <span class="s2">"out.wav"</span><span class="p">,</span> <span class="s2">"-n"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"-w"</span><span class="p">,</span> <span class="s2">"Theremin"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"--nope"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 2 -- t/priv. A mapping of keys to callables, a partial, and a verbatim group.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_pth_paths</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"."</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Parse a .pth file into the package paths it names."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"parse_pth_paths(</span><span class="si">{</span><span class="n">path</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">align</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">repair</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Report ecosystem drift, and optionally act on it."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"align(repair=</span><span class="si">{</span><span class="n">repair</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render_pth</span><span class="p">(</span><span class="n">out</span><span class="o">=</span><span class="s2">"my_packages.pth"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Render the manifest from its committed source of truth."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"render_pth(</span><span class="si">{</span><span class="n">out</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">packages_from_config</span><span class="p">(</span><span class="n">pkg_dir</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">"pyproject.toml"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List the packages a directory of projects declares."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"packages_from_config(</span><span class="si">{</span><span class="n">pkg_dir</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">config_type</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="c1">#: priv's real shape: a `functools.partial` in `__all__` that pre-binds `config_type`. argh</span>
+<span class="c1">#: crashes on a partial outright, and priv's live workaround copies `__name__` off the base</span>
+<span class="c1">#: function -- which is why `priv packages-from-all-setup-cfgs` does not exist today and</span>
+<span class="c1">#: `-c/--config-type` is still exposed. cw takes the partial and the mapping key names it.</span>
+<span class="n">packages_from_all_setup_cfgs</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span>
+    <span class="n">packages_from_config</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s2">"setup.cfg"</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">packages_from_all_setup_cfgs_for_argh</span><span class="p">(</span><span class="n">pkg_dir</span><span class="o">=</span><span class="s2">"."</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List the packages a directory of projects declares."""</span>
+    <span class="k">return</span> <span class="n">packages_from_all_setup_cfgs</span><span class="p">(</span><span class="n">pkg_dir</span><span class="p">)</span>
+
+
+<span class="c1"># argh cannot be handed a partial, so the golden is recorded against the wrapper a repo has</span>
+<span class="c1"># to hand-write today. The parity claim is that cw's partial + cw.HIDE produces the same</span>
+<span class="c1"># command line as argh's hand-written wrapper -- which is the whole reason HIDE exists.</span>
+<span class="n">packages_from_all_setup_cfgs_for_argh</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="s2">"packages_from_all_setup_cfgs"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">git_branch_report</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">stale_days</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Report branch drift across the fleet."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"git_branch_report(stale_days=</span><span class="si">{</span><span class="n">stale_days</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">git_land</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">squash</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Land a branch: review, PR, CI gate, squash-merge."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"git_land(</span><span class="si">{</span><span class="n">branch</span><span class="si">!r}</span><span class="s2">, squash=</span><span class="si">{</span><span class="n">squash</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="n">PRIV_TOP</span> <span class="o">=</span> <span class="p">[</span><span class="n">parse_pth_paths</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">render_pth</span><span class="p">,</span> <span class="n">packages_from_all_setup_cfgs_for_argh</span><span class="p">]</span>
+<span class="n">PRIV_GIT_OPS</span> <span class="o">=</span> <span class="p">[</span><span class="n">git_branch_report</span><span class="p">,</span> <span class="n">git_land</span><span class="p">]</span>
+
+<span class="n">PRIV</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"priv"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"priv"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"t/priv"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"A mapping whose keys name the commands, hyphenated ("</span>
+        <span class="s2">"`parse_pth_paths` -&gt; `parse-pth-paths`); a group whose name stays VERBATIM "</span>
+        <span class="s2">"(`git_ops`, which is in priv's own README and is emitted as a user-facing "</span>
+        <span class="s2">"suggestion); and a functools.partial whose bound keyword is hidden with cw.HIDE "</span>
+        <span class="s2">"rather than re-exposed as a flag."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"parse_pth_paths"</span><span class="p">:</span> <span class="n">parse_pth_paths</span><span class="p">,</span>
+        <span class="s2">"align"</span><span class="p">:</span> <span class="n">align</span><span class="p">,</span>
+        <span class="s2">"render_pth"</span><span class="p">:</span> <span class="n">render_pth</span><span class="p">,</span>
+        <span class="c1"># The mapping KEY is the command name, which is what finally gives the partial the</span>
+        <span class="c1"># right one. Hyphenation still applies to the key, so this is `packages-from-...`.</span>
+        <span class="s2">"packages_from_all_setup_cfgs"</span><span class="p">:</span> <span class="n">packages_from_all_setup_cfgs</span><span class="p">,</span>
+        <span class="s2">"git_ops"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"git_branch_report"</span><span class="p">:</span> <span class="n">git_branch_report</span><span class="p">,</span> <span class="s2">"git_land"</span><span class="p">:</span> <span class="n">git_land</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># Don't re-expose the keyword the partial already bound.</span>
+        <span class="s2">"config"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"packages-from-all-setup-cfgs"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"config_type"</span><span class="p">:</span> <span class="s2">"HIDE"</span><span class="p">}},</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Private fleet tooling."</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="n">PRIV_TOP</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"priv"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Private fleet tooling."</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[(</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="n">PRIV_GIT_OPS</span><span class="p">,</span> <span class="kc">None</span><span class="p">)],</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"parse-pth-paths"</span><span class="p">],</span>
+        <span class="c1"># A defaulted POSITIONAL_OR_KEYWORD is an OPTION, so the bare word is rejected...</span>
+        <span class="p">[</span><span class="s2">"parse-pth-paths"</span><span class="p">,</span> <span class="s2">"/somewhere"</span><span class="p">],</span>
+        <span class="c1"># ... and this is how you actually pass it.</span>
+        <span class="p">[</span><span class="s2">"parse-pth-paths"</span><span class="p">,</span> <span class="s2">"--path"</span><span class="p">,</span> <span class="s2">"/somewhere"</span><span class="p">],</span>
+        <span class="c1"># Hyphenation is not optional: the underscore spelling must NOT be a command.</span>
+        <span class="p">[</span><span class="s2">"parse_pth_paths"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"align"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"align"</span><span class="p">,</span> <span class="s2">"--repair"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"render-pth"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"render-pth"</span><span class="p">,</span> <span class="s2">"--out"</span><span class="p">,</span> <span class="s2">"x.pth"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"packages-from-all-setup-cfgs"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"packages-from-all-setup-cfgs"</span><span class="p">,</span> <span class="s2">"--pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">],</span>
+        <span class="c1"># The bound keyword is gone from the command line, in both spellings.</span>
+        <span class="p">[</span><span class="s2">"packages-from-all-setup-cfgs"</span><span class="p">,</span> <span class="s2">"--config-type"</span><span class="p">,</span> <span class="s2">"setup.cfg"</span><span class="p">],</span>
+        <span class="c1"># Group names stay verbatim -- `git_ops`, not `git-ops`.</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git-ops"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="s2">"git-branch-report"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="s2">"git-branch-report"</span><span class="p">,</span> <span class="s2">"--stale-days"</span><span class="p">,</span> <span class="s2">"7"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="s2">"git-land"</span><span class="p">,</span> <span class="s2">"build-v1"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"git_ops"</span><span class="p">,</span> <span class="s2">"git-land"</span><span class="p">,</span> <span class="s2">"build-v1"</span><span class="p">,</span> <span class="s2">"--squash"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"nope"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 3 -- i/epythet. `list[str]` inference, and the case every fleet docs job runs.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">quickstart</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Create a docsrc directory for a project.</span>
+
+<span class="sd">    The annotation is a real `list` object, not a string, because this module has no</span>
+<span class="sd">    `from __future__ import annotations` -- which is exactly the condition under which</span>
+<span class="sd">    argh's hint guesser fires and the `@argh.arg('--ignore', nargs='*')` decorator can be</span>
+<span class="sd">    deleted outright.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"quickstart(</span><span class="si">{</span><span class="n">project_dir</span><span class="si">!r}</span><span class="s2">, ignore=</span><span class="si">{</span><span class="n">ignore</span><span class="si">!r}</span><span class="s2">, depth=</span><span class="si">{</span><span class="n">depth</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_docsrc</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Generate the docsrc for a project."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"make_docsrc(</span><span class="si">{</span><span class="n">project_dir</span><span class="si">!r}</span><span class="s2">, verbose=</span><span class="si">{</span><span class="n">verbose</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_pages</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ignore</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Check that a project's GitHub Pages site is live.</span>
+
+<span class="sd">    Row 12, and the pair that makes it observable: this function is identical to</span>
+<span class="sd">    `quickstart` in the two ways that matter, except that it carries one `@argh.arg`. That</span>
+<span class="sd">    one declaration turns hint inference OFF for the WHOLE function, so:</span>
+
+<span class="sd">    * `--depth 2` arrives here as the STRING `'2'`, where `quickstart` gets the int `2`</span>
+<span class="sd">      (`depth`'s type comes only from its annotation -- its default is None, so the</span>
+<span class="sd">      default-value guesser has nothing to say about it); and</span>
+<span class="sd">    * `ignore` would lose its `nargs='*'` too, which is why the declaration has to put it</span>
+<span class="sd">      back explicitly.</span>
+
+<span class="sd">    `timeout` is coerced either way: its default is `30`, and the default-value guesser</span>
+<span class="sd">    runs regardless of whether hints do.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"check_pages(</span><span class="si">{</span><span class="n">project_dir</span><span class="si">!r}</span><span class="s2">, ignore=</span><span class="si">{</span><span class="n">ignore</span><span class="si">!r}</span><span class="s2">, depth=</span><span class="si">{</span><span class="n">depth</span><span class="si">!r}</span><span class="s2">, "</span>
+        <span class="sa">f</span><span class="s2">"timeout=</span><span class="si">{</span><span class="n">timeout</span><span class="si">!r}</span><span class="s2">)"</span>
+    <span class="p">)</span>
+
+
+<span class="n">EPYTHET_DECLS</span> <span class="o">=</span> <span class="p">[((</span><span class="s2">"--ignore"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s2">"*"</span><span class="p">))]</span>
+
+<span class="n">EPYTHET</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"epythet"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"epythet"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"i/epythet"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"A `list` annotation infers nargs='*', so epythet's decorator can be deleted. The "</span>
+        <span class="s2">"CI-critical case is `quickstart . --ignore` with ZERO values -- the literal line "</span>
+        <span class="s2">"in publish-github-pages/action.yml, running in every fleet repo's docs job -- "</span>
+        <span class="s2">"which must still parse to `ignore=[]`. Also row 12: the @argh.arg on "</span>
+        <span class="s2">"`check_pages` turns hint inference off for that whole function, so `timeout` "</span>
+        <span class="s2">"arrives as a string."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">[</span><span class="n">quickstart</span><span class="p">,</span> <span class="n">make_docsrc</span><span class="p">,</span> <span class="n">check_pages</span><span class="p">],</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"config"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"check-pages"</span><span class="p">:</span> <span class="n">config_from</span><span class="p">(</span><span class="n">EPYTHET_DECLS</span><span class="p">)},</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Setup and generate Sphinx docs effortlessly"</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">quickstart</span><span class="p">,</span> <span class="n">make_docsrc</span><span class="p">,</span> <span class="n">check_pages</span><span class="p">],</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"epythet"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Setup and generate Sphinx docs effortlessly"</span><span class="p">,</span>
+        <span class="n">decls</span><span class="o">=</span><span class="p">[(</span><span class="n">check_pages</span><span class="p">,</span> <span class="n">EPYTHET_DECLS</span><span class="p">)],</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">],</span>
+        <span class="c1"># The three lines the whole shape exists for.</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--ignore"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--ignore"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"-i"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span>
+        <span class="c1"># No @argh.arg on quickstart, so hints fire: `depth` arrives as the int 2.</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--depth"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"make-docsrc"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--verbose"</span><span class="p">],</span>
+        <span class="c1"># One @argh.arg on check_pages, so hints do NOT fire: `depth` arrives as '2'.</span>
+        <span class="p">[</span><span class="s2">"check-pages"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--depth"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">],</span>
+        <span class="c1"># ... but `timeout` is coerced anyway, from its default, not its annotation.</span>
+        <span class="p">[</span><span class="s2">"check-pages"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--timeout"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"check-pages"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--ignore"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"check-pages"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">,</span> <span class="s2">"--ignore"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"quickstart"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 4 -- t/coact. Three nargs shapes and *args.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inventory</span><span class="p">(</span><span class="n">project</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List what a project already has."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"inventory(</span><span class="si">{</span><span class="n">project</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scaffold</span><span class="p">(</span><span class="n">agents</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Wire agent files into a project."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"scaffold(</span><span class="si">{</span><span class="n">agents</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">publish</span><span class="p">(</span><span class="n">source</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Publish tool refs, a skill directory, or both."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"publish(</span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span><span class="o">*</span><span class="n">agents</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Estimate the cost of running some agents.</span>
+
+<span class="sd">    Row 10: VAR_POSITIONAL becomes a positional with nargs='*' and needs no declaration at</span>
+<span class="sd">    all. The ingress re-expands it, so the function really does receive three arguments.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"estimate</span><span class="si">{</span><span class="n">agents</span><span class="si">!r}</span><span class="s2">"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">emit</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">[]):</span>
+<span class="w">    </span><span class="sd">"""Emit a report.</span>
+
+<span class="sd">    Row 7: a `list` DEFAULT infers nargs='*' with no annotation involved. (A `tuple`</span>
+<span class="sd">    default does too; a `tuple` ANNOTATION infers nothing, which is why row 7 says</span>
+<span class="sd">    "default".)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"emit(tags=</span><span class="si">{</span><span class="n">tags</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">back</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"undo"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Step a project back.</span>
+
+<span class="sd">    Row 9: `choices` makes argh take `type` from `choices[0]`, so `--depth 2` arrives as an</span>
+<span class="sd">    int here and the choices are checked against the coerced value.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"back(</span><span class="si">{</span><span class="n">step</span><span class="si">!r}</span><span class="s2">, mode=</span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="n">COACT_DECLS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"inventory"</span><span class="p">:</span> <span class="p">[((</span><span class="s2">"project"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">"."</span><span class="p">))],</span>
+    <span class="s2">"scaffold"</span><span class="p">:</span> <span class="p">[((</span><span class="s2">"agents"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">))],</span>
+    <span class="s2">"publish"</span><span class="p">:</span> <span class="p">[((</span><span class="s2">"source"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s2">"+"</span><span class="p">))],</span>
+    <span class="s2">"back"</span><span class="p">:</span> <span class="p">[((</span><span class="s2">"--mode"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">"undo"</span><span class="p">,</span> <span class="s2">"redo"</span><span class="p">]))],</span>
+    <span class="c1"># A DECLARED nargs of None is falsy, and argh's merge takes `nargs` only when it is</span>
+    <span class="c1"># truthy -- so this declaration does NOT unset the inferred `nargs='*'`. There is no</span>
+    <span class="c1"># spelling that does (ADR-0003's third open question is answered "there isn't one"),</span>
+    <span class="c1"># and an implementation that merged with plain assignment would break `estimate a b c`.</span>
+    <span class="s2">"estimate"</span><span class="p">:</span> <span class="p">[((</span><span class="s2">"agents"</span><span class="p">,),</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Agent names"</span><span class="p">))],</span>
+<span class="p">}</span>
+
+<span class="n">COACT</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"coact"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"coact"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"t/coact"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"The three nargs shapes coact declares -- nargs='?' with a default, and two "</span>
+        <span class="s2">"nargs='+' -- plus a VAR_POSITIONAL that needs no declaration, a list DEFAULT that "</span>
+        <span class="s2">"infers nargs='*' with no annotation, and a `choices` that supplies `type`."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">[</span><span class="n">inventory</span><span class="p">,</span> <span class="n">scaffold</span><span class="p">,</span> <span class="n">publish</span><span class="p">,</span> <span class="n">estimate</span><span class="p">,</span> <span class="n">emit</span><span class="p">,</span> <span class="n">back</span><span class="p">],</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"config"</span><span class="p">:</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">config_from</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">COACT_DECLS</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Agent project scaffolding."</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">inventory</span><span class="p">,</span> <span class="n">scaffold</span><span class="p">,</span> <span class="n">publish</span><span class="p">,</span> <span class="n">estimate</span><span class="p">,</span> <span class="n">emit</span><span class="p">,</span> <span class="n">back</span><span class="p">],</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"coact"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Agent project scaffolding."</span><span class="p">,</span>
+        <span class="n">decls</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">COACT_DECLS</span><span class="p">[</span><span class="s2">"inventory"</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">scaffold</span><span class="p">,</span> <span class="n">COACT_DECLS</span><span class="p">[</span><span class="s2">"scaffold"</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">publish</span><span class="p">,</span> <span class="n">COACT_DECLS</span><span class="p">[</span><span class="s2">"publish"</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">back</span><span class="p">,</span> <span class="n">COACT_DECLS</span><span class="p">[</span><span class="s2">"back"</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">estimate</span><span class="p">,</span> <span class="n">COACT_DECLS</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">]),</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"inventory"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"inventory"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"inventory"</span><span class="p">,</span> <span class="s2">"/elsewhere"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"inventory"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"scaffold"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"scaffold"</span><span class="p">,</span> <span class="s2">"one.md"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"scaffold"</span><span class="p">,</span> <span class="s2">"one.md"</span><span class="p">,</span> <span class="s2">"two.md"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"publish"</span><span class="p">,</span> <span class="s2">"mod:func"</span><span class="p">,</span> <span class="s2">"skills/"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"estimate"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"estimate"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"estimate"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"emit"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"emit"</span><span class="p">,</span> <span class="s2">"--tags"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"emit"</span><span class="p">,</span> <span class="s2">"--tags"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"back"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"back"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"--mode"</span><span class="p">,</span> <span class="s2">"redo"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"back"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"--mode"</span><span class="p">,</span> <span class="s2">"sideways"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 5 -- t/xa. Keys name the commands; two of them are called `list`.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">list_cmd</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">running</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List sessions."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"list_cmd(running=</span><span class="si">{</span><span class="n">running</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">spawn_cmd</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"local"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Spawn a session.</span>
+
+<span class="sd">    Row 4's other half: `host` starts with `h`, and `-h` already belongs to `--help`. argh</span>
+<span class="sd">    strips it, so `host` gets no short flag even though no other parameter collides with it.</span>
+<span class="sd">    An implementation that forgot would not merely add a flag -- argparse would refuse to</span>
+<span class="sd">    build the parser at all ("conflicting option string: -h"), so this is asserted by every</span>
+<span class="sd">    case in the shape at once.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"spawn_cmd(</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">, detach=</span><span class="si">{</span><span class="n">detach</span><span class="si">!r}</span><span class="s2">, host=</span><span class="si">{</span><span class="n">host</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">gen_secret_cmd</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Generate a shared secret."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"gen_secret_cmd(length=</span><span class="si">{</span><span class="n">length</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">archive_list_cmd</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="s2">"*"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""List archived sessions."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"archive_list_cmd(pattern=</span><span class="si">{</span><span class="n">pattern</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">archive_log_cmd</span><span class="p">(</span><span class="n">session</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Show an archived session's log."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"archive_log_cmd(</span><span class="si">{</span><span class="n">session</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="c1">#: xa's live workaround: thirteen `__name__` mutations, because argh reads `__name__` and</span>
+<span class="c1">#: has no way to be told a command's name. Two of them assign the SAME string (`list`) to</span>
+<span class="c1">#: different functions, which is exactly why a mapping is the right shape.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_mutated</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Give ``func`` the name xa assigns it today. Recorded so cw's keys can be diffed."""</span>
+    <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="c1">#: `group_kwargs={'help': ...}` -- what xa passes today. Per spec section 9.1 argh reads</span>
+<span class="c1">#: `title` for the listing row, so this string displays NOTHING. cw reproduces that: it</span>
+<span class="c1">#: passes group_kwargs whole to add_subparsers and `help=group_kwargs.get('title')` to</span>
+<span class="c1">#: add_parser, even when that is None (omitting it makes the group row vanish entirely).</span>
+<span class="n">XA_GROUP_KWARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"help"</span><span class="p">:</span> <span class="s2">"Postmortem archive (list, log, forensics)."</span><span class="p">}</span>
+
+<span class="n">XA</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"xa"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"xa"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"t/xa"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"A mapping key names the command verbatim-then-hyphenated, so the non-identifier "</span>
+        <span class="s2">"key 'gen-secret' works and needs no __name__ mutation. Two commands are both "</span>
+        <span class="s2">"called `list` in different dicts, which a list of functions cannot express. And "</span>
+        <span class="s2">"the group's `group_kwargs={'help': ...}` displays nothing -- argh reads `title` "</span>
+        <span class="s2">"for that row -- so translating it would be an improvement, and therefore a break."</span>
+    <span class="p">),</span>
+    <span class="c1"># Row 20 is exercised here but NOT claimed: whether the listing row reads `title` or</span>
+    <span class="c1"># `help` shows only in a --help body, which the golden format keeps at tier 3. It is</span>
+    <span class="c1"># asserted by tests/argh_parity/test_cli_parity.py instead. Row 4 is claimed because</span>
+    <span class="c1"># `host` proves `-h` is stripped, and that IS observable at tier 1.</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"list"</span><span class="p">:</span> <span class="n">list_cmd</span><span class="p">,</span>
+        <span class="s2">"spawn"</span><span class="p">:</span> <span class="n">spawn_cmd</span><span class="p">,</span>
+        <span class="s2">"gen-secret"</span><span class="p">:</span> <span class="n">gen_secret_cmd</span><span class="p">,</span>
+        <span class="s2">"archive"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"list"</span><span class="p">:</span> <span class="n">archive_list_cmd</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">:</span> <span class="n">archive_log_cmd</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Session multiplexer."</span><span class="p">},</span>
+    <span class="n">cw_call</span><span class="o">=</span><span class="k">lambda</span> <span class="n">cw</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">_xa_call</span><span class="p">(</span><span class="n">cw</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="n">_mutated</span><span class="p">(</span><span class="n">list_cmd</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">),</span>
+            <span class="n">_mutated</span><span class="p">(</span><span class="n">spawn_cmd</span><span class="p">,</span> <span class="s2">"spawn"</span><span class="p">),</span>
+            <span class="n">_mutated</span><span class="p">(</span><span class="n">gen_secret_cmd</span><span class="p">,</span> <span class="s2">"gen-secret"</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"xa"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Session multiplexer."</span><span class="p">,</span>
+        <span class="n">groups</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">(</span>
+                <span class="s2">"archive"</span><span class="p">,</span>
+                <span class="p">[</span><span class="n">_mutated</span><span class="p">(</span><span class="n">archive_list_cmd</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">),</span> <span class="n">_mutated</span><span class="p">(</span><span class="n">archive_log_cmd</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">)],</span>
+                <span class="n">XA_GROUP_KWARGS</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"list"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"list"</span><span class="p">,</span> <span class="s2">"--running"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"spawn"</span><span class="p">,</span> <span class="s2">"s1"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"spawn"</span><span class="p">,</span> <span class="s2">"s1"</span><span class="p">,</span> <span class="s2">"--detach"</span><span class="p">],</span>
+        <span class="c1"># `-h` is --help's, not host's, even though nothing else starts with `h`.</span>
+        <span class="p">[</span><span class="s2">"spawn"</span><span class="p">,</span> <span class="s2">"s1"</span><span class="p">,</span> <span class="s2">"-h"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"spawn"</span><span class="p">,</span> <span class="s2">"s1"</span><span class="p">,</span> <span class="s2">"--host"</span><span class="p">,</span> <span class="s2">"remote"</span><span class="p">],</span>
+        <span class="c1"># A non-identifier key is a fine command name and needs no __name__ mutation.</span>
+        <span class="p">[</span><span class="s2">"gen-secret"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"gen-secret"</span><span class="p">,</span> <span class="s2">"--length"</span><span class="p">,</span> <span class="s2">"8"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"gen_secret"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">],</span>
+        <span class="c1"># The second `list` -- a different function, same word, different dict.</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">,</span> <span class="s2">"--pattern"</span><span class="p">,</span> <span class="s2">"x*"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">,</span> <span class="s2">"s1"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"archive"</span><span class="p">,</span> <span class="s2">"nope"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 6 -- i/wads pack. 34 parameters, `**configs`, and the store_false footgun.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">populate_pkg_dir</span><span class="p">(</span>
+    <span class="n">pkg_dir</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">root_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">author</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">author_email</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">license</span><span class="o">=</span><span class="s2">"mit"</span><span class="p">,</span>
+    <span class="n">keywords</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">project_urls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">classifiers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">python_requires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">install_requires</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">extras_require</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">entry_points</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">package_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_package_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">zip_safe</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">long_description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">long_description_content_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">platforms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">provides</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">obsoletes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">download_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">maintainer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">maintainer_email</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">docsrc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">display_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">configs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Populate a package directory from a template.</span>
+
+<span class="sd">    Thirty-four parameters, which is what makes the short-flag collision pass observable as</span>
+<span class="sd">    data rather than as a heuristic: with this many first characters almost everything</span>
+<span class="sd">    collides and almost nothing gets a short flag. `verbose: bool = True` becomes</span>
+<span class="sd">    `store_false`, so `--verbose` turns verbosity OFF -- the footgun D2 preserves on</span>
+<span class="sd">    purpose. And `**configs` contributes no command-line arguments at all.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"populate_pkg_dir(</span><span class="si">{</span><span class="n">pkg_dir</span><span class="si">!r}</span><span class="s2">) verbose=</span><span class="si">{</span><span class="n">verbose</span><span class="si">!r}</span><span class="s2"> license=</span><span class="si">{</span><span class="n">license</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"version=</span><span class="si">{</span><span class="n">version</span><span class="si">!r}</span><span class="s2"> dry_run=</span><span class="si">{</span><span class="n">dry_run</span><span class="si">!r}</span><span class="s2"> configs=</span><span class="si">{</span><span class="n">configs</span><span class="si">!r}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">go</span><span class="p">(</span><span class="n">pkg_dir</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Package and publish, in one step."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"go(</span><span class="si">{</span><span class="n">pkg_dir</span><span class="si">!r}</span><span class="s2">, version=</span><span class="si">{</span><span class="n">version</span><span class="si">!r}</span><span class="s2">, verbose=</span><span class="si">{</span><span class="n">verbose</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="n">WADS_PACK</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"wads_pack"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"pack"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"i/wads"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"Collision suppression at scale: 34 parameters, so almost no short flag survives. "</span>
+        <span class="s2">"`verbose: bool = True` -&gt; store_false, so `--verbose` turns verbosity OFF. "</span>
+        <span class="s2">"`**configs` contributes no CLI arguments, and the leftovers argparse never "</span>
+        <span class="s2">"produced are collected on ingress anyway."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">[</span><span class="n">populate_pkg_dir</span><span class="p">,</span> <span class="n">go</span><span class="p">],</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Utils to package and publish."</span><span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">populate_pkg_dir</span><span class="p">,</span> <span class="n">go</span><span class="p">],</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"pack"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Utils to package and publish."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">],</span>
+        <span class="c1"># The footgun, asserted rather than fixed: this turns verbosity OFF.</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--verbose"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"go"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--verbose"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"go"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"go"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--version"</span><span class="p">,</span> <span class="s2">"0.0.1"</span><span class="p">],</span>
+        <span class="c1"># `d` is shared by description/docsrc/display_name/download_url/dry_run, `v` by</span>
+        <span class="c1"># version/verbose. Almost nothing keeps a short flag, and `-d`/`-v` are errors.</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-d"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-v"</span><span class="p">],</span>
+        <span class="c1"># `l` is shared by license/long_description/long_description_content_type, so even</span>
+        <span class="c1"># `--license` -- which looks like it should own `-l` -- has no short flag.</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-l"</span><span class="p">,</span> <span class="s2">"apache"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--license"</span><span class="p">,</span> <span class="s2">"apache"</span><span class="p">],</span>
+        <span class="c1"># Exactly five first characters are unique across the 33 options, so exactly five</span>
+        <span class="c1"># short flags survive: -r -k -u -c -z. The collision pass is data, not a heuristic.</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-k"</span><span class="p">,</span> <span class="s2">"cli"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-z"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"-c"</span><span class="p">,</span> <span class="s2">"Topic"</span><span class="p">],</span>
+        <span class="c1"># `**configs` produces no flags, so this is a usage error, not a config key.</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--anything-at-all"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"populate-pkg-dir"</span><span class="p">,</span> <span class="s2">"/p"</span><span class="p">,</span> <span class="s2">"--dry-run"</span><span class="p">,</span> <span class="s2">"--overwrite"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 7 -- t/lacing. A quoted annotation, invisible to argh.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">to_version</span><span class="p">:</span> <span class="s2">"int | None"</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Upgrade PATH to the current store schema, in place.</span>
+
+<span class="sd">    Row 13: argh reads `__annotations__` raw, so this annotation is the STRING</span>
+<span class="sd">    `'int | None'`, which is not in its if-chain. The guesser returns nothing, the default</span>
+<span class="sd">    is None so the default-value path yields nothing either, and `to_version` arrives as a</span>
+<span class="sd">    `str`. That is why lacing's own body says "argh delivers option values as strings;</span>
+<span class="sd">    coerce here" -- and why the coercion may not be deleted until MODERN is opted into.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"migrate(</span><span class="si">{</span><span class="n">path</span><span class="si">!r}</span><span class="s2">, to_version=</span><span class="si">{</span><span class="n">to_version</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">fmt</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"annot"</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Convert an annotation file between formats."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"convert(</span><span class="si">{</span><span class="n">source</span><span class="si">!r}</span><span class="s2">, </span><span class="si">{</span><span class="n">target</span><span class="si">!r}</span><span class="s2">, fmt=</span><span class="si">{</span><span class="n">fmt</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">list_formats</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""List the annotation formats lacing understands."""</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"annot"</span><span class="p">,</span> <span class="s2">"csv"</span><span class="p">,</span> <span class="s2">"json"</span><span class="p">]</span>
+
+
+<span class="c1"># `convert_tree` below is a hyphenated positional that ALSO carries `choices` -- a shape</span>
+<span class="c1"># both corpora were structurally blind to until an adversarial review found it. argparse</span>
+<span class="c1"># reads a positional's registered name twice: as the displayed name in `usage:` and</span>
+<span class="c1"># `--help`, and as the name in `error: argument ...`. A synthesised `metavar` wins only the</span>
+<span class="c1"># second reading, so cw's old `add_argument('source_dir', metavar='source-dir')` printed</span>
+<span class="c1"># `source-dir` where argh prints `{annots,csvs}` -- with an identical error message, which</span>
+<span class="c1"># is why no error-level case could see it. Every `choices` case in both corpora was on an</span>
+<span class="c1"># OPTION, and every `Literal` positional had a one-word name. Keep the docstring short:</span>
+<span class="c1"># argh renders the RAW docstring into the parent's command listing.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_tree</span><span class="p">(</span><span class="n">source_dir</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"annots"</span><span class="p">,</span> <span class="s2">"csvs"</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">dry_run</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Convert a whole tree of annotation files."""</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"convert_tree(</span><span class="si">{</span><span class="n">source_dir</span><span class="si">!r}</span><span class="s2">, dry_run=</span><span class="si">{</span><span class="n">dry_run</span><span class="si">!r}</span><span class="s2">)"</span>
+
+
+<span class="n">LACING</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"lacing"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"lacing"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"t/lacing"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"A quoted annotation -- `to_version: 'int | None'` -- is read raw and matches "</span>
+        <span class="s2">"nothing, so the value arrives as a str and `repr` shows the quotes. This is live "</span>
+        <span class="s2">"in ~32 fleet files. Under cw.MODERN it would resolve to int; under cw.ARGH, which "</span>
+        <span class="s2">"is the default and what parity asserts, it must NOT. `convert-tree` adds the "</span>
+        <span class="s2">"hyphenated-positional-with-choices shape that both corpora were blind to."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="p">[</span><span class="n">migrate</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">list_formats</span><span class="p">,</span> <span class="n">convert_tree</span><span class="p">],</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Annotation store tooling."</span><span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="p">[</span><span class="n">migrate</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">list_formats</span><span class="p">,</span> <span class="n">convert_tree</span><span class="p">],</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"lacing"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Annotation store tooling."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"migrate"</span><span class="p">,</span> <span class="s2">"a.annot"</span><span class="p">],</span>
+        <span class="c1"># The assertion: `'3'`, with quotes. An int would mean cw resolved the hint.</span>
+        <span class="p">[</span><span class="s2">"migrate"</span><span class="p">,</span> <span class="s2">"a.annot"</span><span class="p">,</span> <span class="s2">"--to-version"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"migrate"</span><span class="p">,</span> <span class="s2">"a.annot"</span><span class="p">,</span> <span class="s2">"-t"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"convert"</span><span class="p">,</span> <span class="s2">"a.annot"</span><span class="p">,</span> <span class="s2">"b.csv"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"convert"</span><span class="p">,</span> <span class="s2">"a.annot"</span><span class="p">,</span> <span class="s2">"b.csv"</span><span class="p">,</span> <span class="s2">"--fmt"</span><span class="p">,</span> <span class="s2">"csv"</span><span class="p">],</span>
+        <span class="c1"># A list return iterates, one line each -- row 16, the egress whitelist.</span>
+        <span class="p">[</span><span class="s2">"list-formats"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"migrate"</span><span class="p">],</span>
+        <span class="c1"># The hyphenated-positional-with-choices shape. The `--help` case is the one that</span>
+        <span class="c1"># bites: a metavar-based dest repair prints `source-dir` where argh prints</span>
+        <span class="c1"># `{annots,csvs}`, and the two error cases below stay identical either way.</span>
+        <span class="p">[</span><span class="s2">"convert-tree"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"convert-tree"</span><span class="p">,</span> <span class="s2">"annots"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"convert-tree"</span><span class="p">,</span> <span class="s2">"zzz"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"convert-tree"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Shape 8 -- the contract rows no repo shape reaches: egress and errors.</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_none</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 17: None prints NOTHING -- not 'None', not a blank line."""</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_zero</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 17: 0 DOES print, which is why the check cannot be `if result:`."""</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_false</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 17: False DOES print."""</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_empty_string</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 17: '' DOES print -- as a blank line."""</span>
+    <span class="k">return</span> <span class="s2">""</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_list</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16: a list iterates, one line per item."""</span>
+    <span class="k">return</span> <span class="p">[</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_tuple</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16: a tuple iterates too."""</span>
+    <span class="k">return</span> <span class="p">(</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_dict</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16: a dict is NOT iterated. It prints its repr, on one line."""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"a"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_set</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16: a set is not in the whitelist either, so it prints its repr.</span>
+
+<span class="sd">    Set repr ordering is stable here only because the set has one element -- which is the</span>
+<span class="sd">    point: the corpus may not depend on hash ordering.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"only"</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_generator</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16: a generator IS in the whitelist, and iterates."""</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">returns_iterator</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 16, the trap: `iter([...])` is a `list_iterator`, NOT a GeneratorType.</span>
+
+<span class="sd">    The whitelist is three concrete types, so this prints a repr, not two lines. Any fleet</span>
+<span class="sd">    command returning `map(...)`, `filter(...)` or a comprehension-fed iterator is printing</span>
+<span class="sd">    a repr today.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">iter</span><span class="p">([</span><span class="s2">"alpha"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">streams_then_fails</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 18: a generator streams LAZILY, so what it yielded lands before the error."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="s2">"first"</span>
+        <span class="k">yield</span> <span class="s2">"second"</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"halfway"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gen</span><span class="p">()</span>
+
+
+<span class="c1">#: Which library's ``CommandError`` the contract shape raises. Row 19 is about what a</span>
+<span class="c1">#: framework does with *its own* expected-failure exception, so comparing cw's handling of</span>
+<span class="c1">#: ``cw.CommandError`` against argh's handling of ``cw.CommandError`` would compare nothing:</span>
+<span class="c1">#: argh does not recognise it and reports it as a crash. Both sides install their own.</span>
+<span class="n">_COMMAND_ERROR</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="use_command_error">
+<a class="viewcode-back" href="../../../module_docs/cw/tests/fixtures.html#cw.tests.fixtures.use_command_error">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">use_command_error</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Install the ``CommandError`` class the contract shape raises.</span>
+
+<span class="sd">    :func:`cw_outcome` installs :class:`cw.CommandError`; the dev-only recorder installs</span>
+<span class="sd">    ``argh.CommandError``. Neither side gets a default, because a default here would be a</span>
+<span class="sd">    silent way to record the wrong thing.</span>
+<span class="sd">    """</span>
+    <span class="n">_COMMAND_ERROR</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">cls</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_command_error</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Raise the installed ``CommandError``, with a code when one is asked for."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_COMMAND_ERROR</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">"no CommandError class installed: call fixtures.use_command_error(cls) first. "</span>
+            <span class="s2">"cw.tests.fixtures.cw_outcome does this for you."</span>
+        <span class="p">)</span>
+    <span class="bp">cls</span> <span class="o">=</span> <span class="n">_COMMAND_ERROR</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="bp">cls</span><span class="p">(</span><span class="n">message</span><span class="p">)</span> <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">cls</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raises_command_error</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 19: `CommandError` is one line on stderr and a non-zero exit, no traceback."""</span>
+    <span class="n">_command_error</span><span class="p">(</span><span class="s2">"no such pipeline"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raises_command_error_coded</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 19: and it carries its own exit code, which is NOT 1."""</span>
+    <span class="n">_command_error</span><span class="p">(</span><span class="s2">"gone"</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raises_system_exit_code</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 19: a SystemExit keeps its exit code."""</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raises_system_exit_message</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Row 19: a SystemExit with a string prints it and exits 1."""</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="s2">"bye"</span><span class="p">)</span>
+
+
+<span class="n">CONTRACT_COMMANDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">returns_none</span><span class="p">,</span>
+    <span class="n">returns_zero</span><span class="p">,</span>
+    <span class="n">returns_false</span><span class="p">,</span>
+    <span class="n">returns_empty_string</span><span class="p">,</span>
+    <span class="n">returns_list</span><span class="p">,</span>
+    <span class="n">returns_tuple</span><span class="p">,</span>
+    <span class="n">returns_dict</span><span class="p">,</span>
+    <span class="n">returns_set</span><span class="p">,</span>
+    <span class="n">returns_generator</span><span class="p">,</span>
+    <span class="n">returns_iterator</span><span class="p">,</span>
+    <span class="n">streams_then_fails</span><span class="p">,</span>
+    <span class="n">raises_command_error</span><span class="p">,</span>
+    <span class="n">raises_command_error_coded</span><span class="p">,</span>
+    <span class="n">raises_system_exit_code</span><span class="p">,</span>
+    <span class="n">raises_system_exit_message</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CONTRACT</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span>
+    <span class="s2">"contract"</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="s2">"contract"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="s2">"the D2 contract itself"</span><span class="p">,</span>
+    <span class="n">pins</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">"The egress and error rows, which every repo shape has in it but none exercises "</span>
+        <span class="s2">"on purpose: the three-concrete-type whitelist (a dict prints on ONE line and a "</span>
+        <span class="s2">"plain iterator prints a repr), None printing nothing while 0/False/'' print, "</span>
+        <span class="s2">"lazy generator streaming, and CommandError's one-line stderr and exit code."</span>
+    <span class="p">),</span>
+    <span class="n">rows</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="n">cw_obj</span><span class="o">=</span><span class="n">CONTRACT_COMMANDS</span><span class="p">,</span>
+    <span class="n">cw_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"The D2 contract rows, one command each."</span><span class="p">},</span>
+    <span class="n">argh_build</span><span class="o">=</span><span class="k">lambda</span> <span class="n">argh</span><span class="p">,</span> <span class="n">argparse</span><span class="p">:</span> <span class="n">_subcommands</span><span class="p">(</span>
+        <span class="n">argh</span><span class="p">,</span>
+        <span class="n">argparse</span><span class="p">,</span>
+        <span class="n">CONTRACT_COMMANDS</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"contract"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"The D2 contract rows, one command each."</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">cases</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">[],</span>
+        <span class="p">[</span><span class="s2">"--help"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-none"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-zero"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-false"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-empty-string"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-list"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-tuple"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-dict"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-set"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-generator"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"returns-iterator"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"streams-then-fails"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"raises-command-error"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"raises-command-error-coded"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"raises-system-exit-code"</span><span class="p">],</span>
+        <span class="p">[</span><span class="s2">"raises-system-exit-message"</span><span class="p">],</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># The registry, and the one function parity calls</span>
+<span class="c1"># =======================================================================================</span>
+
+<span class="c1">#: Every shape, by name. :func:`cw.testing.parity` looks a golden's ``shape`` up here.</span>
+<span class="n">SHAPES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">shape</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">shape</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">CONTRACT</span><span class="p">,</span>
+        <span class="n">COACT</span><span class="p">,</span>
+        <span class="n">EPYTHET</span><span class="p">,</span>
+        <span class="n">LACING</span><span class="p">,</span>
+        <span class="n">PRIV</span><span class="p">,</span>
+        <span class="n">THEREMIN</span><span class="p">,</span>
+        <span class="n">WADS_PACK</span><span class="p">,</span>
+        <span class="n">XA</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="shape_named">
+<a class="viewcode-back" href="../../../module_docs/cw/tests/fixtures.html#cw.tests.fixtures.shape_named">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">shape_named</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shape</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The shape called ``name``, or an error that names the real ones.</span>
+
+<span class="sd">    &gt;&gt;&gt; shape_named('theremin').models</span>
+<span class="sd">    't/theremin'</span>
+<span class="sd">    &gt;&gt;&gt; shape_named('nope')</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    KeyError: "no fixture shape named 'nope'. There are: contract, coact, epythet, lacing, priv, theremin, wads_pack, xa"</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SHAPES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"no fixture shape named </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">. There are: </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SHAPES</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="case_count">
+<a class="viewcode-back" href="../../../module_docs/cw/tests/fixtures.html#cw.tests.fixtures.case_count">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">case_count</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How many argv vectors the corpus holds, counted rather than asserted.</span>
+
+<span class="sd">    &gt;&gt;&gt; case_count() &gt; 100</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">cases</span><span class="p">)</span> <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">SHAPES</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolved_config</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``shape.cw_kwargs['config']`` with the ``'HIDE'`` placeholder made real.</span>
+
+<span class="sd">    The shapes are plain data and must not import ``cw`` at module scope -- that is what</span>
+<span class="sd">    lets this file ship inside the package without making ``import cw`` circular. So a</span>
+<span class="sd">    config leaf that means :data:`cw.HIDE` is written as the string ``'HIDE'`` and resolved</span>
+<span class="sd">    here, where ``cw`` is already imported.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HIDE</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">shape</span><span class="o">.</span><span class="n">cw_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"config"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">config</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">param</span><span class="p">:</span> <span class="p">(</span><span class="n">HIDE</span> <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">"HIDE"</span> <span class="k">else</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">leaf</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="cw_outcome">
+<a class="viewcode-back" href="../../../module_docs/cw/tests/fixtures.html#cw.tests.fixtures.cw_outcome">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cw_outcome</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run one case through cw, with every seam on its default, and report the outcome.</span>
+
+<span class="sd">    This is the cw half of the parity gate. The argh half lives in the dev-only recorder,</span>
+<span class="sd">    and the two share :func:`cw.testing.capture` so the comparison is between two runs of</span>
+<span class="sd">    the same measuring instrument.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">cw</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">capture</span>
+
+    <span class="n">use_command_error</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">CommandError</span><span class="p">)</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">cw_kwargs</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">shape</span><span class="o">.</span><span class="n">cw_obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"config"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">"config"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_resolved_config</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">capture</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">shape</span><span class="o">.</span><span class="n">cw_call</span><span class="p">(</span><span class="n">cw</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

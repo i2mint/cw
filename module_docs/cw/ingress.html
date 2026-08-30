@@ -1,0 +1,213 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.ingress &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cw.resolution" href="resolution.html" />
+    <link rel="prev" title="cw.grammar" href="grammar.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar.html">cw.grammar</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.ingress</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cw.ingress.mk_ingress"><code class="docutils literal notranslate"><span class="pre">mk_ingress()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.ingress</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/cw/ingress.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.ingress">
+<span id="cw-ingress"></span><h1>cw.ingress<a class="headerlink" href="#module-cw.ingress" title="Link to this heading"></a></h1>
+<p>Namespace to call: the lines that honour <code class="docutils literal notranslate"><span class="pre">/</span></code>, <code class="docutils literal notranslate"><span class="pre">*args</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</p>
+<p>This is the one job <code class="docutils literal notranslate"><span class="pre">i2.Sig.mk_args_and_kwargs</span></code> was going to buy, and it is a page of
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">inspect</span></code>. argh does the same job in its own dispatcher without i2, and so does cw:
+split <code class="docutils literal notranslate"><span class="pre">POSITIONAL_ONLY</span></code> and <code class="docutils literal notranslate"><span class="pre">POSITIONAL_OR_KEYWORD</span></code> into positional arguments, put
+<code class="docutils literal notranslate"><span class="pre">KEYWORD_ONLY</span></code> into a keyword dict, extend the positionals with <code class="docutils literal notranslate"><span class="pre">VAR_POSITIONAL</span></code>, and
+collect whatever is left over for <code class="docutils literal notranslate"><span class="pre">VAR_KEYWORD</span></code>.</p>
+<p><a class="reference internal" href="#cw.ingress.mk_ingress" title="cw.ingress.mk_ingress"><code class="xref py py-func docutils literal notranslate"><span class="pre">mk_ingress()</span></code></a> returns a callable whose contract is <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">value}</span> <span class="pre">-&gt;</span> <span class="pre">(args,</span> <span class="pre">kwargs)</span></code>
+– deliberately the <em>same</em> contract as <code class="docutils literal notranslate"><span class="pre">i2.wrapper.Ingress</span></code>, so that an i2 <code class="docutils literal notranslate"><span class="pre">Ingress</span></code>
+remains a drop-in substitute for anyone who wants one. The contract is honoured; the
+import is not paid. (It is reachable as <code class="docutils literal notranslate"><span class="pre">cw.ingress.mk_ingress</span></code> and is deliberately not
+re-exported from the <code class="docutils literal notranslate"><span class="pre">cw</span></code> facade: nobody has asked for it as a public name.)</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">move</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="s1">'.'</span><span class="p">,</span> <span class="o">*</span><span class="n">extra</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ingress</span> <span class="o">=</span> <span class="n">mk_ingress</span><span class="p">(</span><span class="n">move</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ingress</span><span class="p">({</span><span class="s1">'source'</span><span class="p">:</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'destination'</span><span class="p">:</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'extra'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'c'</span><span class="p">,</span> <span class="s1">'d'</span><span class="p">],</span>
+<span class="gp">... </span>         <span class="s1">'force'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">'dry_run'</span><span class="p">:</span> <span class="s1">'yes'</span><span class="p">})</span>
+<span class="go">(('a', 'b', 'c', 'd'), {'force': True, 'dry_run': 'yes'})</span>
+</pre></div>
+</div>
+<p>Note what that shows and what it hides. <code class="docutils literal notranslate"><span class="pre">source</span></code> is positional-only and <code class="docutils literal notranslate"><span class="pre">destination</span></code>
+is not, yet both are passed positionally – because a parameter’s <em>kind</em> decides how it is
+called, while <a class="reference internal" href="grammar.html#module-cw.grammar" title="cw.grammar"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cw.grammar</span></code></a> decides, separately, whether it is spelt <code class="docutils literal notranslate"><span class="pre">dest</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--destination</span></code> on the command line. And <code class="docutils literal notranslate"><span class="pre">dry_run</span></code> reaches <code class="docutils literal notranslate"><span class="pre">**options</span></code> only because
+something put it in the mapping; under <code class="xref py py-data docutils literal notranslate"><span class="pre">cw.ARGH</span></code> the parser never adds an argument
+for <code class="docutils literal notranslate"><span class="pre">**options</span></code> at all, so in a real dispatch that key is simply never there.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.ingress.mk_ingress">
+<span class="sig-prename descclassname"><span class="pre">cw.ingress.</span></span><span class="sig-name descname"><span class="pre">mk_ingress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">codecs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/cw/ingress.html#mk_ingress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.ingress.mk_ingress" title="Link to this definition"></a></dt>
+<dd><p>Build <code class="docutils literal notranslate"><span class="pre">{param_name:</span> <span class="pre">value}</span> <span class="pre">-&gt;</span> <span class="pre">(args,</span> <span class="pre">kwargs)</span></code> for one function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – The command. Inspected once, here, not on every call.</p></li>
+<li><p><strong>codecs</strong> – Optional per-parameter post-parse decoders, keyed by parameter name.
+<a class="reference internal" href="cli.html#module-cw.cli" title="cw.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cw.cli</span></code></a> fills this from each <a class="reference internal" href="grammar.html#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">cw.grammar.ArgSpec</span></code></a>’s <code class="docutils literal notranslate"><span class="pre">codec</span></code>, so
+that the promotion of a bare callable to a <a class="reference internal" href="../cw.html#cw.Codec" title="cw.Codec"><code class="xref py py-class docutils literal notranslate"><span class="pre">cw.Codec</span></code></a> happens in exactly
+one place. This is the “ingress site” of the two conversion sites – the other
+is argparse’s <code class="docutils literal notranslate"><span class="pre">type=</span></code>, and which one a conversion runs at is decided per
+parameter by which key you wrote.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a callable taking one mapping and returning <code class="docutils literal notranslate"><span class="pre">(args,</span> <span class="pre">kwargs)</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ingress</p>
+</dd>
+</dl>
+<p>Four rules, each of which is observable, and three of which are argh’s:</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">*args</span></code> parameter re-expands by extension rather than being passed as a tuple,
+which is why <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">estimate(*agents)</span></code> needs no configuration at all:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mk_ingress</span><span class="p">(</span><span class="k">lambda</span> <span class="o">*</span><span class="n">agents</span><span class="p">:</span> <span class="kc">None</span><span class="p">)({</span><span class="s1">'agents'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">]})</span>
+<span class="go">(('a', 'b'), {})</span>
+</pre></div>
+</div>
+<p>A parameter absent from the mapping falls back to the function’s own default. That is
+what makes <code class="docutils literal notranslate"><span class="pre">cw.HIDE</span></code> work: the argument is gone from the command line, and the
+function still receives the value it was partial-ed with.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">packages</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config_type</span><span class="o">=</span><span class="s1">'setup.cfg'</span><span class="p">):</span> <span class="o">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mk_ingress</span><span class="p">(</span><span class="n">packages</span><span class="p">)({</span><span class="s1">'project'</span><span class="p">:</span> <span class="s1">'p'</span><span class="p">})</span>
+<span class="go">(('p',), {'config_type': 'setup.cfg'})</span>
+</pre></div>
+</div>
+<p>A parameter that is neither supplied nor defaulted is an error naming the likely
+cause, rather than a <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeError</span></code> from deep inside the call:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mk_ingress</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pool</span><span class="p">:</span> <span class="kc">None</span><span class="p">)({})</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">  </span><span class="c">...</span>
+<span class="gr">cw.ingress.IngressError</span>: <span class="n">&lt;lambda&gt;: no value for parameter 'pool', and it has no</span>
+<span class="x">default. Was it hidden with cw.HIDE?</span>
+</pre></div>
+</div>
+<p>Leftover keys go to <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> when the function takes it, and are dropped when it
+does not – and under <code class="xref py py-data docutils literal notranslate"><span class="pre">cw.ARGH</span></code> nothing ever creates such a key, because argh
+contributes no command-line argument for <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> at all:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mk_ingress</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">rest</span><span class="p">:</span> <span class="kc">None</span><span class="p">)({</span><span class="s1">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'extra'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="go">((1,), {'extra': 2})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mk_ingress</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="kc">None</span><span class="p">)({</span><span class="s1">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'extra'</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="go">((1,), {})</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="grammar.html" class="btn btn-neutral float-left" title="cw.grammar" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="resolution.html" class="btn btn-neutral float-right" title="cw.resolution" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

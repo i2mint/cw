@@ -1,0 +1,4 @@
+cw.cli
+======
+.. automodule:: cw.cli
+   :members:

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.14 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -24,8 +24,8 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="cw.scrap" href="scrap.html" />
-    <link rel="prev" title="cw" href="../cw.html" /> 
+    <link rel="next" title="cw.testing" href="testing.html" />
+    <link rel="prev" title="cw.ingress" href="ingress.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,6 +50,15 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingress.html">cw.ingress</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">cw.resolution</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_ast_spec"><code class="docutils literal notranslate"><span class="pre">parse_ast_spec()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.parse_json_spec"><code class="docutils literal notranslate"><span class="pre">parse_json_spec()</span></code></a></li>
@@ -60,8 +69,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#cw.resolution.resource_inputs"><code class="docutils literal notranslate"><span class="pre">resource_inputs()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="scrap.html">cw.scrap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="util.html">cw.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/fixtures.html">cw.tests.fixtures</a></li>
 </ul>
 
         </div>
@@ -102,10 +112,10 @@
 <p>The main function is <cite>resolve_to_function</cite>, which can be used to resolve a function
 from a string specification or directly from a callable.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">apple</span><span class="p">,</span> <span class="n">banana</span><span class="p">,</span> <span class="n">carrot</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">"</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_ast_spec</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'a'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">resource_inputs</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">func</span><span class="p">,</span>
@@ -123,29 +133,29 @@ from a string specification or directly from a callable.</p>
 <p>Now apple will be resolved via resolve_to_function
 carrot will be resolved via resolve_to_function with custom params
 banana remains unchanged (passed through as-is)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;a()&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;apple=&lt;built-in function len&gt;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple='builtins.len' -&gt; resolve_to_function('builtins.len') -&gt; len function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana='test' -&gt; unchanged (no resource specified)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot='a()' -&gt; parsed as AST, resolved via function_store</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">'builtins.len'</span><span class="p">,</span> <span class="s1">'test'</span><span class="p">,</span> <span class="s1">'a()'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'apple=&lt;built-in function len&gt;'</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;banana=&#39;test&#39;&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">"banana='test'"</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;carrot=&lt;function&#39;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">&#39;lambda&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'carrot=&lt;function'</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">'lambda'</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
 </pre></div>
 </div>
 <p>An example of using the resolve_to_function function directly:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON format</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">json_spec</span> <span class="o">=</span> <span class="s1">&#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">json_spec</span> <span class="o">=</span> <span class="s1">'{"func": "len", "params": </span><span class="si">{}</span><span class="s1">}'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="n">json_spec</span><span class="p">,</span> <span class="n">parse_json_spec</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="go">3</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Dot path format</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s2">&quot;builtins.len&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s2">"builtins.len"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="go">3</span>
 </pre></div>
@@ -167,16 +177,16 @@ banana remains unchanged (passed through as-is)</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;len()&#39;</span><span class="p">)</span>
-<span class="go">(&#39;len&#39;, {})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">'len()'</span><span class="p">)</span>
+<span class="go">('len', {})</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;str.replace(old=&quot;a&quot;, new=&quot;b&quot;)&#39;</span><span class="p">)</span>
-<span class="go">(&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">'str.replace(old="a", new="b")'</span><span class="p">)</span>
+<span class="go">('str.replace', {'old': 'a', 'new': 'b'})</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">&#39;range(start=0, stop=10)&#39;</span><span class="p">)</span>
-<span class="go">(&#39;range&#39;, {&#39;start&#39;: 0, &#39;stop&#39;: 10})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ast_spec</span><span class="p">(</span><span class="s1">'range(start=0, stop=10)'</span><span class="p">)</span>
+<span class="go">('range', {'start': 0, 'stop': 10})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -198,12 +208,12 @@ banana remains unchanged (passed through as-is)</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">&#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span><span class="p">)</span>
-<span class="go">(&#39;len&#39;, {})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">'{"func": "len", "params": </span><span class="si">{}</span><span class="s1">}'</span><span class="p">)</span>
+<span class="go">('len', {})</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">&#39;{&quot;func&quot;: &quot;str.replace&quot;, &quot;params&quot;: {&quot;old&quot;: &quot;a&quot;, &quot;new&quot;: &quot;b&quot;}}&#39;</span><span class="p">)</span>
-<span class="go">(&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_json_spec</span><span class="p">(</span><span class="s1">'{"func": "str.replace", "params": {"old": "a", "new": "b"}}'</span><span class="p">)</span>
+<span class="go">('str.replace', {'old': 'a', 'new': 'b'})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -226,12 +236,12 @@ then returns it as-is with empty kwargs.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">&#39;os.path.join&#39;</span><span class="p">)</span>
-<span class="go">(&#39;os.path.join&#39;, {})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">'os.path.join'</span><span class="p">)</span>
+<span class="go">('os.path.join', {})</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">&#39;len&#39;</span><span class="p">)</span>
-<span class="go">(&#39;len&#39;, {})</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="s1">'len'</span><span class="p">)</span>
+<span class="go">('len', {})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -253,19 +263,19 @@ then returns it as-is with empty kwargs.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;os.path.join&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">)</span>
-<span class="go">&#39;a/b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">'os.path.join'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">join_func</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">)</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'a'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">)</span>   <span class="c1"># a separator, whichever OS</span>
+<span class="go">True</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">len_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">len_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">'builtins.len'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">len_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="go">3</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">&#39;str.upper&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
-<span class="go">&#39;HELLO&#39;</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">(</span><span class="s1">'str.upper'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">upper_func</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">)</span>
+<span class="go">'HELLO'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -337,14 +347,14 @@ By default, will parse dot-path function names and call expressions.</p></li>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Simple string (dot path)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">length_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">length_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">'builtins.len'</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">length_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="go">3</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># JSON format</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">json_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s1">&#39;{&quot;func&quot;: &quot;builtins.len&quot;, &quot;params&quot;: </span><span class="si">{}</span><span class="s1">}&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s1">'{"func": "builtins.len", "params": </span><span class="si">{}</span><span class="s1">}'</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">parse_json_spec</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">json_func</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
@@ -352,9 +362,9 @@ By default, will parse dot-path function names and call expressions.</p></li>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># AST format</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">&#39;str.upper()&#39;</span><span class="p">,</span> <span class="n">parse_ast_spec</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span><span class="p">(</span><span class="s1">&#39;hello&#39;</span><span class="p">)</span>
-<span class="go">&#39;HELLO&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">(</span><span class="s1">'str.upper()'</span><span class="p">,</span> <span class="n">parse_ast_spec</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ast_func</span><span class="p">(</span><span class="s1">'hello'</span><span class="p">)</span>
+<span class="go">'HELLO'</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -383,10 +393,10 @@ resolved to actual objects/functions.</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">apple</span><span class="p">,</span> <span class="n">banana</span><span class="p">,</span> <span class="n">carrot</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">&quot;</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">apple</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">banana</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">carrot</span><span class="si">=}</span><span class="s2">"</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_ast_spec</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">function_store</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'a'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">resource_inputs</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">func</span><span class="p">,</span>
@@ -404,15 +414,15 @@ resolved to actual objects/functions.</p>
 <p>Now apple will be resolved via resolve_to_function
 carrot will be resolved via resolve_to_function with custom params
 banana remains unchanged (passed through as-is)</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">&#39;builtins.len&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;a()&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;apple=&lt;built-in function len&gt;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># apple='builtins.len' -&gt; resolve_to_function('builtins.len') -&gt; len function</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># banana='test' -&gt; unchanged (no resource specified)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># carrot='a()' -&gt; parsed as AST, resolved via function_store</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">wrapped_func</span><span class="p">(</span><span class="s1">'builtins.len'</span><span class="p">,</span> <span class="s1">'test'</span><span class="p">,</span> <span class="s1">'a()'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'apple=&lt;built-in function len&gt;'</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;banana=&#39;test&#39;&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s2">"banana='test'"</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="s1">&#39;carrot=&lt;function&#39;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">&#39;lambda&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'carrot=&lt;function'</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">and</span> <span class="s1">'lambda'</span> <span class="ow">in</span> <span class="n">result</span>
 <span class="go">True</span>
 </pre></div>
 </div>
@@ -424,14 +434,14 @@ banana remains unchanged (passed through as-is)</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../cw.html" class="btn btn-neutral float-left" title="cw" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="scrap.html" class="btn btn-neutral float-right" title="cw.scrap" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="ingress.html" class="btn btn-neutral float-left" title="cw.ingress" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="testing.html" class="btn btn-neutral float-right" title="cw.testing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright NO COPYRIGHT.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

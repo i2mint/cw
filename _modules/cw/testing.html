@@ -1,0 +1,1174 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.testing &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.testing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.testing</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Record a CLI's behaviour before a migration and assert it after.</span>
+
+<span class="sd">This file is **standalone** (D4). Its module-level imports are ``argparse``, ``difflib``,</span>
+<span class="sd">``json``, ``os``, ``re``, ``shlex``, ``subprocess`` and ``sys`` -- stdlib, all of it, and no</span>
+<span class="sd">``cw`` anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose</span>
+<span class="sd">CLI is being deleted and 35 that are argparse-only and will never depend on ``cw``, and all</span>
+<span class="sd">of them want the same thing: *proof that the command line did not change*. Copy this one</span>
+<span class="sd">file into such a repo and it works.</span>
+
+<span class="sd">Three entry points, in the order you meet them:</span>
+
+<span class="sd">``characterize(prog, cases)``</span>
+<span class="sd">    Run a **real console script** as a subprocess against a list of ``argv`` vectors and</span>
+<span class="sd">    record what a shell would see. Do this **before** you touch anything.</span>
+
+<span class="sd">``replay(golden)`` / ``assert_replay(golden)``</span>
+<span class="sd">    Run it again and diff. Do this **after**.</span>
+
+<span class="sd">``parity()``</span>
+<span class="sd">    cw's own gate: replay the committed argh-recorded goldens for the seven hard-case</span>
+<span class="sd">    shapes through cw. This one -- and only this one -- imports ``cw``, lazily, inside the</span>
+<span class="sd">    function, so the standalone guarantee above survives.</span>
+
+<span class="sd">The golden format: one format, three tiers</span>
+<span class="sd">------------------------------------------</span>
+
+<span class="sd">===== =========================================================== =================</span>
+<span class="sd">tier  content                                                     treatment</span>
+<span class="sd">===== =========================================================== =================</span>
+<span class="sd">1     ``argv``, ``returncode``, full ``stdout``, full ``stderr``   **asserted**</span>
+<span class="sd">2     the normalised ``usage:`` line                               **asserted**</span>
+<span class="sd">3     the full ``--help`` body                                     snapshot only</span>
+<span class="sd">===== =========================================================== =================</span>
+
+<span class="sd">Tier 3's body is not asserted by default because ``--help`` wraps to ``COLUMNS`` and</span>
+<span class="sd">because CPython itself rewrites it between versions (3.13 renders ``-i, --ignore VALUE``</span>
+<span class="sd">where 3.12 rendered ``-i VALUE, --ignore VALUE``), so a committed golden replayed across a</span>
+<span class="sd">matrix would fail for reasons nobody caused. Tier 2 does most of the work tier 3 looks like</span>
+<span class="sd">it would: argparse's ``usage:`` line names **every** option a parser has, so a lost flag, a</span>
+<span class="sd">lost short flag or a changed ``nargs`` all show up there, whitespace-collapsed and</span>
+<span class="sd">width-independent.</span>
+
+<span class="sd">**What tier 2 cannot see, and what to do about it.** A change of *formatter* -- which is</span>
+<span class="sd">exactly what swapping one dispatcher for another can do -- moves the help column and the</span>
+<span class="sd">description block and touches neither the ``usage:`` line nor any exit code. So</span>
+<span class="sd">:func:`replay` compares the tier-3 body anyway, through :func:`normalise_help`, and reports</span>
+<span class="sd">a case whose body moved as the non-fatal status ``help-differs`` rather than calling it</span>
+<span class="sd">``identical``. ``replay(..., strict_help=True)`` (``--strict-help`` on the command line)</span>
+<span class="sd">makes it fatal, which is the right setting for a migration that promised ``--help`` would</span>
+<span class="sd">not move; :func:`diff_help` prints the unnormalised difference for a human to read.</span>
+
+<span class="sd">Windows (ADR: option A, "normalise")</span>
+<span class="sd">------------------------------------</span>
+
+<span class="sd">Recorded text is stored newline-normalised (``\\r\\n`` and ``\\r`` both become ``\\n``) and</span>
+<span class="sd">every comparison normalises both sides, so a golden recorded on a Mac asserts cleanly on a</span>
+<span class="sd">Windows runner. The subprocess environment pins ``COLUMNS``, ``PYTHONUTF8``,</span>
+<span class="sd">``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM`` so the bytes are reproducible rather</span>
+<span class="sd">than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``</span>
+<span class="sd">line, because ``shlex`` is POSIX-only and a Windows user must never need it. And</span>
+<span class="sd">:func:`parity` spawns no subprocess at all -- it runs in-process against shipped fixtures --</span>
+<span class="sd">so the ``.exe`` console-script shim and the cp1252 console never enter the picture.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalise_text('a\\r\\nb\\r\\n')</span>
+<span class="sd">    'a\\nb\\n'</span>
+<span class="sd">    &gt;&gt;&gt; normalise_usage('usage: prog [-h]\\n            [--wrapped]\\n\\nSome description.')</span>
+<span class="sd">    'usage: prog [-h] [--wrapped]'</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">difflib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shlex</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"GOLDEN_VERSION"</span><span class="p">,</span>
+    <span class="s2">"RECORDING_ENV"</span><span class="p">,</span>
+    <span class="s2">"assert_replay"</span><span class="p">,</span>
+    <span class="s2">"capture"</span><span class="p">,</span>
+    <span class="s2">"characterize"</span><span class="p">,</span>
+    <span class="s2">"compare_case"</span><span class="p">,</span>
+    <span class="s2">"diff_help"</span><span class="p">,</span>
+    <span class="s2">"load_golden"</span><span class="p">,</span>
+    <span class="s2">"main"</span><span class="p">,</span>
+    <span class="s2">"normalise_text"</span><span class="p">,</span>
+    <span class="s2">"normalise_usage"</span><span class="p">,</span>
+    <span class="s2">"parity"</span><span class="p">,</span>
+    <span class="s2">"pinned_env"</span><span class="p">,</span>
+    <span class="s2">"read_cases"</span><span class="p">,</span>
+    <span class="s2">"replay"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: Bumped when the golden JSON schema changes incompatibly. A golden that does not carry</span>
+<span class="c1">#: this key is not a golden, and saying so beats a :class:`KeyError` three frames later.</span>
+<span class="n">GOLDEN_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#: Terminal width pinned during recording. ``argparse`` wraps help and usage text to</span>
+<span class="c1">#: ``shutil.get_terminal_size()``, which reads ``COLUMNS`` first -- so pinning it is what</span>
+<span class="c1">#: makes recorded text reproducible on a machine with a different terminal.</span>
+<span class="n">DFLT_COLUMNS</span> <span class="o">=</span> <span class="s2">"100"</span>
+
+<span class="c1">#: The environment pinned around every recorded and replayed run. Everything here exists to</span>
+<span class="c1">#: remove a source of variation between two machines, not to make the CLI behave specially.</span>
+<span class="n">RECORDING_ENV</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"COLUMNS"</span><span class="p">:</span> <span class="n">DFLT_COLUMNS</span><span class="p">,</span>
+    <span class="s2">"PYTHONUTF8"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+    <span class="s2">"PYTHONIOENCODING"</span><span class="p">:</span> <span class="s2">"utf-8"</span><span class="p">,</span>
+    <span class="s2">"PYTHONHASHSEED"</span><span class="p">:</span> <span class="s2">"0"</span><span class="p">,</span>
+    <span class="s2">"TERM"</span><span class="p">:</span> <span class="s2">"dumb"</span><span class="p">,</span>
+    <span class="s2">"NO_COLOR"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">#: Environment variables actively *removed* before a recorded run: they make argcomplete or</span>
+<span class="c1">#: a pager take over, which is not the behaviour anybody wants to pin.</span>
+<span class="n">UNSET_ENV</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_ARGCOMPLETE"</span><span class="p">,</span> <span class="s2">"COMP_LINE"</span><span class="p">,</span> <span class="s2">"COMP_POINT"</span><span class="p">,</span> <span class="s2">"PAGER"</span><span class="p">,</span> <span class="s2">"LINES"</span><span class="p">)</span>
+
+<span class="c1">#: An ``argv`` containing one of these asks for a ``--help`` body, which is tier 3.</span>
+<span class="n">HELP_FLAGS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"-h"</span><span class="p">,</span> <span class="s2">"--help"</span><span class="p">)</span>
+
+<span class="c1">#: What a tier-1 case asserts, and what a tier-3 case asserts. The difference is the whole</span>
+<span class="c1">#: of the three-tier rule; there is no other place in this file where a tier is consulted.</span>
+<span class="n">TIER1_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"returncode"</span><span class="p">,</span> <span class="s2">"stdout"</span><span class="p">,</span> <span class="s2">"stderr"</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">)</span>
+<span class="n">TIER3_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"returncode"</span><span class="p">,</span> <span class="s2">"usage"</span><span class="p">)</span>
+
+<span class="c1">#: Seconds a single recorded case may take before it is reported as a failure.</span>
+<span class="n">DFLT_TIMEOUT</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="c1">#: A blank line -- the one whitespace that means something in a ``--help`` body, because a</span>
+<span class="c1">#: paragraph break survives wrapping and a line break inside a paragraph does not.</span>
+<span class="n">_BLANK_LINE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\n[ \t]*\n"</span><span class="p">)</span>
+
+<span class="c1">#: Where :func:`parity` looks when it is not told. Ships inside the package, so the gate</span>
+<span class="c1">#: runs from an installed ``cw`` and not only from a checkout.</span>
+<span class="n">DFLT_GOLDENS_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">"tests"</span><span class="p">,</span> <span class="s2">"goldens"</span>
+<span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># Normalisation -- the two functions every comparison goes through</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+<span class="c1">#: The ``usage:`` block: from a line starting ``usage:`` up to the first blank line.</span>
+<span class="n">_USAGE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^usage:.*?(?=\n[ \t]*\n|\Z)"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span> <span class="o">|</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="normalise_text">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.normalise_text">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalise_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Newline-normalise ``text`` so a Mac recording asserts on a Windows runner.</span>
+
+<span class="sd">    This is the whole of the Windows decision (option A) as it applies to tier 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalise_text('one\\r\\ntwo\\rthree\\n')</span>
+<span class="sd">    'one\\ntwo\\nthree\\n'</span>
+<span class="sd">    &gt;&gt;&gt; normalise_text(None) is None</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\r\n</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"</span><span class="se">\r</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<span class="c1">#: ``(choose from 'a', 'b')`` -- argparse quoted the items until 3.11 and stopped in 3.12.</span>
+<span class="n">_CHOOSE_FROM</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\(choose from [^)]*\)"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">canonical_argparse_text</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Neutralise the *interpreter's* argparse rendering, so a golden replays anywhere.</span>
+
+<span class="sd">    A golden records what **argh** printed on the machine that recorded it; the gate</span>
+<span class="sd">    replays it against what **cw** prints here. Those are only the same claim when both</span>
+<span class="sd">    sides are read through the same argparse. Two renderings are not — they are CPython's,</span>
+<span class="sd">    identical for argh and cw on any one interpreter, and different between interpreters:</span>
+
+<span class="sd">    - the ``invalid choice`` message quoted its choices up to 3.11 and stopped in 3.12;</span>
+<span class="sd">    - the ``usage:`` block's line wrapping changed in 3.13 (a trailing ``...`` that used</span>
+<span class="sd">      to wrap now does not).</span>
+
+<span class="sd">    Comparing those would assert the recording machine's Python version, not cw's grammar,</span>
+<span class="sd">    and cw's CI matrix spans 3.10 and 3.12. So both are canonicalised on *both* sides.</span>
+<span class="sd">    Nothing else is forgiven: this is the only normalisation beyond newlines, and each of</span>
+<span class="sd">    its two rules names the CPython change it answers.</span>
+
+<span class="sd">    &gt;&gt;&gt; canonical_argparse_text("x: error: invalid choice: 'q' (choose from 'a', 'b')")</span>
+<span class="sd">    "x: error: invalid choice: 'q' (choose from a, b)"</span>
+<span class="sd">    &gt;&gt;&gt; canonical_argparse_text('usage: p [-h]\\n       {a,b}\\n       ...\\n\\nnext')</span>
+<span class="sd">    'usage: p [-h] {a,b} ...\\n\\nnext'</span>
+
+<span class="sd">    Text with neither is returned unchanged:</span>
+
+<span class="sd">    &gt;&gt;&gt; canonical_argparse_text('hello\\n')</span>
+<span class="sd">    'hello\\n'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_CHOOSE_FROM</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"'"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_USAGE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="k">lambda</span> <span class="n">m</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()),</span> <span class="n">text</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalise_help</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A ``--help`` body with wrapping removed but paragraph structure kept.</span>
+
+<span class="sd">    Everything the terminal width controls is whitespace *inside* a paragraph, so collapsing</span>
+<span class="sd">    each paragraph to single-spaced words makes the body width-independent while still</span>
+<span class="sd">    showing that ``argh``'s ``RawDescriptionHelpFormatter`` was lost (a multi-paragraph</span>
+<span class="sd">    docstring reflowed into one paragraph) and that a default rendered ``None`` where it</span>
+<span class="sd">    rendered ``-``.</span>
+
+<span class="sd">    It is what ``--strict-help`` compares. It is deliberately **not** what :func:`parity`</span>
+<span class="sd">    compares: parity replays goldens across a CPython matrix, and 3.13 rewrote argparse's</span>
+<span class="sd">    own option column (``-i, --ignore [IGNORE ...]`` where 3.12 wrote</span>
+<span class="sd">    ``-i [IGNORE ...], --ignore [IGNORE ...]``), which is CPython's change and not cw's.</span>
+<span class="sd">    A ``characterize`` / ``replay`` pair runs on one machine at one interpreter, where that</span>
+<span class="sd">    cannot happen.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalise_help('Serve it.\\n\\nSecond para,\\nwrapped.\\n')</span>
+<span class="sd">    'Serve it.\\n\\nSecond para, wrapped.'</span>
+<span class="sd">    """</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">_BLANK_LINE</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">text</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="n">blocks</span> <span class="k">if</span> <span class="n">block</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="normalise_usage">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.normalise_usage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalise_usage</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The ``usage:`` block of ``text``, whitespace-collapsed and width-independent.</span>
+
+<span class="sd">    ``argparse`` wraps the usage block to the terminal width, so the same parser prints it</span>
+<span class="sd">    over two lines at ``COLUMNS=100`` and five at ``COLUMNS=50``. Collapsing every run of</span>
+<span class="sd">    whitespace to one space makes the two equal while keeping what actually matters: which</span>
+<span class="sd">    options exist, in which order, with which metavars.</span>
+
+<span class="sd">    &gt;&gt;&gt; normalise_usage('usage: prog [-h] [-v]\\n\\npositional arguments:\\n  x')</span>
+<span class="sd">    'usage: prog [-h] [-v]'</span>
+<span class="sd">    &gt;&gt;&gt; normalise_usage('usage: prog\\n       [--a]\\n       [--b] x')</span>
+<span class="sd">    'usage: prog [--a] [--b] x'</span>
+
+<span class="sd">    Text with no usage block at all -- a command that just printed its result -- normalises</span>
+<span class="sd">    to the empty string rather than raising, because "this case shows no usage line" is a</span>
+<span class="sd">    fact worth asserting too:</span>
+
+<span class="sd">    &gt;&gt;&gt; normalise_usage('hello world\\n')</span>
+<span class="sd">    ''</span>
+<span class="sd">    """</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_USAGE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="s2">""</span></div>
+
+
+
+<span class="c1">#: A CPython object repr's memory address: ``&lt;list_iterator object at 0x1017642e0&gt;``.</span>
+<span class="n">_ADDRESS</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"0x[0-9a-fA-F]{4,16}"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">scrub_addresses</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Replace object-repr memory addresses with a placeholder.</span>
+
+<span class="sd">    The one **content** normalisation in this module, and it exists because a golden that</span>
+<span class="sd">    records ``&lt;list_iterator object at 0x1017642e0&gt;`` asserts the heap layout of the machine</span>
+<span class="sd">    that recorded it. It is applied at record time as well as at replay time, so the</span>
+<span class="sd">    committed golden shows what is actually being asserted rather than hiding it in the</span>
+<span class="sd">    comparator.</span>
+
+<span class="sd">    &gt;&gt;&gt; scrub_addresses('&lt;map object at 0x104f2b910&gt;')</span>
+<span class="sd">    '&lt;map object at 0xADDR&gt;'</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_ADDRESS</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">"0xADDR"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_usage_of</span><span class="p">(</span><span class="n">stdout</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stderr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The normalised ``usage:`` line, from wherever the CLI put it.</span>
+
+<span class="sd">    ``--help`` writes it to stdout and a usage error writes it to stderr, and a golden</span>
+<span class="sd">    should not have to know which happened.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">normalise_usage</span><span class="p">(</span><span class="n">stdout</span><span class="p">)</span> <span class="ow">or</span> <span class="n">normalise_usage</span><span class="p">(</span><span class="n">stderr</span><span class="p">)</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># Cases -- the argv vectors, in either of two spellings</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_argv</span><span class="p">(</span><span class="n">case</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One case as a list of strings, from either spelling.</span>
+
+<span class="sd">    A JSON list is the cross-platform form; a ``shlex`` line is the convenient one.</span>
+
+<span class="sd">    &gt;&gt;&gt; _as_argv('quickstart . --ignore')</span>
+<span class="sd">    ['quickstart', '.', '--ignore']</span>
+<span class="sd">    &gt;&gt;&gt; _as_argv('["quickstart", ".", "--ignore"]')</span>
+<span class="sd">    ['quickstart', '.', '--ignore']</span>
+<span class="sd">    &gt;&gt;&gt; _as_argv(['already', 'split'])</span>
+<span class="sd">    ['already', 'split']</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">case</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">case</span><span class="p">]</span>
+    <span class="n">stripped</span> <span class="o">=</span> <span class="n">case</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">stripped</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"["</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">stripped</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="read_cases">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.read_cases">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_cases</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The ``argv`` vectors in a cases file, one per line.</span>
+
+<span class="sd">    Each line is either a JSON list -- ``["a", "b c"]`` -- or a POSIX ``shlex`` line.</span>
+<span class="sd">    Blank lines and ``#`` comments are skipped, and a line of ``[]`` (or nothing but</span>
+<span class="sd">    whitespace before a comment) is *not* a way to spell the empty argv: use ``[]``</span>
+<span class="sd">    explicitly.</span>
+
+<span class="sd">    Both spellings exist for one reason: ``shlex`` is POSIX-only, so a Windows user writing</span>
+<span class="sd">    a corpus must have a form that never reaches it.</span>
+<span class="sd">    """</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">_as_argv</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">)</span>
+    <span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_tier_of</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">help_flags</span><span class="o">=</span><span class="n">HELP_FLAGS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``3`` if ``argv`` asks for a help body, else ``1``.</span>
+
+<span class="sd">    &gt;&gt;&gt; _tier_of(['spawn', '-x']), _tier_of(['spawn', '--help'])</span>
+<span class="sd">    (1, 3)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="mi">3</span> <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">flag</span> <span class="ow">in</span> <span class="n">argv</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">help_flags</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># Running a case -- in a subprocess (characterize/replay) or in-process (parity)</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_env_for</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``os.environ`` with the recording pins applied and the disruptors removed."""</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+    <span class="n">resolved</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RECORDING_ENV</span><span class="p">)</span>
+    <span class="n">resolved</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNSET_ENV</span><span class="p">:</span>
+        <span class="n">resolved</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">resolved</span>
+
+
+<div class="viewcode-block" id="pinned_env">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.pinned_env">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">pinned_env</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Context manager applying :data:`RECORDING_ENV` to the **current** process.</span>
+
+<span class="sd">    :func:`characterize` hands the pins to a subprocess, where they belong. :func:`parity`</span>
+<span class="sd">    runs in-process and needs the same pins applied here instead -- ``COLUMNS`` above all,</span>
+<span class="sd">    since that is what ``argparse`` wraps to.</span>
+
+<span class="sd">    &gt;&gt;&gt; with pinned_env():</span>
+<span class="sd">    ...     os.environ['COLUMNS']</span>
+<span class="sd">    '100'</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">RECORDING_ENV</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{}))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">UNSET_ENV</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNSET_ENV</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exc_info</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_exit_status</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">SystemExit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``(returncode, extra_stderr)`` -- the exit the interpreter would give ``exc``.</span>
+
+<span class="sd">    ``SystemExit(None)`` is 0, ``SystemExit(int)`` is that int, and ``SystemExit(str)``</span>
+<span class="sd">    prints the string to stderr and exits 1. Reproducing all three is what lets an</span>
+<span class="sd">    in-process run be compared against a subprocess recording.</span>
+
+<span class="sd">    &gt;&gt;&gt; _exit_status(SystemExit()), _exit_status(SystemExit(3)), _exit_status(SystemExit('bye'))</span>
+<span class="sd">    ((0, ''), (3, ''), (1, 'bye\\n'))</span>
+<span class="sd">    """</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">exc</span><span class="o">.</span><span class="n">code</span>
+    <span class="k">if</span> <span class="n">code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">code</span><span class="p">,</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+
+
+<div class="viewcode-block" id="capture">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.capture">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">capture</span><span class="p">(</span><span class="n">call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Run ``call()`` with file descriptors 1 and 2 captured; report what a shell would see.</span>
+
+<span class="sd">    Capture is at the **file-descriptor** level, and ``sys.stdout`` / ``sys.stderr`` are</span>
+<span class="sd">    then re-pointed at those same descriptors. Both halves are load-bearing, for opposite</span>
+<span class="sd">    reasons:</span>
+
+<span class="sd">    * the descriptor half, because argh binds ``output_file=sys.stdout`` at import</span>
+<span class="sd">      (``dispatching.py:77``) and writes through that original object forever after -- a</span>
+<span class="sd">      ``redirect_stdout`` around it captures nothing at all; and</span>
+<span class="sd">    * the ``sys`` half, because a *caller* may already have rebound ``sys.stdout`` to</span>
+<span class="sd">      something that is not descriptor 1. pytest does exactly this, and without the second</span>
+<span class="sd">      half every command's output would land in pytest's buffer and the recording would</span>
+<span class="sd">      come back empty.</span>
+
+<span class="sd">    Using one mechanism for both sides of a diff is what makes the diff mean something, so</span>
+<span class="sd">    it has to be the mechanism that works in every process either side might run in.</span>
+
+<span class="sd">    ``call`` takes no arguments and returns an exit code, or raises :class:`SystemExit`. An</span>
+<span class="sd">    exception that escapes is reported as ``returncode`` 1 with its ``Type: message`` line</span>
+<span class="sd">    on stderr -- what the interpreter shows, minus a traceback whose file paths would differ</span>
+<span class="sd">    on every machine.</span>
+
+<span class="sd">    The example writes to the descriptor rather than through ``print`` for a reason worth</span>
+<span class="sd">    knowing: ``doctest`` rebinds ``sys.stdout`` to collect a doctest's own output, so a</span>
+<span class="sd">    ``print`` here would be intercepted by ``doctest`` and never reach the descriptor at</span>
+<span class="sd">    all. Real CLIs write to ``sys.stdout``, which *is* the descriptor -- which is why this</span>
+<span class="sd">    mechanism works where it matters and looks awkward only here.</span>
+
+<span class="sd">    &gt;&gt;&gt; capture(lambda: os.write(1, b'hi\\n') and 0)</span>
+<span class="sd">    {'returncode': 0, 'stdout': 'hi\\n', 'stderr': ''}</span>
+<span class="sd">    &gt;&gt;&gt; capture(lambda: sys.exit('bye'))</span>
+<span class="sd">    {'returncode': 1, 'stdout': '', 'stderr': 'bye\\n'}</span>
+<span class="sd">    &gt;&gt;&gt; capture(lambda: 1 // 0)['stderr']</span>
+<span class="sd">    'ZeroDivisionError: integer division or modulo by zero\\n'</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>  <span class="c1"># local: only this function needs it, and D4 counts module imports</span>
+
+    <span class="n">saved_streams</span> <span class="o">=</span> <span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="n">_flush</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">,</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">err_file</span><span class="p">:</span>
+        <span class="n">saved_fds</span> <span class="o">=</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">trailer</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">out_file</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">err_file</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">_stream_on_fd</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">_stream_on_fd</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">returncode</span> <span class="o">=</span> <span class="n">call</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">0</span>
+            <span class="k">except</span> <span class="ne">SystemExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">returncode</span><span class="p">,</span> <span class="n">trailer</span> <span class="o">=</span> <span class="n">_exit_status</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># noqa: BLE001 - a crash IS the recorded fact</span>
+                <span class="n">trailer</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="n">returncode</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># Flush the streams we installed AND the ones we displaced, in that order.</span>
+            <span class="c1"># The displaced ones matter and are easy to forget: argh writes through the</span>
+            <span class="c1"># `sys.stdout` object it captured at import, which is block-buffered whenever</span>
+            <span class="c1"># descriptor 1 is a pipe or a redirect rather than a terminal. Skip this flush</span>
+            <span class="c1"># and its buffer drains *after* the descriptor is restored -- so recording</span>
+            <span class="c1"># through a pipe silently produces empty goldens, and only through a terminal</span>
+            <span class="c1"># produces real ones. That is a difference no reviewer would ever suspect.</span>
+            <span class="n">_flush</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="o">*</span><span class="n">saved_streams</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">saved_streams</span>
+            <span class="k">for</span> <span class="n">saved</span><span class="p">,</span> <span class="n">fd</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">saved_fds</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">saved</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">saved</span><span class="p">)</span>
+        <span class="n">out_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">err_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="s2">"replace"</span><span class="p">)</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="n">err_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="s2">"replace"</span><span class="p">)</span> <span class="o">+</span> <span class="n">trailer</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"returncode"</span><span class="p">:</span> <span class="n">returncode</span><span class="p">,</span>
+        <span class="s2">"stdout"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">stdout</span><span class="p">),</span>
+        <span class="s2">"stderr"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">stderr</span><span class="p">),</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream_on_fd</span><span class="p">(</span><span class="n">fd</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A text stream writing to ``fd``, which does not own it.</span>
+
+<span class="sd">    ``closefd=False`` matters: :func:`capture` closes these to flush them, and closing the</span>
+<span class="sd">    descriptor with them would take the process's real stdout down with it.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">,</span> <span class="n">closefd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flush</span><span class="p">(</span><span class="o">*</span><span class="n">streams</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Flush what can be flushed. A stream already closed by the command is not an error."""</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="n">streams</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>  <span class="c1"># already closed, or not a real stream</span>
+            <span class="k">pass</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_command</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``prog`` as a command list, from either spelling.</span>
+
+<span class="sd">    A list is taken as-is and is the form to reach for when a path is involved. A string is</span>
+<span class="sd">    ``shlex``-split -- in POSIX mode on POSIX, and in non-POSIX mode on Windows, where</span>
+<span class="sd">    POSIX mode would silently eat the backslashes out of ``C:\\Python\\python.exe`` and</span>
+<span class="sd">    leave a command nothing can run. Non-POSIX mode keeps the quotes around a quoted token,</span>
+<span class="sd">    so they come off here.</span>
+
+<span class="sd">    &gt;&gt;&gt; _as_command('python -m cw')</span>
+<span class="sd">    ['python', '-m', 'cw']</span>
+<span class="sd">    &gt;&gt;&gt; _as_command(['python', '-m', 'cw'])</span>
+<span class="sd">    ['python', '-m', 'cw']</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">prog</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"nt"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">'"'</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">prog</span><span class="p">,</span> <span class="n">posix</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One case, run as a real subprocess. The heart of the standalone half."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">command</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">),</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">,</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"returncode"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">"stdout"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"stderr"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"cw.testing: timed out after </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"returncode"</span><span class="p">:</span> <span class="n">done</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span>
+        <span class="s2">"stdout"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
+        <span class="s2">"stderr"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">run_one</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">help_flags</span><span class="o">=</span><span class="n">HELP_FLAGS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A full case record -- the three tiers -- from a ``(argv) -&gt; outcome`` callable."""</span>
+    <span class="n">outcome</span> <span class="o">=</span> <span class="n">run_one</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    <span class="n">case</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"argv"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">),</span> <span class="s2">"tier"</span><span class="p">:</span> <span class="n">_tier_of</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="n">help_flags</span><span class="o">=</span><span class="n">help_flags</span><span class="p">)}</span>
+    <span class="k">case</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">outcome</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"stdout"</span><span class="p">,</span> <span class="s2">"stderr"</span><span class="p">):</span>
+        <span class="k">case</span><span class="p">[</span><span class="n">stream</span><span class="p">]</span> <span class="o">=</span> <span class="n">scrub_addresses</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="n">stream</span><span class="p">])</span>
+    <span class="k">case</span><span class="p">[</span><span class="s2">"usage"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_usage_of</span><span class="p">(</span><span class="n">case</span><span class="p">[</span><span class="s2">"stdout"</span><span class="p">],</span> <span class="n">case</span><span class="p">[</span><span class="s2">"stderr"</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">case</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># characterize -- record what a real console script does today</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="characterize">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.characterize">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">characterize</span><span class="p">(</span>
+    <span class="n">prog</span><span class="p">,</span>
+    <span class="n">cases</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">out_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="n">DFLT_TIMEOUT</span><span class="p">,</span>
+    <span class="n">note</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Record a real console script's behaviour against ``cases``, as a golden.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        prog: The command, as a list (``['python', '-m', 'priv']``) or a POSIX string.</span>
+<span class="sd">            The list form is the cross-platform one.</span>
+<span class="sd">        cases: ``argv`` vectors -- a list of lists, a list of ``shlex`` strings, or the</span>
+<span class="sd">            path of a cases file readable by :func:`read_cases`.</span>
+<span class="sd">        out_path: Where to write the golden JSON. ``None`` returns it without writing.</span>
+<span class="sd">        env: Extra environment for the subprocess, over :data:`RECORDING_ENV`.</span>
+<span class="sd">        cwd: Working directory for the subprocess.</span>
+<span class="sd">        timeout: Seconds one case may take.</span>
+<span class="sd">        note: Free text stored in the golden -- the commit you recorded at, say.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The golden, as a plain dict. JSON-serialisable, with sorted keys when written, so</span>
+<span class="sd">        re-recording an unchanged CLI produces a byte-identical file.</span>
+
+<span class="sd">    Do this **before** the migration, and commit the result. That is the entire method:</span>
+<span class="sd">    everything else in this module compares against what you recorded here.</span>
+<span class="sd">    """</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">_as_command</span><span class="p">(</span><span class="n">prog</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cases</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
+        <span class="n">cases</span> <span class="o">=</span> <span class="n">read_cases</span><span class="p">(</span><span class="n">cases</span><span class="p">)</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_env_for</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_one</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+    <span class="n">golden</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"cw_golden"</span><span class="p">:</span> <span class="n">GOLDEN_VERSION</span><span class="p">,</span>
+        <span class="s2">"prog"</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span>
+        <span class="s2">"env"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">RECORDING_ENV</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{})),</span>
+        <span class="s2">"newlines"</span><span class="p">:</span> <span class="s2">"lf"</span><span class="p">,</span>
+        <span class="s2">"recorded_with"</span><span class="p">:</span> <span class="n">_provenance</span><span class="p">(),</span>
+        <span class="s2">"note"</span><span class="p">:</span> <span class="n">note</span><span class="p">,</span>
+        <span class="s2">"cases"</span><span class="p">:</span> <span class="p">[</span><span class="n">_record</span><span class="p">(</span><span class="n">run_one</span><span class="p">,</span> <span class="n">_as_argv</span><span class="p">(</span><span class="n">case</span><span class="p">))</span> <span class="k">for</span> <span class="n">case</span> <span class="ow">in</span> <span class="n">cases</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">out_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">write_golden</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="n">out_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">golden</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_provenance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Who recorded this golden and with what -- so a stale one can be spotted."""</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>  <span class="c1"># local: provenance is the only caller, and D4 counts module imports</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"python"</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_version</span><span class="p">(),</span>
+        <span class="s2">"platform"</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">(),</span>
+        <span class="s2">"implementation"</span><span class="p">:</span> <span class="n">platform</span><span class="o">.</span><span class="n">python_implementation</span><span class="p">(),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_golden</span><span class="p">(</span><span class="n">golden</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write ``golden`` to ``path``: sorted keys, two-space indent, trailing newline.</span>
+
+<span class="sd">    Stability is the requirement, not prettiness. Re-recording an unchanged CLI must</span>
+<span class="sd">    produce a file ``git diff`` calls empty, or nobody will ever re-record.</span>
+<span class="sd">    """</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_golden">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.load_golden">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_golden</span><span class="p">(</span><span class="n">golden</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A golden, from a dict or the path of one, validated enough to fail usefully.</span>
+
+<span class="sd">    &gt;&gt;&gt; load_golden({'cw_golden': 1, 'cases': []})['cases']</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; load_golden({'cases': []})</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    ValueError: not a cw golden (no 'cw_golden' key): a dict</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">stream</span><span class="p">:</span>
+            <span class="n">loaded</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="n">where</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">golden</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">loaded</span><span class="p">,</span> <span class="n">where</span> <span class="o">=</span> <span class="n">golden</span><span class="p">,</span> <span class="s2">"a dict"</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"cw_golden"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">loaded</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"not a cw golden (no 'cw_golden' key): </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">loaded</span><span class="p">[</span><span class="s2">"cw_golden"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">GOLDEN_VERSION</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"golden </span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2"> is format version </span><span class="si">{</span><span class="n">loaded</span><span class="p">[</span><span class="s1">'cw_golden'</span><span class="p">]</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"but this cw.testing reads version </span><span class="si">{</span><span class="n">GOLDEN_VERSION</span><span class="si">}</span><span class="s2">. Re-record it."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">loaded</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># compare -- the one place a difference is decided</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="compare_case">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.compare_case">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compare_case</span><span class="p">(</span><span class="n">recorded</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">fresh</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">strict_help</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The empty string if ``fresh`` matches ``recorded``, else a readable diff.</span>
+
+<span class="sd">    Which fields are compared is the tier rule and nothing else: tier 1 asserts the</span>
+<span class="sd">    return code and both streams in full, tier 3 asserts the return code and the normalised</span>
+<span class="sd">    ``usage:`` line and leaves the ``--help`` body to :func:`diff_help`.</span>
+
+<span class="sd">    ``strict_help=True`` adds the ``--help`` body to a tier-3 case, compared through</span>
+<span class="sd">    :func:`normalise_help` so that the terminal width cannot decide the verdict. Use it when</span>
+<span class="sd">    the *rendering* is part of what the migration promised not to change -- swapping argh's</span>
+<span class="sd">    formatter for argparse's stock one is invisible to the tier-3 fields, because it moves</span>
+<span class="sd">    only the help column and the description block.</span>
+
+<span class="sd">    &gt;&gt;&gt; a = {'tier': 1, 'returncode': 0, 'stdout': 'hi\\n', 'stderr': '', 'usage': ''}</span>
+<span class="sd">    &gt;&gt;&gt; compare_case(a, dict(a))</span>
+<span class="sd">    ''</span>
+<span class="sd">    &gt;&gt;&gt; print(compare_case(a, dict(a, stdout='ho\\n')))</span>
+<span class="sd">    stdout:</span>
+<span class="sd">      - hi</span>
+<span class="sd">      + ho</span>
+
+<span class="sd">    A golden recorded under one CPython replays under another: only argparse's own</span>
+<span class="sd">    version-dependent rendering is forgiven, and it is forgiven on both sides (see</span>
+<span class="sd">    :func:`canonical_argparse_text`).</span>
+
+<span class="sd">    &gt;&gt;&gt; quoted = "err: invalid choice: 'q' (choose from 'a', 'b')"</span>
+<span class="sd">    &gt;&gt;&gt; bare = "err: invalid choice: 'q' (choose from a, b)"</span>
+<span class="sd">    &gt;&gt;&gt; compare_case({'tier': 3, 'returncode': 2, 'usage': quoted},</span>
+<span class="sd">    ...              {'tier': 3, 'returncode': 2, 'usage': bare})</span>
+<span class="sd">    ''</span>
+<span class="sd">    """</span>
+    <span class="n">tier</span> <span class="o">=</span> <span class="n">recorded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tier"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">TIER1_FIELDS</span> <span class="k">if</span> <span class="n">tier</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">TIER3_FIELDS</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="n">want</span><span class="p">,</span> <span class="n">got</span> <span class="o">=</span> <span class="n">recorded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="n">fresh</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">"returncode"</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">want</span> <span class="o">!=</span> <span class="n">got</span><span class="p">:</span>
+                <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"returncode:</span><span class="se">\n</span><span class="s2">  - </span><span class="si">{</span><span class="n">want</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">  + </span><span class="si">{</span><span class="n">got</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">want</span> <span class="o">=</span> <span class="n">canonical_argparse_text</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">want</span><span class="p">))</span>
+        <span class="n">got</span> <span class="o">=</span> <span class="n">canonical_argparse_text</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">got</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">want</span> <span class="o">!=</span> <span class="n">got</span><span class="p">:</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">_text_diff</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">strict_help</span> <span class="ow">and</span> <span class="n">tier</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">chunks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">help_body_diff</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">fresh</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">help_body_diff</span><span class="p">(</span><span class="n">recorded</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">fresh</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``['help:\n&lt;diff&gt;']`` when the two ``--help`` bodies differ, else ``[]``."""</span>
+    <span class="n">want</span> <span class="o">=</span> <span class="n">canonical_argparse_text</span><span class="p">(</span><span class="n">normalise_help</span><span class="p">(</span><span class="n">recorded</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stdout"</span><span class="p">)))</span>
+    <span class="n">got</span> <span class="o">=</span> <span class="n">canonical_argparse_text</span><span class="p">(</span><span class="n">normalise_help</span><span class="p">(</span><span class="n">fresh</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"stdout"</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">want</span> <span class="o">==</span> <span class="n">got</span> <span class="k">else</span> <span class="p">[</span><span class="s2">"help:</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">_text_diff</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_text_diff</span><span class="p">(</span><span class="n">want</span><span class="p">,</span> <span class="n">got</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A unified-ish diff of two blobs, indented so it reads under a field name."""</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">difflib</span><span class="o">.</span><span class="n">ndiff</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">want</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="p">(</span><span class="n">got</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"? "</span><span class="p">))</span>
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># replay -- assert the console script still does what it did</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_expected</span><span class="p">(</span><span class="n">expect_diff</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``expect_diff`` as a set of argv tuples, from any of the spellings a caller uses."""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">_as_argv</span><span class="p">(</span><span class="n">case</span><span class="p">))</span> <span class="k">for</span> <span class="n">case</span> <span class="ow">in</span> <span class="p">(</span><span class="n">expect_diff</span> <span class="ow">or</span> <span class="p">())}</span>
+
+
+<div class="viewcode-block" id="replay">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.replay">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">replay</span><span class="p">(</span>
+    <span class="n">golden</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">expect_diff</span><span class="o">=</span><span class="p">(),</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="n">DFLT_TIMEOUT</span><span class="p">,</span>
+    <span class="n">strict_help</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Re-run a golden's cases and report, per case, whether the behaviour survived.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        golden: A golden dict, or the path of one.</span>
+<span class="sd">        prog: The command to run now. ``None`` reuses the golden's own ``prog``, which is</span>
+<span class="sd">            what you want after an in-place migration and not what you want when the entry</span>
+<span class="sd">            point moved.</span>
+<span class="sd">        env, cwd, timeout: As :func:`characterize`.</span>
+<span class="sd">        expect_diff: ``argv`` vectors whose behaviour you **intend** to have changed. They</span>
+<span class="sd">            are reported as ``expected-diff``, never as a failure -- and an ``expect_diff``</span>
+<span class="sd">            entry that turns out identical is reported as ``unexpected-match``, because a</span>
+<span class="sd">            migration note claiming a break that did not happen is also wrong.</span>
+
+<span class="sd">        strict_help: Also assert each tier-3 case's ``--help`` **body**, through</span>
+<span class="sd">            :func:`normalise_help`. Off by default, because a wider ``--help`` is usually</span>
+<span class="sd">            not what a migration promised; on, because a *formatter* change is not visible</span>
+<span class="sd">            in any of the fields tier 3 asserts. When it is off, a body that moved is still</span>
+<span class="sd">            reported -- as the non-fatal status ``help-differs`` -- so that a migration is</span>
+<span class="sd">            never told "identical" about output that visibly changed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        One dict per case: ``argv``, ``status`` and ``diff``.</span>
+
+<span class="sd">    Statuses are ``identical``, ``differs``, ``help-differs``, ``expected-diff`` and</span>
+<span class="sd">    ``unexpected-match``. :func:`assert_replay` is the version that raises, and it raises</span>
+<span class="sd">    on ``differs`` and ``unexpected-match`` only.</span>
+<span class="sd">    """</span>
+    <span class="n">golden</span> <span class="o">=</span> <span class="n">load_golden</span><span class="p">(</span><span class="n">golden</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">_as_command</span><span class="p">(</span><span class="n">prog</span> <span class="k">if</span> <span class="n">prog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">golden</span><span class="p">[</span><span class="s2">"prog"</span><span class="p">])</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_env_for</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">golden</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"env"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{},</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{})))</span>
+    <span class="n">intended</span> <span class="o">=</span> <span class="n">_expected</span><span class="p">(</span><span class="n">expect_diff</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">recorded</span> <span class="ow">in</span> <span class="n">golden</span><span class="p">[</span><span class="s2">"cases"</span><span class="p">]:</span>
+        <span class="n">argv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="s2">"argv"</span><span class="p">])</span>
+        <span class="n">fresh</span> <span class="o">=</span> <span class="n">_record</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">_run_subprocess</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span>
+            <span class="p">),</span>
+            <span class="n">argv</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_verdict</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">fresh</span><span class="p">,</span> <span class="n">intended</span><span class="p">,</span> <span class="n">strict_help</span><span class="o">=</span><span class="n">strict_help</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verdict</span><span class="p">(</span><span class="n">recorded</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">fresh</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">intended</span><span class="p">:</span> <span class="nb">set</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">strict_help</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One case's outcome, with ``expect_diff`` applied in both directions."""</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="s2">"argv"</span><span class="p">])</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">compare_case</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">fresh</span><span class="p">,</span> <span class="n">strict_help</span><span class="o">=</span><span class="n">strict_help</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span> <span class="ow">in</span> <span class="n">intended</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"argv"</span><span class="p">:</span> <span class="n">argv</span><span class="p">,</span>
+            <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"expected-diff"</span> <span class="k">if</span> <span class="n">diff</span> <span class="k">else</span> <span class="s2">"unexpected-match"</span><span class="p">,</span>
+            <span class="s2">"diff"</span><span class="p">:</span> <span class="n">diff</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"argv"</span><span class="p">:</span> <span class="n">argv</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"differs"</span><span class="p">,</span> <span class="s2">"diff"</span><span class="p">:</span> <span class="n">diff</span><span class="p">}</span>
+    <span class="c1"># Nothing asserted moved. Say so, but do not say "identical" about a `--help` whose</span>
+    <span class="c1"># body changed: that is the exact sentence this tool exists to be trusted about.</span>
+    <span class="n">advisory</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">strict_help</span> <span class="k">else</span> <span class="n">help_body_diff</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">fresh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">advisory</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"argv"</span><span class="p">:</span> <span class="n">argv</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"help-differs"</span><span class="p">,</span> <span class="s2">"diff"</span><span class="p">:</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">advisory</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"argv"</span><span class="p">:</span> <span class="n">argv</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"identical"</span><span class="p">,</span> <span class="s2">"diff"</span><span class="p">:</span> <span class="s2">""</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="assert_replay">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.assert_replay">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assert_replay</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""":func:`replay`, raising :class:`AssertionError` with a readable diff on any failure.</span>
+
+<span class="sd">    ``expected-diff`` cases are reported in the message when something *else* failed, so a</span>
+<span class="sd">    reader can see what was intended alongside what was not, but they never cause a raise.</span>
+<span class="sd">    An ``unexpected-match`` does: it means the migration note is wrong.</span>
+<span class="sd">    """</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"differs"</span><span class="p">,</span> <span class="s2">"unexpected-match"</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">bad</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_report_line</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">bad</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> cases changed behaviour:</span><span class="se">\n\n</span><span class="si">{</span><span class="n">report</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_report_line</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One failing case, formatted for a human reading a test failure."""</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shlex</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">"argv"</span><span class="p">])</span> <span class="ow">or</span> <span class="s2">"(no arguments)"</span>
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"unexpected-match"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"$ </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="se">\n</span><span class="s2">  expect_diff listed this case, but it is unchanged."</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"$ </span><span class="si">{</span><span class="n">argv</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">'diff'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+
+
+<div class="viewcode-block" id="diff_help">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.diff_help">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">diff_help</span><span class="p">(</span><span class="n">golden</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">DFLT_TIMEOUT</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The advisory tier-3 diff: how every ``--help`` body changed. Never asserted.</span>
+
+<span class="sd">    ``--help`` output is the right thing for a human to review after a migration and the</span>
+<span class="sd">    wrong thing for a machine to assert: it wraps to ``COLUMNS`` and it changes for reasons</span>
+<span class="sd">    nobody minds. This returns it as text for a review queue, and returns ``''`` when</span>
+<span class="sd">    nothing moved.</span>
+<span class="sd">    """</span>
+    <span class="n">golden</span> <span class="o">=</span> <span class="n">load_golden</span><span class="p">(</span><span class="n">golden</span><span class="p">)</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">_as_command</span><span class="p">(</span><span class="n">prog</span> <span class="k">if</span> <span class="n">prog</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">golden</span><span class="p">[</span><span class="s2">"prog"</span><span class="p">])</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_env_for</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">golden</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"env"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{},</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{})))</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">recorded</span> <span class="ow">in</span> <span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">golden</span><span class="p">[</span><span class="s2">"cases"</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tier"</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">argv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="s2">"argv"</span><span class="p">])</span>
+        <span class="n">fresh</span> <span class="o">=</span> <span class="n">_run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">resolved</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">difflib</span><span class="o">.</span><span class="n">unified_diff</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">recorded</span><span class="p">[</span><span class="s2">"stdout"</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span>
+                <span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">fresh</span><span class="p">[</span><span class="s2">"stdout"</span><span class="p">])</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span>
+                <span class="n">fromfile</span><span class="o">=</span><span class="s2">"recorded"</span><span class="p">,</span>
+                <span class="n">tofile</span><span class="o">=</span><span class="s2">"now"</span><span class="p">,</span>
+                <span class="n">lineterm</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+            <span class="n">chunks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"$ </span><span class="si">{</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">diff</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chunks</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># parity -- cw's own gate. The ONLY function here that imports cw, and it does it lazily.</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="parity">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.parity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">parity</span><span class="p">(</span><span class="n">goldens_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Replay the committed argh-recorded goldens through cw. Exit code, not an exception.</span>
+
+<span class="sd">    This is the definition of v1: it prints ``N shapes / M cases: identical`` and returns</span>
+<span class="sd">    ``0``. What it asserts, per case, with **every seam on its default**</span>
+<span class="sd">    (``convention=cw.ARGH``, ``decode=cw.argh_decode``, ``egress=cw.argh_egress``): exit</span>
+<span class="sd">    code, stdout, stderr, and the normalised ``usage:`` line, byte-identical to what argh</span>
+<span class="sd">    0.31.3 produced. The ``--help`` bodies are recorded and not asserted (tier 3).</span>
+
+<span class="sd">    It is deliberately **self-contained**. The goldens were recorded from real argh against</span>
+<span class="sd">    the seven hard-case *shapes* in :mod:`cw.tests.fixtures`, not against the seven fleet</span>
+<span class="sd">    repos -- so this needs stdlib plus cw, installs no fleet package, pulls no argh, and</span>
+<span class="sd">    runs on Windows. The seven real repos are gated separately, by :func:`replay` in each</span>
+<span class="sd">    repo's own CI, which is what a migration test is for.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        goldens_dir: Where the goldens are. ``None`` is the copy shipped inside ``cw``.</span>
+<span class="sd">        out: Where the report goes. ``None`` is :data:`sys.stdout`, resolved now.</span>
+<span class="sd">        verbose: Also print a line per shape that passed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``0`` when every case is identical, ``1`` otherwise.</span>
+<span class="sd">    """</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">out</span>
+    <span class="n">goldens_dir</span> <span class="o">=</span> <span class="n">DFLT_GOLDENS_DIR</span> <span class="k">if</span> <span class="n">goldens_dir</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">goldens_dir</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">goldens_dir</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">goldens_dir</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".json"</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no goldens in </span><span class="si">{</span><span class="n">goldens_dir</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">fixtures</span>  <span class="c1"># lazy on purpose: D4 keeps this file cw-free</span>
+
+    <span class="n">shapes</span><span class="p">,</span> <span class="n">cases</span><span class="p">,</span> <span class="n">failures</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="n">pinned_env</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+            <span class="n">golden</span> <span class="o">=</span> <span class="n">load_golden</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="n">shape</span> <span class="o">=</span> <span class="n">fixtures</span><span class="o">.</span><span class="n">shape_named</span><span class="p">(</span><span class="n">golden</span><span class="p">[</span><span class="s2">"shape"</span><span class="p">])</span>
+            <span class="n">shapes</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">recorded</span> <span class="ow">in</span> <span class="n">golden</span><span class="p">[</span><span class="s2">"cases"</span><span class="p">]:</span>
+                <span class="n">cases</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">fresh</span> <span class="o">=</span> <span class="n">_record</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="n">fixtures</span><span class="o">.</span><span class="n">cw_outcome</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">a</span><span class="p">),</span> <span class="n">recorded</span><span class="p">[</span><span class="s2">"argv"</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="n">verdict</span> <span class="o">=</span> <span class="n">_verdict</span><span class="p">(</span><span class="n">recorded</span><span class="p">,</span> <span class="n">fresh</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">verdict</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"differs"</span><span class="p">:</span>
+                    <span class="n">failures</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">shape</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">verdict</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">shape</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">golden</span><span class="p">[</span><span class="s1">'cases'</span><span class="p">])</span><span class="si">}</span><span class="s2"> cases</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">verdict</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">[</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">_report_line</span><span class="p">(</span><span class="n">verdict</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">verdict_word</span> <span class="o">=</span> <span class="s2">"identical"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">failures</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span><span class="si">}</span><span class="s2"> DIFFER"</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">shapes</span><span class="si">}</span><span class="s2"> shapes / </span><span class="si">{</span><span class="n">cases</span><span class="si">}</span><span class="s2"> cases: </span><span class="si">{</span><span class="n">verdict_word</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">failures</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+
+
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+<span class="c1"># python -m cw.testing</span>
+<span class="c1"># ---------------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cli</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``python -m cw.testing``'s parser, hand-built with argparse.</span>
+
+<span class="sd">    Hand-built rather than built with :func:`cw.dispatch`, which would be the nicer dogfood,</span>
+<span class="sd">    because this module must not import ``cw`` (D4) -- and a CLI that quietly broke the one</span>
+<span class="sd">    property the module exists for would be an expensive joke.</span>
+<span class="sd">    """</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">prog</span><span class="o">=</span><span class="s2">"python -m cw.testing"</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="vm">__doc__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">subs</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="n">dest</span><span class="o">=</span><span class="s2">"command"</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">"command"</span><span class="p">)</span>
+
+    <span class="n">gate</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"parity"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"run cw's committed-golden parity gate"</span><span class="p">)</span>
+    <span class="n">gate</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"goldens_dir"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">gate</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-v"</span><span class="p">,</span> <span class="s2">"--verbose"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">)</span>
+
+    <span class="n">record</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"characterize"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"record a console script's behaviour"</span><span class="p">)</span>
+    <span class="n">record</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"prog"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"the command, e.g. 'python -m priv'"</span><span class="p">)</span>
+    <span class="n">record</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--cases"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"a cases file"</span><span class="p">)</span>
+    <span class="n">record</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"-o"</span><span class="p">,</span> <span class="s2">"--out-path"</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">record</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--note"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">again</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"replay"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"re-run a golden and diff"</span><span class="p">)</span>
+    <span class="n">again</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"golden"</span><span class="p">)</span>
+    <span class="n">again</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--prog"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">again</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--expect-diff"</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">"append"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[])</span>
+    <span class="n">again</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">"--strict-help"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"fail on a changed --help body too, not just report it"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">advisory</span> <span class="o">=</span> <span class="n">subs</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">"diff-help"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"the advisory tier-3 --help diff"</span><span class="p">)</span>
+    <span class="n">advisory</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"golden"</span><span class="p">)</span>
+    <span class="n">advisory</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">"--prog"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``python -m cw.testing``. Returns an exit code; the module raises it as SystemExit."""</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">_cli</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_usage</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">"parity"</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">parity</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">goldens_dir</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">"characterize"</span><span class="p">:</span>
+        <span class="n">golden</span> <span class="o">=</span> <span class="n">characterize</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">prog</span><span class="p">,</span> <span class="n">read_cases</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">cases</span><span class="p">),</span> <span class="n">out_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">out_path</span><span class="p">,</span> <span class="n">note</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">note</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"recorded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">golden</span><span class="p">[</span><span class="s1">'cases'</span><span class="p">])</span><span class="si">}</span><span class="s2"> cases to </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">out_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="s2">"diff-help"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">diff_help</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">golden</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">prog</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"no --help changes"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">replay</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">golden</span><span class="p">,</span>
+        <span class="n">prog</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">prog</span><span class="p">,</span>
+        <span class="n">expect_diff</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">expect_diff</span><span class="p">,</span>
+        <span class="n">strict_help</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">strict_help</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"differs"</span><span class="p">,</span> <span class="s2">"unexpected-match"</span><span class="p">)]</span>
+    <span class="n">advisory</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"status"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"help-differs"</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">bad</span> <span class="o">+</span> <span class="n">advisory</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">_report_line</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">bad</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">advisory</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> identical"</span>
+    <span class="k">if</span> <span class="n">advisory</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">", </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">advisory</span><span class="p">)</span><span class="si">}</span><span class="s2"> with a changed --help body (advisory; "</span>
+            <span class="s2">"re-run with --strict-help to fail on it, or `diff-help` to read it)"</span>
+        <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">bad</span> <span class="k">else</span> <span class="mi">0</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>  <span class="c1"># pragma: no cover - exercised as a subprocess</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

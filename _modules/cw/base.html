@@ -1,0 +1,446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.base &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.base</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The small vocabulary cw's other modules share: sentinels, errors, and help rendering.</span>
+
+<span class="sd">This is the bottom of cw's import graph. Everything else in ``cw`` imports from here and</span>
+<span class="sd">nothing here imports from ``cw``, so this module stays trivially cheap and trivially</span>
+<span class="sd">testable.</span>
+
+<span class="sd">What lives here:</span>
+
+<span class="sd">``MISSING`` / ``HIDE``</span>
+<span class="sd">    Two named singletons. ``MISSING`` means "no value was supplied", which ``None`` cannot</span>
+<span class="sd">    mean because ``None`` is an ordinary default. ``HIDE`` is the ``config`` value meaning</span>
+<span class="sd">    "this parameter is not a command-line argument at all".</span>
+
+<span class="sd">``CommandError``</span>
+<span class="sd">    The one exception a command may raise to say "this is an expected failure": one line to</span>
+<span class="sd">    stderr, no traceback, and an exit code.</span>
+
+<span class="sd">``ArghHelpFormatter``</span>
+<span class="sd">    The help look cw reproduces by default -- a raw (unwrapped) description, and a help</span>
+<span class="sd">    column that renders each parameter's default with ``repr``, ``None`` as ``'-'``.</span>
+
+<span class="sd">``Codec``</span>
+<span class="sd">    The optional, per-parameter, *post-parse* decoder (the "ingress site"), for turning a</span>
+<span class="sd">    token into something argparse's ``type=`` must not be asked to build.</span>
+
+<span class="sd">``Decode`` / ``Egress``</span>
+<span class="sd">    The call contracts of two of cw's three seams, named once so the rest of the package</span>
+<span class="sd">    (and its users) can spell them.</span>
+
+<span class="sd">&gt;&gt;&gt; HIDE</span>
+<span class="sd">cw.HIDE</span>
+<span class="sd">&gt;&gt;&gt; CommandError('nope', code=7).code</span>
+<span class="sd">7</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"MISSING"</span><span class="p">,</span>
+    <span class="s2">"HIDE"</span><span class="p">,</span>
+    <span class="s2">"CommandError"</span><span class="p">,</span>
+    <span class="s2">"ArghHelpFormatter"</span><span class="p">,</span>
+    <span class="s2">"Codec"</span><span class="p">,</span>
+    <span class="s2">"Decode"</span><span class="p">,</span>
+    <span class="s2">"Egress"</span><span class="p">,</span>
+    <span class="s2">"DFLT_HELP"</span><span class="p">,</span>
+    <span class="s2">"DFLT_ERROR_CODE"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Sentinels</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Sentinel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A named singleton whose ``repr`` is useful in a traceback or a help string.</span>
+
+<span class="sd">    &gt;&gt;&gt; _Sentinel('cw.NOPE')</span>
+<span class="sd">    cw.NOPE</span>
+<span class="sd">    &gt;&gt;&gt; bool(_Sentinel('cw.NOPE'))</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_name"</span><span class="p">,)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+
+<span class="c1">#: "No value was supplied" -- distinct from ``None``, which is an ordinary default value.</span>
+<span class="n">MISSING</span> <span class="o">=</span> <span class="n">_Sentinel</span><span class="p">(</span><span class="s2">"cw.MISSING"</span><span class="p">)</span>
+
+<span class="c1">#: A ``config`` value meaning "this parameter is not a command-line argument at all".</span>
+<span class="c1">#:</span>
+<span class="c1">#: The function's own default applies instead. Its v1 consumer is a</span>
+<span class="c1">#: :func:`functools.partial` whose pre-bound keyword :func:`inspect.signature` still</span>
+<span class="c1">#: re-exposes; ``HIDE`` is how you stop that keyword from becoming a flag.</span>
+<span class="c1">#:</span>
+<span class="c1">#: ``HIDE`` is used rather than the spelling ``config[param] = None`` because ``None`` is a</span>
+<span class="c1">#: perfectly ordinary default value, and overloading it would be a latent bug.</span>
+<span class="n">HIDE</span> <span class="o">=</span> <span class="n">_Sentinel</span><span class="p">(</span><span class="s2">"cw.HIDE"</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Seam contracts</span>
+<span class="c1">#</span>
+<span class="c1"># Named here so that cw, and anyone replacing one of cw's defaults, spell them the same way.</span>
+
+<span class="c1">#: Seam 1. ``(parameter, hint) -&gt; add_argument kwargs``.</span>
+<span class="c1">#:</span>
+<span class="c1">#: Given a :class:`inspect.Parameter` and its type hint (whatever</span>
+<span class="c1">#: ``Convention.resolve_hints`` decided a "hint" is), return one of:</span>
+<span class="c1">#:</span>
+<span class="c1">#: * ``None`` -- infer nothing for this parameter; argparse leaves the token a ``str``;</span>
+<span class="c1">#: * a callable -- shorthand for ``{'type': that_callable}``;</span>
+<span class="c1">#: * a Mapping -- *any* ``add_argument`` kwargs (``type``, ``nargs``, ``choices``,</span>
+<span class="c1">#:   ``action``, ``const``, ``required``, ...).</span>
+<span class="c1">#:</span>
+<span class="c1">#: The Mapping return is not optional generality: a type implies more than a converter</span>
+<span class="c1">#: (``list[str]`` implies ``nargs='*'``, ``Literal['a', 'b']`` implies ``choices``), so a</span>
+<span class="c1">#: seam that could only return a callable could not carry the grammar it exists to carry.</span>
+<span class="n">Decode</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+<span class="p">]</span>
+
+<span class="c1">#: Seam 2. ``(result, *, out, err) -&gt; exit code``.</span>
+<span class="c1">#:</span>
+<span class="c1">#: How a function's return value becomes lines on a stream and a process exit code.</span>
+<span class="n">Egress</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Errors</span>
+
+<span class="c1">#: The exit code a :class:`CommandError` uses when none is given.</span>
+<span class="n">DFLT_ERROR_CODE</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="CommandError">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.CommandError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An *expected* failure: one line to stderr, no traceback, ``exit(code)``.</span>
+
+<span class="sd">    Anything else a command raises keeps its traceback, because an unexpected failure is a</span>
+<span class="sd">    bug and a bug deserves one.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        message: The single line written to the error stream.</span>
+<span class="sd">        code: The process exit code. Keyword-only.</span>
+
+<span class="sd">    &gt;&gt;&gt; err = CommandError('no such thing')</span>
+<span class="sd">    &gt;&gt;&gt; str(err), err.code</span>
+<span class="sd">    ('no such thing', 1)</span>
+<span class="sd">    &gt;&gt;&gt; CommandError('bad config', code=7).code</span>
+<span class="sd">    7</span>
+
+<span class="sd">    It is an ordinary exception, so it raises and catches like one:</span>
+
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     raise CommandError('nope', code=3)</span>
+<span class="sd">    ... except CommandError as err:</span>
+<span class="sd">    ...     print(f'{err} -&gt; exit {err.code}')</span>
+<span class="sd">    nope -&gt; exit 3</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DFLT_ERROR_CODE</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">code</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># The ingress-site codec</span>
+
+
+<div class="viewcode-block" id="Codec">
+<a class="viewcode-back" href="../../module_docs/cw/base.html#cw.Codec">[docs]</a>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Codec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A per-parameter, post-parse decoder for one parameter (the "ingress site").</span>
+
+<span class="sd">    argparse's ``type=`` is the wrong place for a *semantic* decoder -- one that maps a</span>
+<span class="sd">    token to something that is not a scalar -- because argparse also applies ``type=`` to a</span>
+<span class="sd">    string ``default`` and to a ``const``. A decoder that resolves names to objects would</span>
+<span class="sd">    therefore be handed the sentinel and the default too. So cw offers a second,</span>
+<span class="sd">    **opt-in**, per-parameter site, which runs after parsing.</span>
+
+<span class="sd">    Two fields and deliberately nothing else: ``nargs`` / ``const`` / ``default`` / ``help``</span>
+<span class="sd">    / flag spellings are *token grammar* and belong in ``config``, next to every other</span>
+<span class="sd">    ``add_argument`` keyword.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        decode: ``value -&gt; value``. Called only on strings.</span>
+<span class="sd">        passthrough: Values ``decode`` must never see, so a sentinel can survive.</span>
+
+<span class="sd">    It applies if and only if the value is a ``str``, which is argparse's own ``type=``</span>
+<span class="sd">    rule:</span>
+
+<span class="sd">    &gt;&gt;&gt; codec = Codec(decode=str.upper)</span>
+<span class="sd">    &gt;&gt;&gt; codec('abc')</span>
+<span class="sd">    'ABC'</span>
+<span class="sd">    &gt;&gt;&gt; codec(3)</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; codec(None) is None</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Elementwise for a list-valued (``nargs``) parameter:</span>
+
+<span class="sd">    &gt;&gt;&gt; codec(['a', 'b'])</span>
+<span class="sd">    ['A', 'B']</span>
+
+<span class="sd">    And never on a passthrough value -- which is what lets a sentinel survive:</span>
+
+<span class="sd">    &gt;&gt;&gt; pick = Codec(decode=str.upper, passthrough={'list'})</span>
+<span class="sd">    &gt;&gt;&gt; pick('list'), pick('bass')</span>
+<span class="sd">    ('list', 'BASS')</span>
+<span class="sd">    """</span>
+
+    <span class="n">decode</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">passthrough</span><span class="p">:</span> <span class="n">Container</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">passthrough</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">(</span><span class="n">element</span><span class="p">)</span> <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Help rendering</span>
+
+<span class="c1">#: The help string cw gives a parameter that has none, so its default shows in the help</span>
+<span class="c1">#: column. Turned off by ``Convention.default_in_help=False``.</span>
+<span class="n">DFLT_HELP</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(default)s</span><span class="s2">"</span>
+
+
+<div class="viewcode-block" id="ArghHelpFormatter">
+<a class="viewcode-back" href="../../module_docs/cw/base.html#cw.ArghHelpFormatter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArghHelpFormatter</span><span class="p">(</span>
+    <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentDefaultsHelpFormatter</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The default help look: raw description, ``repr``-ed defaults, ``None`` as ``'-'``.</span>
+
+<span class="sd">    Three behaviours, all reproduced from recorded help output rather than transcribed from</span>
+<span class="sd">    any implementation:</span>
+
+<span class="sd">    1. the description and epilog are **not** re-wrapped (from</span>
+<span class="sd">       :class:`argparse.RawDescriptionHelpFormatter`);</span>
+<span class="sd">    2. a help string that does not already mention the default gets</span>
+<span class="sd">       ``' (default: ...)'`` appended (from</span>
+<span class="sd">       :class:`argparse.ArgumentDefaultsHelpFormatter`);</span>
+<span class="sd">    3. every ``%(...)s`` field in a help string is filled from the action, with three</span>
+<span class="sd">       adjustments: a ``default`` renders as ``repr(default)``, or as</span>
+<span class="sd">       ``NONE_IN_HELP`` when it is ``None``; anything carrying a ``__name__``</span>
+<span class="sd">       (a ``type``, a callable default) renders as that name; and ``choices`` render</span>
+<span class="sd">       joined by ``CHOICES_SEPARATOR``.</span>
+
+<span class="sd">    The three class attributes below are the parametrization point -- subclass and rebind</span>
+<span class="sd">    one to change the look, and pass your subclass as ``formatter_class``.</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse</span>
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='demo', add_help=False,</span>
+<span class="sd">    ...                                  formatter_class=ArghHelpFormatter)</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--scale', default=None, help=DFLT_HELP)</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--name', default='ann', help=DFLT_HELP)</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--n', default=3, help=DFLT_HELP)</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--flag', action='store_true', help=DFLT_HELP)</span>
+<span class="sd">    &gt;&gt;&gt; collapsed = ' '.join(parser.format_help().split())</span>
+
+<span class="sd">    ``None`` is a dash, and every other default is its ``repr``:</span>
+
+<span class="sd">    &gt;&gt;&gt; '--scale SCALE -' in collapsed</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; "--name NAME 'ann'" in collapsed</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; '--n N 3' in collapsed</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; '--flag False' in collapsed</span>
+<span class="sd">    True</span>
+
+<span class="sd">    A help string of your own keeps the ``ArgumentDefaultsHelpFormatter`` suffix, and the</span>
+<span class="sd">    default in it is ``repr``-ed too:</span>
+
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--mine', default='e', help='an explicit help string')</span>
+<span class="sd">    &gt;&gt;&gt; "an explicit help string (default: 'e')" in ' '.join(parser.format_help().split())</span>
+<span class="sd">    True</span>
+
+<span class="sd">    A ``type`` or a callable default renders by name rather than by ``repr``:</span>
+
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='demo', add_help=False,</span>
+<span class="sd">    ...                                  formatter_class=ArghHelpFormatter)</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--n', type=int, default=1, help='%(type)s')</span>
+<span class="sd">    &gt;&gt;&gt; _ = parser.add_argument('--pick', choices=['a', 'b'], help='%(choices)s')</span>
+<span class="sd">    &gt;&gt;&gt; collapsed = ' '.join(parser.format_help().split())</span>
+<span class="sd">    &gt;&gt;&gt; '--n N int' in collapsed</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; '--pick {a,b} a, b' in collapsed</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: What a ``None`` default renders as in the help column.</span>
+    <span class="n">NONE_IN_HELP</span> <span class="o">=</span> <span class="s2">"-"</span>
+
+    <span class="c1">#: What ``choices`` are joined by when a help string interpolates ``%(choices)s``.</span>
+    <span class="n">CHOICES_SEPARATOR</span> <span class="o">=</span> <span class="s2">", "</span>
+
+    <span class="c1">#: How a non-``None`` default is rendered. ``repr``, so a ``str`` keeps its quotes and</span>
+    <span class="c1">#: is distinguishable from the bare word.</span>
+    <span class="n">render_default</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="nb">repr</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_help_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The ``%(...)s`` substitution namespace for one action's help string.</span>
+
+<span class="sd">        Separated from :meth:`_expand_help` so the *rendering* rules can be read, tested,</span>
+<span class="sd">        and overridden without touching argparse's interpolation call.</span>
+<span class="sd">        """</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">action</span><span class="p">),</span> <span class="n">prog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_prog</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">value</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span>
+        <span class="p">}</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"choices"</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">CHOICES_SEPARATOR</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span> <span class="k">for</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">"choices"</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"default"</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="n">default</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">NONE_IN_HELP</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_default</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_expand_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_help_string</span><span class="p">(</span><span class="n">action</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_help_params</span><span class="p">(</span><span class="n">action</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

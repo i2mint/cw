@@ -1,0 +1,4 @@
+cw.compat
+=========
+.. automodule:: cw.compat
+   :members:

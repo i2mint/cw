@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.egress &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.egress</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.egress</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Result to stdout: how a function's return value becomes lines and an exit code.</span>
+
+<span class="sd">This is the seam argh has **no hook for at all**, which is why ``t/xa``'s ``cli.py``</span>
+<span class="sd">hand-rolls ``print(json.dumps(out, indent=2, default=str))`` *inside a command body*. In cw</span>
+<span class="sd">it is one keyword argument::</span>
+
+<span class="sd">    cw.dispatch(commands, egress=cw.json_egress)</span>
+
+<span class="sd">Three egresses ship, and the only difference between the first two is which results count</span>
+<span class="sd">as "several lines":</span>
+
+<span class="sd">:func:`argh_egress`</span>
+<span class="sd">    argh's ``isinstance(result, (GeneratorType, list, tuple))`` **whitelist**. A ``dict``</span>
+<span class="sd">    prints on one line, a ``map`` object prints as ``&lt;map object at 0x...&gt;``, and a ``set``</span>
+<span class="sd">    prints as ``{1}``. This is cw's default because D2 says the default is argh.</span>
+
+<span class="sd">:func:`iterable_egress`</span>
+<span class="sd">    The ``Iterable`` *protocol* instead, excluding ``str``, ``bytes`` and ``Mapping``. This</span>
+<span class="sd">    is :data:`cw.MODERN`'s, and it is the whole difference.</span>
+
+<span class="sd">:func:`json_egress`</span>
+<span class="sd">    One JSON document, for a command whose result is structured data rather than lines.</span>
+
+<span class="sd">**Streams resolve at call time.** ``argh`` binds ``output_file: IO = sys.stdout`` in a</span>
+<span class="sd">signature default, so :func:`contextlib.redirect_stdout` and pytest's ``capsys`` capture</span>
+<span class="sd">nothing from an argh CLI. cw takes ``out=None`` and looks up :data:`sys.stdout` *inside*</span>
+<span class="sd">the call. That one line is what makes a cw CLI testable, and it is not a seam:</span>
+
+<span class="sd">&gt;&gt;&gt; import io</span>
+<span class="sd">&gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">&gt;&gt;&gt; argh_egress(['first', 'second'], out=buffer)</span>
+<span class="sd">0</span>
+<span class="sd">&gt;&gt;&gt; buffer.getvalue()</span>
+<span class="sd">'first\\nsecond\\n'</span>
+
+<span class="sd">``None`` prints nothing, but ``0``, ``False`` and ``''`` all do -- an argh rule worth</span>
+<span class="sd">knowing, because it is the difference between a silent command and a command that prints a</span>
+<span class="sd">blank line:</span>
+
+<span class="sd">&gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">&gt;&gt;&gt; argh_egress(None, out=buffer), buffer.getvalue()</span>
+<span class="sd">(0, '')</span>
+<span class="sd">&gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">&gt;&gt;&gt; argh_egress(0, out=buffer), buffer.getvalue()</span>
+<span class="sd">(0, '0\\n')</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeneratorType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"argh_egress"</span><span class="p">,</span>
+    <span class="s2">"iterable_egress"</span><span class="p">,</span>
+    <span class="s2">"json_egress"</span><span class="p">,</span>
+    <span class="s2">"write_lines"</span><span class="p">,</span>
+    <span class="s2">"confirm"</span><span class="p">,</span>
+    <span class="s2">"guard_no_coroutine"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: How many spaces :func:`json_egress` indents by.</span>
+<span class="n">DFLT_JSON_INDENT</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#: The results :func:`argh_egress` writes one line each, rather than on one line. It is a</span>
+<span class="c1">#: whitelist of concrete types, not the ``Iterable`` protocol, which is why a ``map`` object</span>
+<span class="c1">#: prints its ``repr`` under ``cw.ARGH`` and its elements under ``cw.MODERN``.</span>
+<span class="n">ARGH_LINE_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="n">GeneratorType</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+
+<span class="c1">#: What :func:`iterable_egress` treats as a single value even though it is iterable.</span>
+<span class="n">NOT_LINES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span>
+
+<span class="c1">#: The answers :func:`confirm` accepts, lower-cased.</span>
+<span class="n">YES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"y"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">)</span>
+<span class="n">NO</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"n"</span><span class="p">,</span> <span class="s2">"no"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream</span><span class="p">(</span><span class="n">given</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">],</span> <span class="n">fallback_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextIO</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``given``, or the named ``sys`` stream **looked up now** rather than at import.</span>
+
+<span class="sd">    Every stream in this module goes through here. That is the whole implementation of</span>
+<span class="sd">    "cw CLIs are testable and argh CLIs are not".</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">fallback_name</span><span class="p">)</span> <span class="k">if</span> <span class="n">given</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">given</span>
+
+
+<div class="viewcode-block" id="guard_no_coroutine">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.guard_no_coroutine">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">guard_no_coroutine</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise an informative :class:`TypeError` if ``result`` is an un-awaited coroutine.</span>
+
+<span class="sd">    v1 does not run event loops. argh's behaviour here is to print</span>
+<span class="sd">    ``&lt;coroutine object ...&gt;`` and warn -- having never run the body -- which is worse than</span>
+<span class="sd">    an error, so this is a deliberate, documented divergence from D2 rather than a gap in</span>
+<span class="sd">    it. It lives at the *call site* (:func:`cw.cli.run`) instead of inside one egress, so</span>
+<span class="sd">    that selecting a different egress cannot switch it off.</span>
+
+<span class="sd">    &gt;&gt;&gt; async def fetch(): ...</span>
+<span class="sd">    &gt;&gt;&gt; guard_no_coroutine(fetch())</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    TypeError: fetch returned a coroutine, and cw does not run event loops. Wrap the body</span>
+<span class="sd">    in asyncio.run(...), or make the command synchronous.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inspect</span><span class="o">.</span><span class="n">iscoroutine</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"cr_code"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">"co_name"</span><span class="p">,</span> <span class="s2">"the command"</span><span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># or Python warns "coroutine was never awaited" at collection time</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> returned a coroutine, and cw does not run event loops. "</span>
+        <span class="s2">"Wrap the body in asyncio.run(...), or make the command synchronous."</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="write_lines">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.write_lines">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_lines</span><span class="p">(</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">flush</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Write ``str(line) + '\\n'`` for each item, **lazily**.</span>
+
+<span class="sd">    Laziness is observable and is D2 row 18: a generator command that yields two lines and</span>
+<span class="sd">    then prompts must have those two lines on screen before the prompt. So the iterable is</span>
+<span class="sd">    never materialised, and each line is flushed as it is written (argh's ``always_flush``,</span>
+<span class="sd">    which defaults on).</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; write_lines(iter([1, None, 'three']), out=buffer)</span>
+<span class="sd">    &gt;&gt;&gt; buffer.getvalue()</span>
+<span class="sd">    '1\\nNone\\nthree\\n'</span>
+
+<span class="sd">    Laziness, shown rather than asserted -- the first line is on the stream before the</span>
+<span class="sd">    second one has been computed:</span>
+
+<span class="sd">    &gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; def two_lines():</span>
+<span class="sd">    ...     yield 'first'</span>
+<span class="sd">    ...     print(f'(the stream already holds {buffer.getvalue()!r})')</span>
+<span class="sd">    ...     yield 'second'</span>
+<span class="sd">    &gt;&gt;&gt; write_lines(two_lines(), out=buffer)</span>
+<span class="sd">    (the stream already holds 'first\\n')</span>
+<span class="sd">    """</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s2">"stdout"</span><span class="p">)</span>
+    <span class="n">flush_stream</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s2">"flush"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">flush</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">flush_stream</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">flush_stream</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="argh_egress">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.argh_egress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">argh_egress</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Seam 2's default: argh's type **whitelist**, footguns included.</span>
+
+<span class="sd">    ``None`` writes nothing. A generator, ``list`` or ``tuple`` writes one line per item.</span>
+<span class="sd">    *Everything else* -- including a ``dict``, a ``set`` and a ``map`` object -- writes one</span>
+<span class="sd">    line, which is its ``str``.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; def show(result):</span>
+<span class="sd">    ...     buffer = io.StringIO()</span>
+<span class="sd">    ...     argh_egress(result, out=buffer)</span>
+<span class="sd">    ...     return buffer.getvalue()</span>
+<span class="sd">    &gt;&gt;&gt; show(['a', 'b'])</span>
+<span class="sd">    'a\\nb\\n'</span>
+<span class="sd">    &gt;&gt;&gt; show({'a': 1, 'b': 2})</span>
+<span class="sd">    "{'a': 1, 'b': 2}\\n"</span>
+<span class="sd">    &gt;&gt;&gt; show(map(str, range(2)))                       # doctest: +ELLIPSIS</span>
+<span class="sd">    '&lt;map object at 0x...&gt;\\n'</span>
+<span class="sd">    &gt;&gt;&gt; show(None)</span>
+<span class="sd">    ''</span>
+
+<span class="sd">    ``err`` is accepted and unused: it is part of the :data:`cw.Egress` contract, so that</span>
+<span class="sd">    an egress which *does* write to the error stream is a drop-in replacement.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">write_lines</span><span class="p">(</span><span class="n">result</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">ARGH_LINE_TYPES</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">result</span><span class="p">],</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+
+<div class="viewcode-block" id="iterable_egress">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.iterable_egress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">iterable_egress</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""":data:`cw.MODERN`'s egress: the ``Iterable`` protocol instead of argh's whitelist.</span>
+
+<span class="sd">    A ``map``, a ``set``, a ``dict_keys`` -- anything iterable that is not a ``str``,</span>
+<span class="sd">    ``bytes`` or ``Mapping`` -- writes one line per item.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; def show(result):</span>
+<span class="sd">    ...     buffer = io.StringIO()</span>
+<span class="sd">    ...     iterable_egress(result, out=buffer)</span>
+<span class="sd">    ...     return buffer.getvalue()</span>
+<span class="sd">    &gt;&gt;&gt; show(map(str, range(2)))</span>
+<span class="sd">    '0\\n1\\n'</span>
+<span class="sd">    &gt;&gt;&gt; show({'a': 1})</span>
+<span class="sd">    "{'a': 1}\\n"</span>
+<span class="sd">    &gt;&gt;&gt; show('one line')</span>
+<span class="sd">    'one line\\n'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">[</span><span class="n">result</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">NOT_LINES</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">result</span>
+    <span class="p">)</span>
+    <span class="n">write_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+
+<div class="viewcode-block" id="json_egress">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.json_egress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">json_egress</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DFLT_JSON_INDENT</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One JSON document, for a command whose result is data rather than lines.</span>
+
+<span class="sd">    An iterator is materialised first (JSON has no streaming form), and anything JSON does</span>
+<span class="sd">    not know is rendered with ``str`` rather than raising -- which is what</span>
+<span class="sd">    ``t/xa/xa/cli.py``'s hand-rolled version does, and it is the behaviour a CLI wants.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; json_egress({'b': 1, 'a': [2, 3]}, out=buffer, indent=None)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; buffer.getvalue()</span>
+<span class="sd">    '{"b": 1, "a": [2, 3]}\\n'</span>
+
+<span class="sd">    &gt;&gt;&gt; buffer = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; _ = json_egress(iter('ab'), out=buffer, indent=None)</span>
+<span class="sd">    &gt;&gt;&gt; buffer.getvalue()</span>
+<span class="sd">    '["a", "b"]\\n'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s2">"stdout"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">))</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Interaction</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_prompt_for</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``'Delete it? (y/N)'`` -- argh's exact spelling, trailing space and all (there is</span>
+<span class="sd">    none).</span>
+
+<span class="sd">    &gt;&gt;&gt; _prompt_for('Delete it', None), _prompt_for('Delete it', True)</span>
+<span class="sd">    ('Delete it? (y/n)', 'Delete it? (Y/n)')</span>
+<span class="sd">    """</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="p">{</span><span class="kc">None</span><span class="p">:</span> <span class="s2">"y/n"</span><span class="p">,</span> <span class="kc">True</span><span class="p">:</span> <span class="s2">"Y/n"</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">"y/N"</span><span class="p">}[</span><span class="n">default</span><span class="p">]</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">? (</span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">)"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ask</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">in_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">],</span> <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Show ``prompt``, read one line, strip the newline. ``EOFError`` at end of input.</span>
+
+<span class="sd">    When neither stream is given this is :func:`input`, so an interactive user keeps</span>
+<span class="sd">    readline's editing and history. When either is given the streams are used directly,</span>
+<span class="sd">    which is what makes :func:`confirm` testable.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">in_</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">input</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s2">"stdout"</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">in_</span><span class="p">,</span> <span class="s2">"stdin"</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">EOFError</span>
+    <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="confirm">
+<a class="viewcode-back" href="../../module_docs/cw/egress.html#cw.confirm">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">confirm</span><span class="p">(</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">skip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">in_</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A ``y/n`` prompt, reproducing ``argh.confirm`` -- the fleet's one interaction use.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        action: What is about to happen, phrased as the subject of a question.</span>
+<span class="sd">        default: What an empty or unrecognised answer means. ``None`` means "keep asking</span>
+<span class="sd">            while the answer is empty, and return ``None`` if it is unrecognised".</span>
+<span class="sd">        skip: Return ``default`` without prompting -- for a ``--yes`` flag.</span>
+<span class="sd">        in_: Where the answer is read from. Defaults to :data:`sys.stdin`, resolved now.</span>
+<span class="sd">        out: Where the prompt is written. Defaults to :data:`sys.stdout`, resolved now.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; out = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; confirm('Delete everything', in_=io.StringIO('y\\n'), out=out)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; out.getvalue()</span>
+<span class="sd">    'Delete everything? (y/n)'</span>
+
+<span class="sd">    A default is shown by which letter is capitalised, and is what an empty answer means:</span>
+
+<span class="sd">    &gt;&gt;&gt; confirm('Proceed', default=True, in_=io.StringIO('\\n'), out=io.StringIO())</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; confirm('Proceed', default=False, in_=io.StringIO('\\n'), out=io.StringIO())</span>
+<span class="sd">    False</span>
+
+<span class="sd">    ``skip=True`` is how a ``--yes`` flag is spelt; nothing is read and nothing is written:</span>
+
+<span class="sd">    &gt;&gt;&gt; confirm('Proceed', default=True, skip=True) is True</span>
+<span class="sd">    True</span>
+
+<span class="sd">    Unlike the streams, the *questions* are not a seam: this is a y/n prompt, and anything</span>
+<span class="sd">    richer is the caller's own code.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">skip</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">default</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">_prompt_for</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="p">)</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="n">_ask</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">in_</span><span class="o">=</span><span class="n">in_</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="ow">in</span> <span class="n">YES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="ow">in</span> <span class="n">NO</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">answer</span> <span class="o">==</span> <span class="s2">""</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># argh keeps asking rather than returning an ambiguous None</span>
+        <span class="k">return</span> <span class="n">default</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

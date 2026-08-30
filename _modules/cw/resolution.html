@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.resolution &mdash; cw 0.0.14 documentation</title>
+  <title>cw.resolution &mdash; cw 0.0.15 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=544df88d"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -47,9 +47,19 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/scrap.html">cw.scrap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/util.html">cw.util</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
 </ul>
 
         </div>
@@ -77,7 +87,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cw.resolution</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Function resolution utilities for CLI parameterization.</span>
+<span></span><span class="sd">"""Function resolution utilities for CLI parameterization.</span>
 
 <span class="sd">This module provides utilities to resolve function specifications from various formats</span>
 <span class="sd">(JSON, AST expressions, dot paths) into callable functions with optional parameter binding.</span>
@@ -94,10 +104,10 @@
 <span class="sd">from a string specification or directly from a callable.</span>
 
 <span class="sd">&gt;&gt;&gt; def func(apple, banana, carrot):</span>
-<span class="sd">...     return f&quot;{apple=}, {banana=}, {carrot=}&quot;</span>
+<span class="sd">...     return f"{apple=}, {banana=}, {carrot=}"</span>
 <span class="sd">&gt;&gt;&gt;</span>
 <span class="sd">&gt;&gt;&gt; from cw.resolution import parse_ast_spec</span>
-<span class="sd">&gt;&gt;&gt; function_store = {&#39;a&#39;: lambda: 1, &#39;b&#39;: lambda: 2}</span>
+<span class="sd">&gt;&gt;&gt; function_store = {'a': lambda: 1, 'b': lambda: 2}</span>
 <span class="sd">&gt;&gt;&gt;</span>
 <span class="sd">&gt;&gt;&gt; wrapped_func = resource_inputs(</span>
 <span class="sd">...     func,</span>
@@ -115,33 +125,33 @@
 <span class="sd">carrot will be resolved via resolve_to_function with custom params</span>
 <span class="sd">banana remains unchanged (passed through as-is)</span>
 
-<span class="sd">&gt;&gt;&gt; # apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
-<span class="sd">&gt;&gt;&gt; # banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
-<span class="sd">&gt;&gt;&gt; # carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
-<span class="sd">&gt;&gt;&gt; result = wrapped_func(&#39;builtins.len&#39;, &#39;test&#39;, &#39;a()&#39;)</span>
-<span class="sd">&gt;&gt;&gt; &#39;apple=&lt;built-in function len&gt;&#39; in result</span>
+<span class="sd">&gt;&gt;&gt; # apple='builtins.len' -&gt; resolve_to_function('builtins.len') -&gt; len function</span>
+<span class="sd">&gt;&gt;&gt; # banana='test' -&gt; unchanged (no resource specified)</span>
+<span class="sd">&gt;&gt;&gt; # carrot='a()' -&gt; parsed as AST, resolved via function_store</span>
+<span class="sd">&gt;&gt;&gt; result = wrapped_func('builtins.len', 'test', 'a()')</span>
+<span class="sd">&gt;&gt;&gt; 'apple=&lt;built-in function len&gt;' in result</span>
 <span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; &quot;banana=&#39;test&#39;&quot; in result</span>
+<span class="sd">&gt;&gt;&gt; "banana='test'" in result</span>
 <span class="sd">True</span>
-<span class="sd">&gt;&gt;&gt; &#39;carrot=&lt;function&#39; in result and &#39;lambda&#39; in result</span>
+<span class="sd">&gt;&gt;&gt; 'carrot=&lt;function' in result and 'lambda' in result</span>
 <span class="sd">True</span>
 
 <span class="sd">An example of using the resolve_to_function function directly:</span>
 
 <span class="sd">&gt;&gt;&gt; import json</span>
 <span class="sd">&gt;&gt;&gt; # JSON format</span>
-<span class="sd">&gt;&gt;&gt; json_spec = &#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: {}}&#39;</span>
+<span class="sd">&gt;&gt;&gt; json_spec = '{"func": "len", "params": {}}'</span>
 <span class="sd">&gt;&gt;&gt; func = resolve_to_function(json_spec, parse_json_spec)</span>
 <span class="sd">&gt;&gt;&gt; func([1, 2, 3])</span>
 <span class="sd">3</span>
 
 <span class="sd">&gt;&gt;&gt; # Dot path format</span>
-<span class="sd">&gt;&gt;&gt; func = resolve_to_function(&quot;builtins.len&quot;)</span>
+<span class="sd">&gt;&gt;&gt; func = resolve_to_function("builtins.len")</span>
 <span class="sd">&gt;&gt;&gt; func([1, 2, 3])</span>
 <span class="sd">3</span>
 
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="c1"># TODO: Expand and merge the resolve_object function (see at the end of the file)</span>
 
@@ -153,24 +163,24 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
 
-<span class="n">FuncSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncSpec&quot;</span><span class="p">)</span>
-<span class="n">FuncKey</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;FuncKey&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">FuncSpec</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"FuncSpec"</span><span class="p">)</span>
+<span class="n">FuncKey</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"FuncKey"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_builtin</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a built-in object, handling both dict and module __builtins__.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get a built-in object, handling both dict and module __builtins__."""</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">builtins</span>
 
     <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">builtins</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="resolve_func_from_dot_path">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resolve_func_from_dot_path">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolve_func_from_dot_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_func_from_dot_path</span><span class="p">(</span><span class="n">dot_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a function from a dot-separated import path.</span>
+<span class="w">    </span><span class="sd">"""Resolve a function from a dot-separated import path.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        dot_path: String like &#39;os.path.join&#39;, &#39;builtins.len&#39;, or &#39;str.upper&#39;</span>
+<span class="sd">        dot_path: String like 'os.path.join', 'builtins.len', or 'str.upper'</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The resolved callable function</span>
@@ -180,67 +190,67 @@
 
 <span class="sd">    Examples:</span>
 <span class="sd">        &gt;&gt;&gt; import os.path</span>
-<span class="sd">        &gt;&gt;&gt; join_func = resolve_func_from_dot_path(&#39;os.path.join&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; join_func(&#39;a&#39;, &#39;b&#39;)  # doctest: +ELLIPSIS</span>
-<span class="sd">        &#39;a/b&#39;</span>
+<span class="sd">        &gt;&gt;&gt; join_func = resolve_func_from_dot_path('os.path.join')</span>
+<span class="sd">        &gt;&gt;&gt; join_func('a', 'b') == os.path.join('a', 'b')   # a separator, whichever OS</span>
+<span class="sd">        True</span>
 
-<span class="sd">        &gt;&gt;&gt; len_func = resolve_func_from_dot_path(&#39;builtins.len&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; len_func = resolve_func_from_dot_path('builtins.len')</span>
 <span class="sd">        &gt;&gt;&gt; len_func([1, 2, 3])</span>
 <span class="sd">        3</span>
 
-<span class="sd">        &gt;&gt;&gt; upper_func = resolve_func_from_dot_path(&#39;str.upper&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; upper_func(&#39;hello&#39;)</span>
-<span class="sd">        &#39;HELLO&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;.&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dot_path</span><span class="p">:</span>
+<span class="sd">        &gt;&gt;&gt; upper_func = resolve_func_from_dot_path('str.upper')</span>
+<span class="sd">        &gt;&gt;&gt; upper_func('hello')</span>
+<span class="sd">        'HELLO'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"."</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dot_path</span><span class="p">:</span>
         <span class="c1"># Handle built-ins and single names</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_get_builtin</span><span class="p">(</span><span class="n">dot_path</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot resolve &#39;</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">&#39; as a built-in function&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot resolve '</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">' as a built-in function"</span><span class="p">)</span>
 
-    <span class="n">parts</span> <span class="o">=</span> <span class="n">dot_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">dot_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)</span>
 
     <span class="c1"># Special handling for built-in types like str, int, float, etc.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span>
-        <span class="s2">&quot;str&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;int&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;float&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;list&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dict&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;set&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tuple&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;bytes&quot;</span><span class="p">,</span>
+        <span class="s2">"str"</span><span class="p">,</span>
+        <span class="s2">"int"</span><span class="p">,</span>
+        <span class="s2">"float"</span><span class="p">,</span>
+        <span class="s2">"list"</span><span class="p">,</span>
+        <span class="s2">"dict"</span><span class="p">,</span>
+        <span class="s2">"set"</span><span class="p">,</span>
+        <span class="s2">"tuple"</span><span class="p">,</span>
+        <span class="s2">"bool"</span><span class="p">,</span>
+        <span class="s2">"bytes"</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">base_type</span> <span class="o">=</span> <span class="n">_get_builtin</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
             <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">base_type</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">&#39; is not callable&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">' is not callable"</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">func</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; has no attribute &#39;</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">' has no attribute '</span><span class="si">{</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
 
     <span class="c1"># Standard module import path</span>
     <span class="n">func_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">module_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">module_path</span> <span class="o">=</span> <span class="s2">"."</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
         <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">func_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">&#39; is not callable&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">' is not callable"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">func</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot resolve &#39;</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Cannot resolve '</span><span class="si">{</span><span class="n">dot_path</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="parse_spec_with_dot_path">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_spec_with_dot_path">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.parse_spec_with_dot_path">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_spec_with_dot_path</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Default parser for simple dot-path function specifications.</span>
+<span class="w">    </span><span class="sd">"""Default parser for simple dot-path function specifications.</span>
 
 <span class="sd">    Validates that func_spec contains only word characters and dots,</span>
 <span class="sd">    then returns it as-is with empty kwargs.</span>
@@ -255,18 +265,18 @@
 <span class="sd">        ValueError: If func_spec contains invalid characters</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; parse_spec_with_dot_path(&#39;os.path.join&#39;)</span>
-<span class="sd">        (&#39;os.path.join&#39;, {})</span>
+<span class="sd">        &gt;&gt;&gt; parse_spec_with_dot_path('os.path.join')</span>
+<span class="sd">        ('os.path.join', {})</span>
 
-<span class="sd">        &gt;&gt;&gt; parse_spec_with_dot_path(&#39;len&#39;)</span>
-<span class="sd">        (&#39;len&#39;, {})</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; parse_spec_with_dot_path('len')</span>
+<span class="sd">        ('len', {})</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^[\w.]+$&quot;</span><span class="p">,</span> <span class="n">func_spec</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^[\w.]+$"</span><span class="p">,</span> <span class="n">func_spec</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;func_spec must contain only word characters and dots: &#39;</span><span class="si">{</span><span class="n">func_spec</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="sa">f</span><span class="s2">"func_spec must contain only word characters and dots: '</span><span class="si">{</span><span class="n">func_spec</span><span class="si">}</span><span class="s2">'"</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">func_spec</span><span class="p">,</span> <span class="p">{}</span></div>
@@ -274,11 +284,11 @@
 
 
 <div class="viewcode-block" id="parse_json_spec">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_json_spec">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.parse_json_spec">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_json_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse JSON-formatted function specification.</span>
+<span class="w">    </span><span class="sd">"""Parse JSON-formatted function specification.</span>
 
-<span class="sd">    Expected format: &#39;{&quot;func&quot;: &quot;function_name&quot;, &quot;params&quot;: {&quot;key&quot;: &quot;value&quot;}}&#39;</span>
+<span class="sd">    Expected format: '{"func": "function_name", "params": {"key": "value"}}'</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        func_spec: JSON string with func and params keys</span>
@@ -290,42 +300,42 @@
 <span class="sd">        ValueError: If JSON is malformed or missing required keys</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; parse_json_spec(&#39;{&quot;func&quot;: &quot;len&quot;, &quot;params&quot;: {}}&#39;)</span>
-<span class="sd">        (&#39;len&#39;, {})</span>
+<span class="sd">        &gt;&gt;&gt; parse_json_spec('{"func": "len", "params": {}}')</span>
+<span class="sd">        ('len', {})</span>
 
-<span class="sd">        &gt;&gt;&gt; parse_json_spec(&#39;{&quot;func&quot;: &quot;str.replace&quot;, &quot;params&quot;: {&quot;old&quot;: &quot;a&quot;, &quot;new&quot;: &quot;b&quot;}}&#39;)</span>
-<span class="sd">        (&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; parse_json_spec('{"func": "str.replace", "params": {"old": "a", "new": "b"}}')</span>
+<span class="sd">        ('str.replace', {'old': 'a', 'new': 'b'})</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid JSON in func_spec: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid JSON in func_spec: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON func_spec must be a dictionary&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"JSON func_spec must be a dictionary"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;func&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;JSON func_spec must contain &#39;func&#39; key&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"func"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"JSON func_spec must contain 'func' key"</span><span class="p">)</span>
 
-    <span class="n">func_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;func&quot;</span><span class="p">]</span>
-    <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">func_name</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"func"</span><span class="p">]</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"params"</span><span class="p">,</span> <span class="p">{})</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;func&#39; value must be a string&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"'func' value must be a string"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;params&#39; value must be a dictionary&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"'params' value must be a dictionary"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">func_name</span><span class="p">,</span> <span class="n">params</span></div>
 
 
 
 <div class="viewcode-block" id="parse_ast_spec">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.parse_ast_spec">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.parse_ast_spec">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_ast_spec</span><span class="p">(</span><span class="n">func_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse AST-formatted function call specification.</span>
+<span class="w">    </span><span class="sd">"""Parse AST-formatted function call specification.</span>
 
-<span class="sd">    Expected format: &#39;function_name(arg1=value1, arg2=value2)&#39;</span>
+<span class="sd">    Expected format: 'function_name(arg1=value1, arg2=value2)'</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        func_spec: String representing a function call with keyword arguments</span>
@@ -337,29 +347,29 @@
 <span class="sd">        ValueError: If the expression is malformed or unsafe</span>
 
 <span class="sd">    Examples:</span>
-<span class="sd">        &gt;&gt;&gt; parse_ast_spec(&#39;len()&#39;)</span>
-<span class="sd">        (&#39;len&#39;, {})</span>
+<span class="sd">        &gt;&gt;&gt; parse_ast_spec('len()')</span>
+<span class="sd">        ('len', {})</span>
 
-<span class="sd">        &gt;&gt;&gt; parse_ast_spec(&#39;str.replace(old=&quot;a&quot;, new=&quot;b&quot;)&#39;)</span>
-<span class="sd">        (&#39;str.replace&#39;, {&#39;old&#39;: &#39;a&#39;, &#39;new&#39;: &#39;b&#39;})</span>
+<span class="sd">        &gt;&gt;&gt; parse_ast_spec('str.replace(old="a", new="b")')</span>
+<span class="sd">        ('str.replace', {'old': 'a', 'new': 'b'})</span>
 
-<span class="sd">        &gt;&gt;&gt; parse_ast_spec(&#39;range(start=0, stop=10)&#39;)</span>
-<span class="sd">        (&#39;range&#39;, {&#39;start&#39;: 0, &#39;stop&#39;: 10})</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; parse_ast_spec('range(start=0, stop=10)')</span>
+<span class="sd">        ('range', {'start': 0, 'stop': 10})</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"func_spec must be a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;(&quot;</span> <span class="ow">in</span> <span class="n">func_spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="s2">&quot;)&quot;</span> <span class="ow">in</span> <span class="n">func_spec</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="s2">"("</span> <span class="ow">in</span> <span class="n">func_spec</span> <span class="ow">or</span> <span class="ow">not</span> <span class="s2">")"</span> <span class="ow">in</span> <span class="n">func_spec</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">parse_spec_with_dot_path</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Parse the expression safely</span>
-        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">func_spec</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid syntax in func_spec: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid syntax in func_spec: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;func_spec must be a function call expression&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"func_spec must be a function call expression"</span><span class="p">)</span>
 
     <span class="n">call_node</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">body</span>
 
@@ -369,20 +379,20 @@
     <span class="c1"># TODO: Should we generalize to support other types of arguments?</span>
     <span class="c1"># Only allow keyword arguments for safety and clarity</span>
     <span class="k">if</span> <span class="n">call_node</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only keyword arguments are supported in AST format&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only keyword arguments are supported in AST format"</span><span class="p">)</span>
 
     <span class="c1"># Extract keyword arguments</span>
     <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">call_node</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">keyword</span><span class="o">.</span><span class="n">arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># **kwargs not allowed</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;**kwargs syntax not supported&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"**kwargs syntax not supported"</span><span class="p">)</span>
 
         <span class="c1"># Safely evaluate the argument value</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">keyword</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Unsafe or invalid argument value for &#39;</span><span class="si">{</span><span class="n">keyword</span><span class="o">.</span><span class="n">arg</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Unsafe or invalid argument value for '</span><span class="si">{</span><span class="n">keyword</span><span class="o">.</span><span class="n">arg</span><span class="si">}</span><span class="s2">': </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="n">kwargs</span><span class="p">[</span><span class="n">keyword</span><span class="o">.</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
@@ -392,22 +402,22 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_func_name</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">AST</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract function name from an AST node.</span>
+<span class="w">    </span><span class="sd">"""Extract function name from an AST node.</span>
 
 <span class="sd">    Handles both simple names (Name) and attribute access (Attribute).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
         <span class="c1"># Recursively build the dotted name</span>
         <span class="n">base</span> <span class="o">=</span> <span class="n">_extract_func_name</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">attr</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unsupported function name format&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Unsupported function name format"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="resolve_to_function">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resolve_to_function">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolve_to_function">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_to_function</span><span class="p">(</span>
     <span class="n">func_spec</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">|</span> <span class="n">FuncSpec</span><span class="p">,</span>
     <span class="n">func_key_and_kwargs</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span>
@@ -417,7 +427,7 @@
         <span class="n">Mapping</span><span class="p">[</span><span class="n">FuncKey</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FuncKey</span><span class="p">],</span> <span class="n">Callable</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">=</span> <span class="n">resolve_func_from_dot_path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve various function specifications into callable functions.</span>
+<span class="w">    </span><span class="sd">"""Resolve various function specifications into callable functions.</span>
 
 <span class="sd">    This is the main entry point for function resolution. It handles:</span>
 <span class="sd">    - Direct callable objects (returned as-is)</span>
@@ -444,23 +454,23 @@
 <span class="sd">        &lt;built-in function len&gt;</span>
 
 <span class="sd">        &gt;&gt;&gt; # Simple string (dot path)</span>
-<span class="sd">        &gt;&gt;&gt; length_func = resolve_to_function(&#39;builtins.len&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; length_func = resolve_to_function('builtins.len')</span>
 <span class="sd">        &gt;&gt;&gt; length_func([1, 2, 3])</span>
 <span class="sd">        3</span>
 
 <span class="sd">        &gt;&gt;&gt; # JSON format</span>
 <span class="sd">        &gt;&gt;&gt; json_func = resolve_to_function(</span>
-<span class="sd">        ...     &#39;{&quot;func&quot;: &quot;builtins.len&quot;, &quot;params&quot;: {}}&#39;,</span>
+<span class="sd">        ...     '{"func": "builtins.len", "params": {}}',</span>
 <span class="sd">        ...     parse_json_spec</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; json_func([1, 2, 3])</span>
 <span class="sd">        3</span>
 
 <span class="sd">        &gt;&gt;&gt; # AST format</span>
-<span class="sd">        &gt;&gt;&gt; ast_func = resolve_to_function(&#39;str.upper()&#39;, parse_ast_spec)</span>
-<span class="sd">        &gt;&gt;&gt; ast_func(&#39;hello&#39;)</span>
-<span class="sd">        &#39;HELLO&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; ast_func = resolve_to_function('str.upper()', parse_ast_spec)</span>
+<span class="sd">        &gt;&gt;&gt; ast_func('hello')</span>
+<span class="sd">        'HELLO'</span>
+<span class="sd">    """</span>
     <span class="c1"># Resolve Mapping get_func into a function</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">get_func</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
         <span class="n">func_store</span> <span class="o">=</span> <span class="n">get_func</span>
@@ -478,14 +488,14 @@
             <span class="n">func</span> <span class="o">=</span> <span class="n">get_func</span><span class="p">(</span><span class="n">func_key</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;get_func could not resolve &#39;</span><span class="si">{</span><span class="n">func_key</span><span class="si">}</span><span class="s2">&#39; into a function &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"get_func could not resolve '</span><span class="si">{</span><span class="n">func_key</span><span class="si">}</span><span class="s2">' into a function "</span>
+                <span class="sa">f</span><span class="s2">"(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;get_func(</span><span class="si">{</span><span class="n">func_key</span><span class="si">!r}</span><span class="s2">) returned non-callable object &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">): </span><span class="si">{</span><span class="n">func</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"get_func(</span><span class="si">{</span><span class="n">func_key</span><span class="si">!r}</span><span class="s2">) returned non-callable object "</span>
+                <span class="sa">f</span><span class="s2">"(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">): </span><span class="si">{</span><span class="n">func</span><span class="si">!r}</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -495,34 +505,57 @@
             <span class="c1"># If kwargs were given, bind them to the function</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;kwargs must be a dictionary, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+                    <span class="sa">f</span><span class="s2">"kwargs must be a dictionary, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">)"</span>
                 <span class="p">)</span>
             <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;func_spec must be either a callable or a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"func_spec must be either a callable or a string, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">func_spec</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(func_spec=</span><span class="si">{</span><span class="n">func_spec</span><span class="si">!r}</span><span class="s2">)"</span>
         <span class="p">)</span></div>
 
 
 
-<span class="sd">&quot;&quot;&quot;Resource inputs decorator for function argument sourcing.</span>
+<span class="sd">"""Resource inputs decorator for function argument sourcing.</span>
 
 <span class="sd">This module provides a decorator that wraps functions to source specific arguments</span>
 <span class="sd">through configurable resolution mechanisms, particularly useful for CLI contexts</span>
 <span class="sd">where string inputs need to be resolved to actual objects/functions.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.resolution</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_to_function</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">i2.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ingress</span><span class="p">,</span> <span class="n">wrap</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_i2_wrapper</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Import ``i2.wrapper``'s ``Ingress`` and ``wrap``, lazily.</span>
+
+<span class="sd">    ``i2`` is the only third-party dependency ``cw`` has, it is used by exactly one</span>
+<span class="sd">    function (:func:`resource_inputs`), and importing it costs ~35 ms. Keeping the</span>
+<span class="sd">    import here is what makes ``import cw`` stdlib-only -- which is load-bearing for</span>
+<span class="sd">    the repos that ship their CLI as an optional extra to keep the base install thin.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ``(Ingress, wrap)`` pair from :mod:`i2.wrapper`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ImportError: with the install command, when ``i2`` is not available.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">i2.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">Ingress</span><span class="p">,</span> <span class="n">wrap</span>
+    <span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+            <span class="s2">"cw.resource_inputs needs the optional 'i2' dependency. "</span>
+            <span class="s2">"Install it with:  pip install 'cw[resource]'  (or:  pip install i2)"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+    <span class="k">return</span> <span class="n">Ingress</span><span class="p">,</span> <span class="n">wrap</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_resource_spec</span><span class="p">(</span><span class="n">resource_spec</span><span class="p">,</span> <span class="n">default_ingress</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a resource specification into a callable resolver.</span>
+<span class="w">    </span><span class="sd">"""Convert a resource specification into a callable resolver.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        resource_spec: Resource specification - can be:</span>
@@ -542,9 +575,9 @@
 <span class="sd">        &gt;&gt;&gt; resolver = _resolve_resource_spec(lambda x: x.upper(), resolve_to_function)</span>
 <span class="sd">        &gt;&gt;&gt; # resolver is the lambda function</span>
 
-<span class="sd">        &gt;&gt;&gt; resolver = _resolve_resource_spec({&#39;get_func&#39;: {&#39;a&#39;: 1}.get}, resolve_to_function)</span>
-<span class="sd">        &gt;&gt;&gt; # resolver is partial(resolve_to_function, get_func={&#39;a&#39;: 1}.get)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; resolver = _resolve_resource_spec({'get_func': {'a': 1}.get}, resolve_to_function)</span>
+<span class="sd">        &gt;&gt;&gt; # resolver is partial(resolve_to_function, get_func={'a': 1}.get)</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">resource_spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">default_ingress</span>
     <span class="k">elif</span> <span class="nb">callable</span><span class="p">(</span><span class="n">resource_spec</span><span class="p">):</span>
@@ -553,24 +586,24 @@
         <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">default_ingress</span><span class="p">,</span> <span class="o">**</span><span class="n">resource_spec</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Resource spec must be None, callable, or dict. Got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">resource_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Resource spec must be None, callable, or dict. Got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">resource_spec</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_create_resource_kwargs_trans</span><span class="p">(</span>
     <span class="n">resource_resolvers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">dict</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a kwargs transformation function for resource resolution.</span>
+<span class="w">    </span><span class="sd">"""Create a kwargs transformation function for resource resolution.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        resource_resolvers: Mapping of parameter names to their resolver functions</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Function that transforms kwargs by applying resolvers to specified parameters</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_kwargs_trans</span><span class="p">(</span><span class="n">outer_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform kwargs by resolving specified parameters.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Transform kwargs by resolving specified parameters."""</span>
         <span class="n">transformed</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">outer_kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -587,14 +620,14 @@
 
 
 <div class="viewcode-block" id="resource_inputs">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resource_inputs">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resource_inputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resource_inputs</span><span class="p">(</span>
     <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
     <span class="n">resource</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">Callable</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">default_ingress</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="n">resolve_to_function</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap a function to source specified inputs through configurable resolvers.</span>
+<span class="w">    </span><span class="sd">"""Wrap a function to source specified inputs through configurable resolvers.</span>
 
 <span class="sd">    This decorator transforms specified function arguments using resolver functions,</span>
 <span class="sd">    making it particularly useful for CLI contexts where string inputs need to be</span>
@@ -614,10 +647,10 @@
 <span class="sd">    Examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; def func(apple, banana, carrot):</span>
-<span class="sd">        ...     return f&quot;{apple=}, {banana=}, {carrot=}&quot;</span>
+<span class="sd">        ...     return f"{apple=}, {banana=}, {carrot=}"</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; from cw.resolution import parse_ast_spec</span>
-<span class="sd">        &gt;&gt;&gt; function_store = {&#39;a&#39;: lambda: 1, &#39;b&#39;: lambda: 2}</span>
+<span class="sd">        &gt;&gt;&gt; function_store = {'a': lambda: 1, 'b': lambda: 2}</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; wrapped_func = resource_inputs(</span>
 <span class="sd">        ...     func,</span>
@@ -635,18 +668,18 @@
 <span class="sd">        carrot will be resolved via resolve_to_function with custom params</span>
 <span class="sd">        banana remains unchanged (passed through as-is)</span>
 
-<span class="sd">        &gt;&gt;&gt; # apple=&#39;builtins.len&#39; -&gt; resolve_to_function(&#39;builtins.len&#39;) -&gt; len function</span>
-<span class="sd">        &gt;&gt;&gt; # banana=&#39;test&#39; -&gt; unchanged (no resource specified)</span>
-<span class="sd">        &gt;&gt;&gt; # carrot=&#39;a()&#39; -&gt; parsed as AST, resolved via function_store</span>
-<span class="sd">        &gt;&gt;&gt; result = wrapped_func(&#39;builtins.len&#39;, &#39;test&#39;, &#39;a()&#39;)</span>
-<span class="sd">        &gt;&gt;&gt; &#39;apple=&lt;built-in function len&gt;&#39; in result</span>
+<span class="sd">        &gt;&gt;&gt; # apple='builtins.len' -&gt; resolve_to_function('builtins.len') -&gt; len function</span>
+<span class="sd">        &gt;&gt;&gt; # banana='test' -&gt; unchanged (no resource specified)</span>
+<span class="sd">        &gt;&gt;&gt; # carrot='a()' -&gt; parsed as AST, resolved via function_store</span>
+<span class="sd">        &gt;&gt;&gt; result = wrapped_func('builtins.len', 'test', 'a()')</span>
+<span class="sd">        &gt;&gt;&gt; 'apple=&lt;built-in function len&gt;' in result</span>
 <span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; &quot;banana=&#39;test&#39;&quot; in result</span>
+<span class="sd">        &gt;&gt;&gt; "banana='test'" in result</span>
 <span class="sd">        True</span>
-<span class="sd">        &gt;&gt;&gt; &#39;carrot=&lt;function&#39; in result and &#39;lambda&#39; in result</span>
+<span class="sd">        &gt;&gt;&gt; 'carrot=&lt;function' in result and 'lambda' in result</span>
 <span class="sd">        True</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Build resolver functions for each resourced parameter</span>
     <span class="n">resource_resolvers</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">param_name</span><span class="p">:</span> <span class="n">_resolve_resource_spec</span><span class="p">(</span><span class="n">resource_spec</span><span class="p">,</span> <span class="n">default_ingress</span><span class="p">)</span>
@@ -655,6 +688,8 @@
 
     <span class="c1"># Create the kwargs transformation function</span>
     <span class="n">kwargs_trans</span> <span class="o">=</span> <span class="n">_create_resource_kwargs_trans</span><span class="p">(</span><span class="n">resource_resolvers</span><span class="p">)</span>
+
+    <span class="n">Ingress</span><span class="p">,</span> <span class="n">wrap</span> <span class="o">=</span> <span class="n">_i2_wrapper</span><span class="p">()</span>
 
     <span class="c1"># Create ingress using the Ingress class</span>
     <span class="n">ingress</span> <span class="o">=</span> <span class="n">Ingress</span><span class="p">(</span>
@@ -673,12 +708,12 @@
 <span class="c1"># ------------------------------------------------------------------------------------</span>
 <span class="c1"># Generic type for object resolution</span>
 
-<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"T"</span><span class="p">)</span>
 
 
 <span class="c1"># TODO: Expand and merge with resolve_to_function and resource_inputs</span>
 <div class="viewcode-block" id="resolve_object">
-<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolution.resolve_object">[docs]</a>
+<a class="viewcode-back" href="../../module_docs/cw/resolution.html#cw.resolve_object">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">resolve_object</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">T</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -686,13 +721,13 @@
     <span class="n">expected_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">error_message</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Resolves an object by either returning it directly if it&#39;s of the correct type,</span>
-<span class="sd">    or looking it up in a mapping if it&#39;s a string.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Resolves an object by either returning it directly if it's of the correct type,</span>
+<span class="sd">    or looking it up in a mapping if it's a string.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        obj: The object to resolve. Can be a string (to be looked up in object_map)</span>
-<span class="sd">             or the object itself (if it&#39;s already of type T).</span>
+<span class="sd">             or the object itself (if it's already of type T).</span>
 <span class="sd">        object_map: A dictionary mapping strings to objects of type T.</span>
 <span class="sd">        expected_type: (Optional) The expected type of the resolved object.</span>
 <span class="sd">                       If provided, raises a TypeError if the resolved object</span>
@@ -708,23 +743,23 @@
 <span class="sd">                   resolved object from the map is not of the expected type</span>
 <span class="sd">                   (when expected_type is provided).</span>
 <span class="sd">        ValueError: If obj is a string but is not found in object_map.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_map</span><span class="p">:</span>
             <span class="n">resolved_obj</span> <span class="o">=</span> <span class="n">object_map</span><span class="p">[</span><span class="n">obj</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="n">error_message</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Unknown object identifier: </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">error_message</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"Unknown object identifier: </span><span class="si">{</span><span class="n">obj</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">expected_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">):</span>
         <span class="n">resolved_obj</span> <span class="o">=</span> <span class="n">obj</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">error_message</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Expected type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">error_message</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"Expected type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">expected_type</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resolved_obj</span><span class="p">,</span> <span class="n">expected_type</span><span class="p">):</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">error_message</span>
-            <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Resolved object should be of type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">resolved_obj</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="ow">or</span> <span class="sa">f</span><span class="s2">"Resolved object should be of type </span><span class="si">{</span><span class="n">expected_type</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">resolved_obj</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -739,7 +774,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright NO COPYRIGHT.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

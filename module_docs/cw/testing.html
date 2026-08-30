@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.testing &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cw.tests" href="tests.html" />
+    <link rel="prev" title="cw.resolution" href="resolution.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resolution.html">cw.resolution</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-golden-format-one-format-three-tiers">The golden format: one format, three tiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#windows-adr-option-a-normalise">Windows (ADR: option A, “normalise”)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.GOLDEN_VERSION"><code class="docutils literal notranslate"><span class="pre">GOLDEN_VERSION</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.RECORDING_ENV"><code class="docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.assert_replay"><code class="docutils literal notranslate"><span class="pre">assert_replay()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.capture"><code class="docutils literal notranslate"><span class="pre">capture()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.characterize"><code class="docutils literal notranslate"><span class="pre">characterize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.compare_case"><code class="docutils literal notranslate"><span class="pre">compare_case()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.diff_help"><code class="docutils literal notranslate"><span class="pre">diff_help()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.load_golden"><code class="docutils literal notranslate"><span class="pre">load_golden()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.normalise_text"><code class="docutils literal notranslate"><span class="pre">normalise_text()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.normalise_usage"><code class="docutils literal notranslate"><span class="pre">normalise_usage()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.parity"><code class="docutils literal notranslate"><span class="pre">parity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.pinned_env"><code class="docutils literal notranslate"><span class="pre">pinned_env</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.read_cases"><code class="docutils literal notranslate"><span class="pre">read_cases()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.replay"><code class="docutils literal notranslate"><span class="pre">replay()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.testing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/cw/testing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.testing">
+<span id="cw-testing"></span><h1>cw.testing<a class="headerlink" href="#module-cw.testing" title="Link to this heading"></a></h1>
+<p>Record a CLI’s behaviour before a migration and assert it after.</p>
+<p>This file is <strong>standalone</strong> (D4). Its module-level imports are <code class="docutils literal notranslate"><span class="pre">argparse</span></code>, <code class="docutils literal notranslate"><span class="pre">difflib</span></code>,
+<code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">os</span></code>, <code class="docutils literal notranslate"><span class="pre">re</span></code>, <code class="docutils literal notranslate"><span class="pre">shlex</span></code>, <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> and <code class="docutils literal notranslate"><span class="pre">sys</span></code> – stdlib, all of it, and no
+<code class="docutils literal notranslate"><span class="pre">cw</span></code> anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose
+CLI is being deleted and 35 that are argparse-only and will never depend on <code class="docutils literal notranslate"><span class="pre">cw</span></code>, and all
+of them want the same thing: <em>proof that the command line did not change</em>. Copy this one
+file into such a repo and it works.</p>
+<p>Three entry points, in the order you meet them:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">characterize(prog,</span> <span class="pre">cases)</span></code></dt><dd><p>Run a <strong>real console script</strong> as a subprocess against a list of <code class="docutils literal notranslate"><span class="pre">argv</span></code> vectors and
+record what a shell would see. Do this <strong>before</strong> you touch anything.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">replay(golden)</span></code> / <code class="docutils literal notranslate"><span class="pre">assert_replay(golden)</span></code></dt><dd><p>Run it again and diff. Do this <strong>after</strong>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">parity()</span></code></dt><dd><p>cw’s own gate: replay the committed argh-recorded goldens for the seven hard-case
+shapes through cw. This one – and only this one – imports <code class="docutils literal notranslate"><span class="pre">cw</span></code>, lazily, inside the
+function, so the standalone guarantee above survives.</p>
+</dd>
+</dl>
+<section id="the-golden-format-one-format-three-tiers">
+<h2>The golden format: one format, three tiers<a class="headerlink" href="#the-golden-format-one-format-three-tiers" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>tier</p></th>
+<th class="head"><p>content</p></th>
+<th class="head"><p>treatment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">argv</span></code>, <code class="docutils literal notranslate"><span class="pre">returncode</span></code>, full <code class="docutils literal notranslate"><span class="pre">stdout</span></code>, full <code class="docutils literal notranslate"><span class="pre">stderr</span></code></p></td>
+<td><p><strong>asserted</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>the normalised <code class="docutils literal notranslate"><span class="pre">usage:</span></code> line</p></td>
+<td><p><strong>asserted</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>the full <code class="docutils literal notranslate"><span class="pre">--help</span></code> body</p></td>
+<td><p>snapshot only</p></td>
+</tr>
+</tbody>
+</table>
+<p>Tier 3’s body is not asserted by default because <code class="docutils literal notranslate"><span class="pre">--help</span></code> wraps to <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code> and
+because CPython itself rewrites it between versions (3.13 renders <code class="docutils literal notranslate"><span class="pre">-i,</span> <span class="pre">--ignore</span> <span class="pre">VALUE</span></code>
+where 3.12 rendered <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">VALUE,</span> <span class="pre">--ignore</span> <span class="pre">VALUE</span></code>), so a committed golden replayed across a
+matrix would fail for reasons nobody caused. Tier 2 does most of the work tier 3 looks like
+it would: argparse’s <code class="docutils literal notranslate"><span class="pre">usage:</span></code> line names <strong>every</strong> option a parser has, so a lost flag, a
+lost short flag or a changed <code class="docutils literal notranslate"><span class="pre">nargs</span></code> all show up there, whitespace-collapsed and
+width-independent.</p>
+<p><strong>What tier 2 cannot see, and what to do about it.</strong> A change of <em>formatter</em> – which is
+exactly what swapping one dispatcher for another can do – moves the help column and the
+description block and touches neither the <code class="docutils literal notranslate"><span class="pre">usage:</span></code> line nor any exit code. So
+<a class="reference internal" href="#cw.testing.replay" title="cw.testing.replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">replay()</span></code></a> compares the tier-3 body anyway, through <code class="xref py py-func docutils literal notranslate"><span class="pre">normalise_help()</span></code>, and reports
+a case whose body moved as the non-fatal status <code class="docutils literal notranslate"><span class="pre">help-differs</span></code> rather than calling it
+<code class="docutils literal notranslate"><span class="pre">identical</span></code>. <code class="docutils literal notranslate"><span class="pre">replay(...,</span> <span class="pre">strict_help=True)</span></code> (<code class="docutils literal notranslate"><span class="pre">--strict-help</span></code> on the command line)
+makes it fatal, which is the right setting for a migration that promised <code class="docutils literal notranslate"><span class="pre">--help</span></code> would
+not move; <a class="reference internal" href="#cw.testing.diff_help" title="cw.testing.diff_help"><code class="xref py py-func docutils literal notranslate"><span class="pre">diff_help()</span></code></a> prints the unnormalised difference for a human to read.</p>
+</section>
+<section id="windows-adr-option-a-normalise">
+<h2>Windows (ADR: option A, “normalise”)<a class="headerlink" href="#windows-adr-option-a-normalise" title="Link to this heading"></a></h2>
+<p>Recorded text is stored newline-normalised (<code class="docutils literal notranslate"><span class="pre">\r\n</span></code> and <code class="docutils literal notranslate"><span class="pre">\r</span></code> both become <code class="docutils literal notranslate"><span class="pre">\n</span></code>) and
+every comparison normalises both sides, so a golden recorded on a Mac asserts cleanly on a
+Windows runner. The subprocess environment pins <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code>, <code class="docutils literal notranslate"><span class="pre">PYTHONUTF8</span></code>,
+<code class="docutils literal notranslate"><span class="pre">PYTHONIOENCODING</span></code>, <code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED</span></code> and <code class="docutils literal notranslate"><span class="pre">TERM</span></code> so the bytes are reproducible rather
+than merely comparable. <a class="reference internal" href="#cw.testing.read_cases" title="cw.testing.read_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_cases()</span></code></a> reads a JSON-list form as well as a <code class="docutils literal notranslate"><span class="pre">shlex</span></code>
+line, because <code class="docutils literal notranslate"><span class="pre">shlex</span></code> is POSIX-only and a Windows user must never need it. And
+<a class="reference internal" href="#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">parity()</span></code></a> spawns no subprocess at all – it runs in-process against shipped fixtures –
+so the <code class="docutils literal notranslate"><span class="pre">.exe</span></code> console-script shim and the cp1252 console never enter the picture.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="s1">'a</span><span class="se">\r\n</span><span class="s1">b</span><span class="se">\r\n</span><span class="s1">'</span><span class="p">)</span>
+<span class="go">'a\nb\n'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog [-h]</span><span class="se">\n</span><span class="s1">            [--wrapped]</span><span class="se">\n\n</span><span class="s1">Some description.'</span><span class="p">)</span>
+<span class="go">'usage: prog [-h] [--wrapped]'</span>
+</pre></div>
+</div>
+</section>
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.testing.GOLDEN_VERSION">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">GOLDEN_VERSION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></span><a class="headerlink" href="#cw.testing.GOLDEN_VERSION" title="Link to this definition"></a></dt>
+<dd><p>Bumped when the golden JSON schema changes incompatibly. A golden that does not carry
+this key is not a golden, and saying so beats a <code class="xref py py-class docutils literal notranslate"><span class="pre">KeyError</span></code> three frames later.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.testing.RECORDING_ENV">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">RECORDING_ENV</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'COLUMNS':</span> <span class="pre">'100',</span> <span class="pre">'NO_COLOR':</span> <span class="pre">'1',</span> <span class="pre">'PYTHONHASHSEED':</span> <span class="pre">'0',</span> <span class="pre">'PYTHONIOENCODING':</span> <span class="pre">'utf-8',</span> <span class="pre">'PYTHONUTF8':</span> <span class="pre">'1',</span> <span class="pre">'TERM':</span> <span class="pre">'dumb'}</span></span><a class="headerlink" href="#cw.testing.RECORDING_ENV" title="Link to this definition"></a></dt>
+<dd><p>The environment pinned around every recorded and replayed run. Everything here exists to
+remove a source of variation between two machines, not to make the CLI behave specially.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.assert_replay">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">assert_replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">golden</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#assert_replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.assert_replay" title="Link to this definition"></a></dt>
+<dd><p><a class="reference internal" href="#cw.testing.replay" title="cw.testing.replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">replay()</span></code></a>, raising <code class="xref py py-class docutils literal notranslate"><span class="pre">AssertionError</span></code> with a readable diff on any failure.</p>
+<p><code class="docutils literal notranslate"><span class="pre">expected-diff</span></code> cases are reported in the message when something <em>else</em> failed, so a
+reader can see what was intended alongside what was not, but they never cause a raise.
+An <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code> does: it means the migration note is wrong.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.capture">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">capture</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">call</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#capture"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.capture" title="Link to this definition"></a></dt>
+<dd><p>Run <code class="docutils literal notranslate"><span class="pre">call()</span></code> with file descriptors 1 and 2 captured; report what a shell would see.</p>
+<p>Capture is at the <strong>file-descriptor</strong> level, and <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> / <code class="docutils literal notranslate"><span class="pre">sys.stderr</span></code> are
+then re-pointed at those same descriptors. Both halves are load-bearing, for opposite
+reasons:</p>
+<ul class="simple">
+<li><p>the descriptor half, because argh binds <code class="docutils literal notranslate"><span class="pre">output_file=sys.stdout</span></code> at import
+(<code class="docutils literal notranslate"><span class="pre">dispatching.py:77</span></code>) and writes through that original object forever after – a
+<code class="docutils literal notranslate"><span class="pre">redirect_stdout</span></code> around it captures nothing at all; and</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">sys</span></code> half, because a <em>caller</em> may already have rebound <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> to
+something that is not descriptor 1. pytest does exactly this, and without the second
+half every command’s output would land in pytest’s buffer and the recording would
+come back empty.</p></li>
+</ul>
+<p>Using one mechanism for both sides of a diff is what makes the diff mean something, so
+it has to be the mechanism that works in every process either side might run in.</p>
+<p><code class="docutils literal notranslate"><span class="pre">call</span></code> takes no arguments and returns an exit code, or raises <code class="xref py py-class docutils literal notranslate"><span class="pre">SystemExit</span></code>. An
+exception that escapes is reported as <code class="docutils literal notranslate"><span class="pre">returncode</span></code> 1 with its <code class="docutils literal notranslate"><span class="pre">Type:</span> <span class="pre">message</span></code> line
+on stderr – what the interpreter shows, minus a traceback whose file paths would differ
+on every machine.</p>
+<p>The example writes to the descriptor rather than through <code class="docutils literal notranslate"><span class="pre">print</span></code> for a reason worth
+knowing: <code class="docutils literal notranslate"><span class="pre">doctest</span></code> rebinds <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code> to collect a doctest’s own output, so a
+<code class="docutils literal notranslate"><span class="pre">print</span></code> here would be intercepted by <code class="docutils literal notranslate"><span class="pre">doctest</span></code> and never reach the descriptor at
+all. Real CLIs write to <code class="docutils literal notranslate"><span class="pre">sys.stdout</span></code>, which <em>is</em> the descriptor – which is why this
+mechanism works where it matters and looks awkward only here.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">capture</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="sa">b</span><span class="s1">'hi</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span> <span class="ow">and</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">{'returncode': 0, 'stdout': 'hi\n', 'stderr': ''}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">capture</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s1">'bye'</span><span class="p">))</span>
+<span class="go">{'returncode': 1, 'stdout': '', 'stderr': 'bye\n'}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">capture</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="mi">1</span> <span class="o">//</span> <span class="mi">0</span><span class="p">)[</span><span class="s1">'stderr'</span><span class="p">]</span>
+<span class="go">'ZeroDivisionError: integer division or modulo by zero\n'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.characterize">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">characterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cases</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">note</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#characterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.characterize" title="Link to this definition"></a></dt>
+<dd><p>Record a real console script’s behaviour against <code class="docutils literal notranslate"><span class="pre">cases</span></code>, as a golden.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prog</strong> – The command, as a list (<code class="docutils literal notranslate"><span class="pre">['python',</span> <span class="pre">'-m',</span> <span class="pre">'priv']</span></code>) or a POSIX string.
+The list form is the cross-platform one.</p></li>
+<li><p><strong>cases</strong> – <code class="docutils literal notranslate"><span class="pre">argv</span></code> vectors – a list of lists, a list of <code class="docutils literal notranslate"><span class="pre">shlex</span></code> strings, or the
+path of a cases file readable by <a class="reference internal" href="#cw.testing.read_cases" title="cw.testing.read_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_cases()</span></code></a>.</p></li>
+<li><p><strong>out_path</strong> – Where to write the golden JSON. <code class="docutils literal notranslate"><span class="pre">None</span></code> returns it without writing.</p></li>
+<li><p><strong>env</strong> – Extra environment for the subprocess, over <a class="reference internal" href="#cw.testing.RECORDING_ENV" title="cw.testing.RECORDING_ENV"><code class="xref py py-data docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a>.</p></li>
+<li><p><strong>cwd</strong> – Working directory for the subprocess.</p></li>
+<li><p><strong>timeout</strong> – Seconds one case may take.</p></li>
+<li><p><strong>note</strong> – Free text stored in the golden – the commit you recorded at, say.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The golden, as a plain dict. JSON-serialisable, with sorted keys when written, so
+re-recording an unchanged CLI produces a byte-identical file.</p>
+</dd>
+</dl>
+<p>Do this <strong>before</strong> the migration, and commit the result. That is the entire method:
+everything else in this module compares against what you recorded here.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.compare_case">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">compare_case</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recorded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_help</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#compare_case"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.compare_case" title="Link to this definition"></a></dt>
+<dd><p>The empty string if <code class="docutils literal notranslate"><span class="pre">fresh</span></code> matches <code class="docutils literal notranslate"><span class="pre">recorded</span></code>, else a readable diff.</p>
+<p>Which fields are compared is the tier rule and nothing else: tier 1 asserts the
+return code and both streams in full, tier 3 asserts the return code and the normalised
+<code class="docutils literal notranslate"><span class="pre">usage:</span></code> line and leaves the <code class="docutils literal notranslate"><span class="pre">--help</span></code> body to <a class="reference internal" href="#cw.testing.diff_help" title="cw.testing.diff_help"><code class="xref py py-func docutils literal notranslate"><span class="pre">diff_help()</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">strict_help=True</span></code> adds the <code class="docutils literal notranslate"><span class="pre">--help</span></code> body to a tier-3 case, compared through
+<code class="xref py py-func docutils literal notranslate"><span class="pre">normalise_help()</span></code> so that the terminal width cannot decide the verdict. Use it when
+the <em>rendering</em> is part of what the migration promised not to change – swapping argh’s
+formatter for argparse’s stock one is invisible to the tier-3 fields, because it moves
+only the help column and the description block.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'tier'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'returncode'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'stdout'</span><span class="p">:</span> <span class="s1">'hi</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'stderr'</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span> <span class="s1">'usage'</span><span class="p">:</span> <span class="s1">''</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compare_case</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="go">''</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">compare_case</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s1">'ho</span><span class="se">\n</span><span class="s1">'</span><span class="p">)))</span>
+<span class="go">stdout:</span>
+<span class="go">  - hi</span>
+<span class="go">  + ho</span>
+</pre></div>
+</div>
+<p>A golden recorded under one CPython replays under another: only argparse’s own
+version-dependent rendering is forgiven, and it is forgiven on both sides (see
+<code class="xref py py-func docutils literal notranslate"><span class="pre">canonical_argparse_text()</span></code>).</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">quoted</span> <span class="o">=</span> <span class="s2">"err: invalid choice: 'q' (choose from 'a', 'b')"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bare</span> <span class="o">=</span> <span class="s2">"err: invalid choice: 'q' (choose from a, b)"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">compare_case</span><span class="p">({</span><span class="s1">'tier'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'returncode'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'usage'</span><span class="p">:</span> <span class="n">quoted</span><span class="p">},</span>
+<span class="gp">... </span>             <span class="p">{</span><span class="s1">'tier'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'returncode'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'usage'</span><span class="p">:</span> <span class="n">bare</span><span class="p">})</span>
+<span class="go">''</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.diff_help">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">diff_help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">golden</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">prog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#diff_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.diff_help" title="Link to this definition"></a></dt>
+<dd><p>The advisory tier-3 diff: how every <code class="docutils literal notranslate"><span class="pre">--help</span></code> body changed. Never asserted.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--help</span></code> output is the right thing for a human to review after a migration and the
+wrong thing for a machine to assert: it wraps to <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code> and it changes for reasons
+nobody minds. This returns it as text for a review queue, and returns <code class="docutils literal notranslate"><span class="pre">''</span></code> when
+nothing moved.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.load_golden">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">load_golden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">golden</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#load_golden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.load_golden" title="Link to this definition"></a></dt>
+<dd><p>A golden, from a dict or the path of one, validated enough to fail usefully.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_golden</span><span class="p">({</span><span class="s1">'cw_golden'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'cases'</span><span class="p">:</span> <span class="p">[]})[</span><span class="s1">'cases'</span><span class="p">]</span>
+<span class="go">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">load_golden</span><span class="p">({</span><span class="s1">'cases'</span><span class="p">:</span> <span class="p">[]})</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">  </span><span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">not a cw golden (no 'cw_golden' key): a dict</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.main">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.main" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">cw.testing</span></code>. Returns an exit code; the module raises it as SystemExit.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.normalise_text">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">normalise_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#normalise_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.normalise_text" title="Link to this definition"></a></dt>
+<dd><p>Newline-normalise <code class="docutils literal notranslate"><span class="pre">text</span></code> so a Mac recording asserts on a Windows runner.</p>
+<p>This is the whole of the Windows decision (option A) as it applies to tier 1.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="s1">'one</span><span class="se">\r\n</span><span class="s1">two</span><span class="se">\r</span><span class="s1">three</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+<span class="go">'one\ntwo\nthree\n'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.normalise_usage">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">normalise_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#normalise_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.normalise_usage" title="Link to this definition"></a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">usage:</span></code> block of <code class="docutils literal notranslate"><span class="pre">text</span></code>, whitespace-collapsed and width-independent.</p>
+<p><code class="docutils literal notranslate"><span class="pre">argparse</span></code> wraps the usage block to the terminal width, so the same parser prints it
+over two lines at <code class="docutils literal notranslate"><span class="pre">COLUMNS=100</span></code> and five at <code class="docutils literal notranslate"><span class="pre">COLUMNS=50</span></code>. Collapsing every run of
+whitespace to one space makes the two equal while keeping what actually matters: which
+options exist, in which order, with which metavars.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog [-h] [-v]</span><span class="se">\n\n</span><span class="s1">positional arguments:</span><span class="se">\n</span><span class="s1">  x'</span><span class="p">)</span>
+<span class="go">'usage: prog [-h] [-v]'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog</span><span class="se">\n</span><span class="s1">       [--a]</span><span class="se">\n</span><span class="s1">       [--b] x'</span><span class="p">)</span>
+<span class="go">'usage: prog [--a] [--b] x'</span>
+</pre></div>
+</div>
+<p>Text with no usage block at all – a command that just printed its result – normalises
+to the empty string rather than raising, because “this case shows no usage line” is a
+fact worth asserting too:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'hello world</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+<span class="go">''</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.parity">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">parity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goldens_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#parity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.parity" title="Link to this definition"></a></dt>
+<dd><p>Replay the committed argh-recorded goldens through cw. Exit code, not an exception.</p>
+<p>This is the definition of v1: it prints <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">shapes</span> <span class="pre">/</span> <span class="pre">M</span> <span class="pre">cases:</span> <span class="pre">identical</span></code> and returns
+<code class="docutils literal notranslate"><span class="pre">0</span></code>. What it asserts, per case, with <strong>every seam on its default</strong>
+(<code class="docutils literal notranslate"><span class="pre">convention=cw.ARGH</span></code>, <code class="docutils literal notranslate"><span class="pre">decode=cw.argh_decode</span></code>, <code class="docutils literal notranslate"><span class="pre">egress=cw.argh_egress</span></code>): exit
+code, stdout, stderr, and the normalised <code class="docutils literal notranslate"><span class="pre">usage:</span></code> line, byte-identical to what argh
+0.31.3 produced. The <code class="docutils literal notranslate"><span class="pre">--help</span></code> bodies are recorded and not asserted (tier 3).</p>
+<p>It is deliberately <strong>self-contained</strong>. The goldens were recorded from real argh against
+the seven hard-case <em>shapes</em> in <a class="reference internal" href="tests/fixtures.html#module-cw.tests.fixtures" title="cw.tests.fixtures"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cw.tests.fixtures</span></code></a>, not against the seven fleet
+repos – so this needs stdlib plus cw, installs no fleet package, pulls no argh, and
+runs on Windows. The seven real repos are gated separately, by <a class="reference internal" href="#cw.testing.replay" title="cw.testing.replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">replay()</span></code></a> in each
+repo’s own CI, which is what a migration test is for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>goldens_dir</strong> – Where the goldens are. <code class="docutils literal notranslate"><span class="pre">None</span></code> is the copy shipped inside <code class="docutils literal notranslate"><span class="pre">cw</span></code>.</p></li>
+<li><p><strong>out</strong> – Where the report goes. <code class="docutils literal notranslate"><span class="pre">None</span></code> is <code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stdout</span></code>, resolved now.</p></li>
+<li><p><strong>verbose</strong> – Also print a line per shape that passed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">0</span></code> when every case is identical, <code class="docutils literal notranslate"><span class="pre">1</span></code> otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cw.testing.pinned_env">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">pinned_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/testing.html#pinned_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.pinned_env" title="Link to this definition"></a></dt>
+<dd><p>Context manager applying <a class="reference internal" href="#cw.testing.RECORDING_ENV" title="cw.testing.RECORDING_ENV"><code class="xref py py-data docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a> to the <strong>current</strong> process.</p>
+<p><a class="reference internal" href="#cw.testing.characterize" title="cw.testing.characterize"><code class="xref py py-func docutils literal notranslate"><span class="pre">characterize()</span></code></a> hands the pins to a subprocess, where they belong. <a class="reference internal" href="#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">parity()</span></code></a>
+runs in-process and needs the same pins applied here instead – <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code> above all,
+since that is what <code class="docutils literal notranslate"><span class="pre">argparse</span></code> wraps to.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">pinned_env</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'COLUMNS'</span><span class="p">]</span>
+<span class="go">'100'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.read_cases">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">read_cases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#read_cases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.read_cases" title="Link to this definition"></a></dt>
+<dd><p>The <code class="docutils literal notranslate"><span class="pre">argv</span></code> vectors in a cases file, one per line.</p>
+<p>Each line is either a JSON list – <code class="docutils literal notranslate"><span class="pre">[&quot;a&quot;,</span> <span class="pre">&quot;b</span> <span class="pre">c&quot;]</span></code> – or a POSIX <code class="docutils literal notranslate"><span class="pre">shlex</span></code> line.
+Blank lines and <code class="docutils literal notranslate"><span class="pre">#</span></code> comments are skipped, and a line of <code class="docutils literal notranslate"><span class="pre">[]</span></code> (or nothing but
+whitespace before a comment) is <em>not</em> a way to spell the empty argv: use <code class="docutils literal notranslate"><span class="pre">[]</span></code>
+explicitly.</p>
+<p>Both spellings exist for one reason: <code class="docutils literal notranslate"><span class="pre">shlex</span></code> is POSIX-only, so a Windows user writing
+a corpus must have a form that never reaches it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.replay">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">replay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">golden</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">prog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expect_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_help</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#replay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.replay" title="Link to this definition"></a></dt>
+<dd><p>Re-run a golden’s cases and report, per case, whether the behaviour survived.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>golden</strong> – A golden dict, or the path of one.</p></li>
+<li><p><strong>prog</strong> – The command to run now. <code class="docutils literal notranslate"><span class="pre">None</span></code> reuses the golden’s own <code class="docutils literal notranslate"><span class="pre">prog</span></code>, which is
+what you want after an in-place migration and not what you want when the entry
+point moved.</p></li>
+<li><p><strong>env</strong> – As <a class="reference internal" href="#cw.testing.characterize" title="cw.testing.characterize"><code class="xref py py-func docutils literal notranslate"><span class="pre">characterize()</span></code></a>.</p></li>
+<li><p><strong>cwd</strong> – As <a class="reference internal" href="#cw.testing.characterize" title="cw.testing.characterize"><code class="xref py py-func docutils literal notranslate"><span class="pre">characterize()</span></code></a>.</p></li>
+<li><p><strong>timeout</strong> – As <a class="reference internal" href="#cw.testing.characterize" title="cw.testing.characterize"><code class="xref py py-func docutils literal notranslate"><span class="pre">characterize()</span></code></a>.</p></li>
+<li><p><strong>expect_diff</strong> – <code class="docutils literal notranslate"><span class="pre">argv</span></code> vectors whose behaviour you <strong>intend</strong> to have changed. They
+are reported as <code class="docutils literal notranslate"><span class="pre">expected-diff</span></code>, never as a failure – and an <code class="docutils literal notranslate"><span class="pre">expect_diff</span></code>
+entry that turns out identical is reported as <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code>, because a
+migration note claiming a break that did not happen is also wrong.</p></li>
+<li><p><strong>strict_help</strong> – Also assert each tier-3 case’s <code class="docutils literal notranslate"><span class="pre">--help</span></code> <strong>body</strong>, through
+<code class="xref py py-func docutils literal notranslate"><span class="pre">normalise_help()</span></code>. Off by default, because a wider <code class="docutils literal notranslate"><span class="pre">--help</span></code> is usually
+not what a migration promised; on, because a <em>formatter</em> change is not visible
+in any of the fields tier 3 asserts. When it is off, a body that moved is still
+reported – as the non-fatal status <code class="docutils literal notranslate"><span class="pre">help-differs</span></code> – so that a migration is
+never told “identical” about output that visibly changed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">argv</span></code>, <code class="docutils literal notranslate"><span class="pre">status</span></code> and <code class="docutils literal notranslate"><span class="pre">diff</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>One dict per case</p>
+</dd>
+</dl>
+<p>Statuses are <code class="docutils literal notranslate"><span class="pre">identical</span></code>, <code class="docutils literal notranslate"><span class="pre">differs</span></code>, <code class="docutils literal notranslate"><span class="pre">help-differs</span></code>, <code class="docutils literal notranslate"><span class="pre">expected-diff</span></code> and
+<code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code>. <a class="reference internal" href="#cw.testing.assert_replay" title="cw.testing.assert_replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">assert_replay()</span></code></a> is the version that raises, and it raises
+on <code class="docutils literal notranslate"><span class="pre">differs</span></code> and <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code> only.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="resolution.html" class="btn btn-neutral float-left" title="cw.resolution" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tests.html" class="btn btn-neutral float-right" title="cw.tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

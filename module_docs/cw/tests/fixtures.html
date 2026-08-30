@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.tests.fixtures &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="prev" title="cw.tests" href="../tests.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tests.html">cw.tests</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.tests.fixtures</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.SHAPES"><code class="docutils literal notranslate"><span class="pre">SHAPES</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.Shape"><code class="docutils literal notranslate"><span class="pre">Shape</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cw.tests.fixtures.Shape.cw_call"><code class="docutils literal notranslate"><span class="pre">Shape.cw_call</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.case_count"><code class="docutils literal notranslate"><span class="pre">case_count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.cw_outcome"><code class="docutils literal notranslate"><span class="pre">cw_outcome()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.shape_named"><code class="docutils literal notranslate"><span class="pre">shape_named()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.tests.fixtures.use_command_error"><code class="docutils literal notranslate"><span class="pre">use_command_error()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.tests.fixtures</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/module_docs/cw/tests/fixtures.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.tests.fixtures">
+<span id="cw-tests-fixtures"></span><h1>cw.tests.fixtures<a class="headerlink" href="#module-cw.tests.fixtures" title="Link to this heading"></a></h1>
+<p>The parity corpus: the fleet’s hard cases reproduced as <em>shapes</em>, not as repos.</p>
+<p><a class="reference internal" href="../testing.html#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.testing.parity()</span></code></a> is the definition of v1, and it must run in cw’s own CI. As the
+canonical spec first wrote it – “for each of the seven hard-case repos … rebuilds that
+repo’s command set through cw” – it cannot, for reasons that are structural rather than
+fixable: three of those repos <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">argh</span></code> at module scope, one of them <em>depends on cw</em>,
+and cw’s whole selling point is that it installs nothing. A gate that needs seven fleet
+packages checked out is a gate that is red on somebody else’s commit.</p>
+<p>So the corpus reproduces the seven repos’ <strong>shapes</strong>. Each one is a small, self-contained
+module of plain functions that exercises the same grammar the real repo does, recorded once
+against real argh 0.31.3 and committed. Parity then needs stdlib plus cw, installs no fleet
+package, pulls no argh, and runs on Windows. The seven real repos are gated separately, by
+<a class="reference internal" href="../testing.html#cw.testing.replay" title="cw.testing.replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.testing.replay()</span></code></a> in each repo’s own CI, which is what a migration test is for.</p>
+<p>Nothing here imports <code class="docutils literal notranslate"><span class="pre">argh</span></code>: a shape carries an <code class="docutils literal notranslate"><span class="pre">argh_build</span></code> callable that <em>receives</em>
+the <code class="docutils literal notranslate"><span class="pre">argh</span></code> module, so only the dev-only recorder (<code class="docutils literal notranslate"><span class="pre">misc/record_goldens.py</span></code>) ever needs
+it installed. Nothing here is imported by <code class="docutils literal notranslate"><span class="pre">cw</span></code> either – <a class="reference internal" href="../testing.html#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.testing.parity()</span></code></a> imports
+this module lazily, when it runs.</p>
+<p>Eight shapes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>shape</p></th>
+<th class="head"><p>models</p></th>
+<th class="head"><p>what it pins</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">theremin</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t/theremin</span></code></p></td>
+<td><p>ten overrides, <code class="docutils literal notranslate"><span class="pre">nargs='?'</span> <span class="pre">const='list'</span></code>, the <code class="docutils literal notranslate"><span class="pre">s</span></code>
+collision that makes <code class="docutils literal notranslate"><span class="pre">--synth</span></code> render long-first and
+leaves <code class="docutils literal notranslate"><span class="pre">--scale</span></code> with no short at all</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">priv</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t/priv</span></code></p></td>
+<td><p>a mapping whose keys name the commands, a
+<code class="docutils literal notranslate"><span class="pre">functools.partial</span></code> with its bound keyword hidden,
+and a group whose name stays verbatim</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">epythet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i/epythet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">list[str]</span></code> inference, and the CI-critical
+<code class="docutils literal notranslate"><span class="pre">quickstart</span> <span class="pre">.</span> <span class="pre">--ignore</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">coact</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t/coact</span></code></p></td>
+<td><p>three <code class="docutils literal notranslate"><span class="pre">nargs</span></code> shapes and <code class="docutils literal notranslate"><span class="pre">*args</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xa</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t/xa</span></code></p></td>
+<td><p>non-identifier keys, two commands both called <code class="docutils literal notranslate"><span class="pre">list</span></code>
+in different dicts, and a group</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wads_pack</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">i/wads</span></code></p></td>
+<td><p>34 parameters, <code class="docutils literal notranslate"><span class="pre">**configs</span></code>, and <code class="docutils literal notranslate"><span class="pre">verbose=True</span></code>
+becoming <code class="docutils literal notranslate"><span class="pre">store_false</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lacing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">t/lacing</span></code></p></td>
+<td><p>a quoted annotation, PEP 563-blind under <code class="docutils literal notranslate"><span class="pre">ARGH</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">contract</span></code></p></td>
+<td><p>the D2 contract</p></td>
+<td><p>the egress and error rows, which no repo shape reaches</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">rows</span></code> field of each shape names which rows of the argh compatibility contract
+(canonical spec section 9) it pins, and <code class="docutils literal notranslate"><span class="pre">tests/test_corpus_coverage.py</span></code> fails if a row is
+covered by nothing.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.tests.fixtures.SHAPES">
+<span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">SHAPES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'coact':</span> <span class="pre">&lt;Shape</span> <span class="pre">coact:</span> <span class="pre">19</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">7,</span> <span class="pre">9,</span> <span class="pre">10]&gt;,</span> <span class="pre">'contract':</span> <span class="pre">&lt;Shape</span> <span class="pre">contract:</span> <span class="pre">17</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[16,</span> <span class="pre">17,</span> <span class="pre">18,</span> <span class="pre">19]&gt;,</span> <span class="pre">'epythet':</span> <span class="pre">&lt;Shape</span> <span class="pre">epythet:</span> <span class="pre">14</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">12,</span> <span class="pre">13]&gt;,</span> <span class="pre">'lacing':</span> <span class="pre">&lt;Shape</span> <span class="pre">lacing:</span> <span class="pre">13</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">13,</span> <span class="pre">16]&gt;,</span> <span class="pre">'priv':</span> <span class="pre">&lt;Shape</span> <span class="pre">priv:</span> <span class="pre">21</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">11]&gt;,</span> <span class="pre">'theremin':</span> <span class="pre">&lt;Shape</span> <span class="pre">theremin:</span> <span class="pre">19</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[3,</span> <span class="pre">4,</span> <span class="pre">5,</span> <span class="pre">8]&gt;,</span> <span class="pre">'wads_pack':</span> <span class="pre">&lt;Shape</span> <span class="pre">wads_pack:</span> <span class="pre">17</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">8,</span> <span class="pre">11]&gt;,</span> <span class="pre">'xa':</span> <span class="pre">&lt;Shape</span> <span class="pre">xa:</span> <span class="pre">17</span> <span class="pre">cases,</span> <span class="pre">rows</span> <span class="pre">[1,</span> <span class="pre">4]&gt;}</span></span><a class="headerlink" href="#cw.tests.fixtures.SHAPES" title="Link to this definition"></a></dt>
+<dd><p>Every shape, by name. <a class="reference internal" href="../testing.html#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.testing.parity()</span></code></a> looks a golden’s <code class="docutils literal notranslate"><span class="pre">shape</span></code> up here.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cw.tests.fixtures.Shape">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">Shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">prog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argh_build</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cw_call</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/cw/tests/fixtures.html#Shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.tests.fixtures.Shape" title="Link to this definition"></a></dt>
+<dd><p>One hard case: what cw is given, how argh was asked the same question, and the argv.</p>
+<p><code class="docutils literal notranslate"><span class="pre">argh_build</span></code> takes the <code class="docutils literal notranslate"><span class="pre">argh</span></code> and <code class="docutils literal notranslate"><span class="pre">argparse</span></code> modules and returns the parser argh
+builds. Taking them as arguments rather than importing them is what keeps this module
+argh-free, and therefore shippable inside <code class="docutils literal notranslate"><span class="pre">cw</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.tests.fixtures.Shape.cw_call">
+<span class="sig-name descname"><span class="pre">cw_call</span></span><a class="headerlink" href="#cw.tests.fixtures.Shape.cw_call" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">(cw,</span> <span class="pre">argv,</span> <span class="pre">**kwargs)</span> <span class="pre">-&gt;</span> <span class="pre">exit</span> <span class="pre">code</span></code>. The default is <code class="docutils literal notranslate"><span class="pre">cw.dispatch</span></code>, the
+idiom every migration in the spec uses. A shape overrides it only when it needs
+a build-time keyword <code class="docutils literal notranslate"><span class="pre">dispatch</span></code> does not carry – <code class="docutils literal notranslate"><span class="pre">xa</span></code>’s <code class="docutils literal notranslate"><span class="pre">group_kwargs</span></code>
+being the one case, which is why <code class="docutils literal notranslate"><span class="pre">add_commands</span></code> still exists.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.tests.fixtures.case_count">
+<span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">case_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../../_modules/cw/tests/fixtures.html#case_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.tests.fixtures.case_count" title="Link to this definition"></a></dt>
+<dd><p>How many argv vectors the corpus holds, counted rather than asserted.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">case_count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">100</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.tests.fixtures.cw_outcome">
+<span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">cw_outcome</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../../_modules/cw/tests/fixtures.html#cw_outcome"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.tests.fixtures.cw_outcome" title="Link to this definition"></a></dt>
+<dd><p>Run one case through cw, with every seam on its default, and report the outcome.</p>
+<p>This is the cw half of the parity gate. The argh half lives in the dev-only recorder,
+and the two share <a class="reference internal" href="../testing.html#cw.testing.capture" title="cw.testing.capture"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.testing.capture()</span></code></a> so the comparison is between two runs of
+the same measuring instrument.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.tests.fixtures.shape_named">
+<span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">shape_named</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cw.tests.fixtures.Shape" title="cw.tests.fixtures.Shape"><span class="pre">Shape</span></a></span></span><a class="reference internal" href="../../../_modules/cw/tests/fixtures.html#shape_named"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.tests.fixtures.shape_named" title="Link to this definition"></a></dt>
+<dd><p>The shape called <code class="docutils literal notranslate"><span class="pre">name</span></code>, or an error that names the real ones.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">shape_named</span><span class="p">(</span><span class="s1">'theremin'</span><span class="p">)</span><span class="o">.</span><span class="n">models</span>
+<span class="go">'t/theremin'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shape_named</span><span class="p">(</span><span class="s1">'nope'</span><span class="p">)</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">  </span><span class="c">...</span>
+<span class="gr">KeyError</span>: <span class="n">"no fixture shape named 'nope'. There are: contract, coact, epythet, lacing, priv, theremin, wads_pack, xa"</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.tests.fixtures.use_command_error">
+<span class="sig-prename descclassname"><span class="pre">cw.tests.fixtures.</span></span><span class="sig-name descname"><span class="pre">use_command_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../../_modules/cw/tests/fixtures.html#use_command_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.tests.fixtures.use_command_error" title="Link to this definition"></a></dt>
+<dd><p>Install the <code class="docutils literal notranslate"><span class="pre">CommandError</span></code> class the contract shape raises.</p>
+<p><a class="reference internal" href="#cw.tests.fixtures.cw_outcome" title="cw.tests.fixtures.cw_outcome"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw_outcome()</span></code></a> installs <a class="reference internal" href="../../cw.html#cw.CommandError" title="cw.CommandError"><code class="xref py py-class docutils literal notranslate"><span class="pre">cw.CommandError</span></code></a>; the dev-only recorder installs
+<code class="docutils literal notranslate"><span class="pre">argh.CommandError</span></code>. Neither side gets a default, because a default here would be a
+silent way to record the wrong thing.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tests.html" class="btn btn-neutral float-left" title="cw.tests" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

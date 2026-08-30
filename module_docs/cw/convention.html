@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.convention &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cw.egress" href="egress.html" />
+    <link rel="prev" title="cw.compat" href="compat.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compat.html">cw.compat</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.convention</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cw.convention.ARGH"><code class="docutils literal notranslate"><span class="pre">ARGH</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.convention.Convention"><code class="docutils literal notranslate"><span class="pre">Convention</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.decode"><code class="docutils literal notranslate"><span class="pre">Convention.decode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.default_in_help"><code class="docutils literal notranslate"><span class="pre">Convention.default_in_help</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.egress"><code class="docutils literal notranslate"><span class="pre">Convention.egress()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.hints_when_declared"><code class="docutils literal notranslate"><span class="pre">Convention.hints_when_declared</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.hyphenate_commands"><code class="docutils literal notranslate"><span class="pre">Convention.hyphenate_commands</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.hyphenate_groups"><code class="docutils literal notranslate"><span class="pre">Convention.hyphenate_groups</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.naming"><code class="docutils literal notranslate"><span class="pre">Convention.naming</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.resolve_hints"><code class="docutils literal notranslate"><span class="pre">Convention.resolve_hints</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cw.convention.Convention.short_flags"><code class="docutils literal notranslate"><span class="pre">Convention.short_flags</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.convention.MODERN"><code class="docutils literal notranslate"><span class="pre">MODERN</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.convention</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/cw/convention.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.convention">
+<span id="cw-convention"></span><h1>cw.convention<a class="headerlink" href="#module-cw.convention" title="Link to this heading"></a></h1>
+<p>What cw’s defaults ARE, as one frozen value per context.</p>
+<p><code class="docutils literal notranslate"><span class="pre">config</span></code> and <code class="docutils literal notranslate"><span class="pre">convention</span></code> are the fleet’s existing pair of words – <code class="docutils literal notranslate"><span class="pre">streamlitfront</span></code>’s
+<code class="docutils literal notranslate"><span class="pre">mk_app(objs,</span> <span class="pre">config=None,</span> <span class="pre">convention=None)</span></code> already uses them with exactly these
+meanings, so cw rhymes with it rather than inventing a third vocabulary:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">convention</span></code></dt><dd><p><em>What the defaults are.</em> A frozen dataclass, swapped per <strong>context</strong> – a repo, a
+house style, the whole fleet. Rebinding it is how a project’s per-call <code class="docutils literal notranslate"><span class="pre">config</span></code>
+entries shrink to nothing.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">config</span></code></dt><dd><p><em>This call’s particulars.</em> A plain mapping, swapped per <strong>call</strong>.</p>
+</dd>
+</dl>
+<p>Two values ship:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ARGH</span><span class="o">.</span><span class="n">naming</span><span class="p">,</span> <span class="n">ARGH</span><span class="o">.</span><span class="n">short_flags</span><span class="p">,</span> <span class="n">ARGH</span><span class="o">.</span><span class="n">resolve_hints</span>
+<span class="go">('by_name_if_has_default', True, False)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ARGH</span><span class="o">.</span><span class="n">decode</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">ARGH</span><span class="o">.</span><span class="n">egress</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">('argh_decode', 'argh_egress')</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MODERN</span><span class="o">.</span><span class="n">naming</span><span class="p">,</span> <span class="n">MODERN</span><span class="o">.</span><span class="n">resolve_hints</span><span class="p">,</span> <span class="n">MODERN</span><span class="o">.</span><span class="n">hints_when_declared</span>
+<span class="go">('by_name_if_kwonly', True, True)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MODERN</span><span class="o">.</span><span class="n">decode</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">MODERN</span><span class="o">.</span><span class="n">egress</span><span class="o">.</span><span class="vm">__name__</span>
+<span class="go">('modern_decode', 'iterable_egress')</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#cw.convention.ARGH" title="cw.convention.ARGH"><code class="xref py py-data docutils literal notranslate"><span class="pre">ARGH</span></code></a> is the default everywhere, and it reproduces argh 0.31.3 including the parts
+nobody likes. Every improvement is opt-in, and opting in is <strong>one</strong> act:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span><span class="o">,</span><span class="w"> </span><span class="nn">cw</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dispatch</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">MODERN</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>That is the whole mechanism – there is no <code class="docutils literal notranslate"><span class="pre">cw.bind</span></code> and no <code class="docutils literal notranslate"><span class="pre">set_dispatch_defaults</span></code>.
+Anything in between is a <code class="xref py py-func docutils literal notranslate"><span class="pre">dataclasses.replace()</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">half_way</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ARGH</span><span class="p">,</span> <span class="n">resolve_hints</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">half_way</span><span class="o">.</span><span class="n">resolve_hints</span><span class="p">,</span> <span class="n">half_way</span><span class="o">.</span><span class="n">naming</span>
+<span class="go">(True, 'by_name_if_has_default')</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">decode</span></code> and <code class="docutils literal notranslate"><span class="pre">egress</span></code> – two of cw’s three seams – are fields here rather than only
+<code class="docutils literal notranslate"><span class="pre">dispatch</span></code> keywords, for one reason: if <code class="docutils literal notranslate"><span class="pre">MODERN</span></code> did not carry its own, flipping to it
+would need a coordinated three-keyword edit at every call site, and a seam whose
+replacement touches every caller is in the wrong place. So <code class="docutils literal notranslate"><span class="pre">dispatch(decode=...)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">dispatch(egress=...)</span></code> default to <code class="docutils literal notranslate"><span class="pre">None</span></code>, meaning <em>take the convention’s</em>.</p>
+<p><strong>The merge ladder</strong> – what a convention presides over – is four tiers, later wins:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">1.</span> <span class="n">signature</span> <span class="n">inference</span>     <span class="n">kind</span><span class="p">,</span> <span class="n">default</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">flag</span> <span class="n">spellings</span>
+<span class="mf">2.</span> <span class="n">hint</span> <span class="n">inference</span>          <span class="n">convention</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
+<span class="mf">3.</span> <span class="n">function</span> <span class="n">attribute</span>      <span class="n">func</span><span class="o">.</span><span class="n">_cw</span><span class="p">[</span><span class="s1">'params'</span><span class="p">][</span><span class="n">param</span><span class="p">]</span>     <span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">compat</span><span class="o">.</span><span class="n">arg</span> <span class="n">writes</span> <span class="n">it</span><span class="p">)</span>
+<span class="mf">4.</span> <span class="n">config</span>                  <span class="n">config</span><span class="p">[</span><span class="o">...</span><span class="p">][</span><span class="n">param</span><span class="p">]</span>            <span class="p">(</span><span class="n">this</span> <span class="n">call</span><span class="s1">'s particulars)</span>
+</pre></div>
+</div>
+<p>Tiers 3 and 4 both count as “declared”, so either one switches tier 2 off for the <em>whole</em>
+function unless <code class="docutils literal notranslate"><span class="pre">hints_when_declared</span></code> says otherwise; and the merge is argh’s
+field-specific one, not <code class="docutils literal notranslate"><span class="pre">dict.update</span></code> (ADR-0003). It is implemented once, as
+<a class="reference internal" href="grammar.html#cw.grammar.specs_for_function" title="cw.grammar.specs_for_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.grammar.specs_for_function()</span></code></a>, and lives there rather than here because it is the
+only place that knows what a <a class="reference internal" href="grammar.html#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">cw.grammar.ArgSpec</span></code></a> is. There is no second copy.</p>
+<p><code class="docutils literal notranslate"><span class="pre">formatter_class</span></code> is deliberately <strong>not</strong> a field (ADR-0006): it is already an
+<code class="docutils literal notranslate"><span class="pre">argparse.ArgumentParser</span></code> keyword, and cw invents no vocabulary for anything argparse
+already names. <a class="reference internal" href="../cw.html#cw.mk_parser" title="cw.mk_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.mk_parser()</span></code></a> defaults it to <a class="reference internal" href="../cw.html#cw.ArghHelpFormatter" title="cw.ArghHelpFormatter"><code class="xref py py-class docutils literal notranslate"><span class="pre">cw.ArghHelpFormatter</span></code></a> and passes
+whatever you give it straight through, to the top parser and to every subparser.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.convention.ARGH">
+<span class="sig-prename descclassname"><span class="pre">cw.convention.</span></span><span class="sig-name descname"><span class="pre">ARGH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Convention(naming='by_name_if_has_default',</span> <span class="pre">short_flags=True,</span> <span class="pre">hyphenate_commands=True,</span> <span class="pre">hyphenate_groups=False,</span> <span class="pre">default_in_help=True,</span> <span class="pre">hints_when_declared=False,</span> <span class="pre">resolve_hints=False,</span> <span class="pre">decode=&lt;function</span> <span class="pre">argh_decode&gt;,</span> <span class="pre">egress=&lt;function</span> <span class="pre">argh_egress&gt;)</span></span><a class="headerlink" href="#cw.convention.ARGH" title="Link to this definition"></a></dt>
+<dd><p>argh 0.31.3’s grammar, footguns included.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cw’s default in every entry point</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cw.convention.Convention">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.convention.</span></span><span class="sig-name descname"><span class="pre">Convention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">naming:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'by_name_if_has_default',</span> <span class="pre">short_flags:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">hyphenate_commands:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">hyphenate_groups:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">default_in_help:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True,</span> <span class="pre">hints_when_declared:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">resolve_hints:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">decode:</span> <span class="pre">~typing.Callable[[~inspect.Parameter,</span> <span class="pre">~typing.Any],</span> <span class="pre">None</span> <span class="pre">|</span> <span class="pre">~typing.Callable[[str],</span> <span class="pre">~typing.Any]</span> <span class="pre">|</span> <span class="pre">~typing.Mapping[str,</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">argh_decode&gt;,</span> <span class="pre">egress:</span> <span class="pre">~typing.Callable[[...],</span> <span class="pre">int]</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">argh_egress&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/convention.html#Convention"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.convention.Convention" title="Link to this definition"></a></dt>
+<dd><p>The grammar switches, as one hashable value.</p>
+<p>Every field is read somewhere in <code class="docutils literal notranslate"><span class="pre">cw.grammar</span></code> or <code class="docutils literal notranslate"><span class="pre">cw.commands</span></code>; a field that
+changed nothing would be exactly the speculative generality this design refuses.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">Convention</span><span class="p">()</span> <span class="o">==</span> <span class="n">ARGH</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">hash</span><span class="p">(</span><span class="n">Convention</span><span class="p">())</span> <span class="o">==</span> <span class="nb">hash</span><span class="p">(</span><span class="n">ARGH</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="cw.convention.Convention.decode">
+<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hint</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#cw.convention.Convention.decode" title="Link to this definition"></a></dt>
+<dd><p>Seam 1: <code class="docutils literal notranslate"><span class="pre">(Parameter,</span> <span class="pre">hint)</span> <span class="pre">-&gt;</span> <span class="pre">add_argument</span> <span class="pre">kwargs</span> <span class="pre">|</span> <span class="pre">callable</span> <span class="pre">|</span> <span class="pre">None</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.default_in_help">
+<span class="sig-name descname"><span class="pre">default_in_help</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#cw.convention.Convention.default_in_help" title="Link to this definition"></a></dt>
+<dd><p>Give every argument the help string <code class="docutils literal notranslate"><span class="pre">'%(default)s'</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cw.convention.Convention.egress">
+<span class="sig-name descname"><span class="pre">egress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TextIO</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#cw.convention.Convention.egress" title="Link to this definition"></a></dt>
+<dd><p>Seam 2: <code class="docutils literal notranslate"><span class="pre">(result,</span> <span class="pre">*,</span> <span class="pre">out,</span> <span class="pre">err)</span> <span class="pre">-&gt;</span> <span class="pre">exit</span> <span class="pre">code</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.hints_when_declared">
+<span class="sig-name descname"><span class="pre">hints_when_declared</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#cw.convention.Convention.hints_when_declared" title="Link to this definition"></a></dt>
+<dd><p>Keep inferring from type hints even when a parameter has been overridden. argh
+switches hint inference off for the <em>whole function</em> as soon as one <code class="docutils literal notranslate"><span class="pre">&#64;arg</span></code>
+appears; ADR-0003 extends “overridden” to cover <code class="docutils literal notranslate"><span class="pre">config</span></code> entries too.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.hyphenate_commands">
+<span class="sig-name descname"><span class="pre">hyphenate_commands</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#cw.convention.Convention.hyphenate_commands" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">a_b</span></code> becomes the command <code class="docutils literal notranslate"><span class="pre">a-b</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.hyphenate_groups">
+<span class="sig-name descname"><span class="pre">hyphenate_groups</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#cw.convention.Convention.hyphenate_groups" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">git_ops</span></code> becomes the group <code class="docutils literal notranslate"><span class="pre">git-ops</span></code>. argh leaves a group name verbatim.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.naming">
+<span class="sig-name descname"><span class="pre">naming</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'by_name_if_has_default'</span></span><a class="headerlink" href="#cw.convention.Convention.naming" title="Link to this definition"></a></dt>
+<dd><p>a default makes it an option) or
+<code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code> (keyword-only makes it an option; a default only makes a
+positional optional).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> (argh’s legacy rule</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.resolve_hints">
+<span class="sig-name descname"><span class="pre">resolve_hints</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#cw.convention.Convention.resolve_hints" title="Link to this definition"></a></dt>
+<dd><p>Resolve annotations with <code class="xref py py-func docutils literal notranslate"><span class="pre">typing.get_type_hints()</span></code> instead of reading
+<code class="docutils literal notranslate"><span class="pre">__annotations__</span></code> raw. <code class="docutils literal notranslate"><span class="pre">False</span></code> reproduces argh’s blindness to PEP 563, under
+which every annotation is a string and therefore infers nothing.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cw.convention.Convention.short_flags">
+<span class="sig-name descname"><span class="pre">short_flags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></span><a class="headerlink" href="#cw.convention.Convention.short_flags" title="Link to this definition"></a></dt>
+<dd><p>Infer <code class="docutils literal notranslate"><span class="pre">-x</span></code> from a parameter’s first character – suppressed when two parameters
+share one, and always lost to <code class="docutils literal notranslate"><span class="pre">--help</span></code> for <code class="docutils literal notranslate"><span class="pre">h</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.convention.MODERN">
+<span class="sig-prename descclassname"><span class="pre">cw.convention.</span></span><span class="sig-name descname"><span class="pre">MODERN</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Convention(naming='by_name_if_kwonly',</span> <span class="pre">short_flags=True,</span> <span class="pre">hyphenate_commands=True,</span> <span class="pre">hyphenate_groups=True,</span> <span class="pre">default_in_help=True,</span> <span class="pre">hints_when_declared=True,</span> <span class="pre">resolve_hints=True,</span> <span class="pre">decode=&lt;function</span> <span class="pre">modern_decode&gt;,</span> <span class="pre">egress=&lt;function</span> <span class="pre">iterable_egress&gt;)</span></span><a class="headerlink" href="#cw.convention.MODERN" title="Link to this definition"></a></dt>
+<dd><p>The same machinery with the improvements switched on. <code class="docutils literal notranslate"><span class="pre">naming</span></code> follows parameter
+kind rather than the presence of a default, annotations are actually resolved and
+still consulted when a parameter is overridden, groups are hyphenated like commands,
+<code class="docutils literal notranslate"><span class="pre">decode</span></code> additionally understands <code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code>, <code class="docutils literal notranslate"><span class="pre">Enum</span></code> and <code class="docutils literal notranslate"><span class="pre">pathlib</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">egress</span></code> iterates anything iterable rather than argh’s three-type whitelist.</p>
+<p><code class="docutils literal notranslate"><span class="pre">default_in_help</span></code> stays <code class="docutils literal notranslate"><span class="pre">True</span></code> here (ADR-0004 rule 4): docstring-derived per-parameter
+help is not in v1, so turning the default off would leave an undocumented flag with an
+empty help column – strictly worse than argh, in the value the fleet is told to adopt.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="compat.html" class="btn btn-neutral float-left" title="cw.compat" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="egress.html" class="btn btn-neutral float-right" title="cw.egress" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

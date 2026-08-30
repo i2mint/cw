@@ -3,6 +3,16 @@
    :caption: Contents:
 
    module_docs/cw
+   module_docs/cw/__main__
+   module_docs/cw/base
+   module_docs/cw/cli
+   module_docs/cw/commands
+   module_docs/cw/compat
+   module_docs/cw/convention
+   module_docs/cw/egress
+   module_docs/cw/grammar
+   module_docs/cw/ingress
    module_docs/cw/resolution
-   module_docs/cw/scrap
-   module_docs/cw/util
+   module_docs/cw/testing
+   module_docs/cw/tests
+   module_docs/cw/tests/fixtures

@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.ingress &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.ingress</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.ingress</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Namespace to call: the lines that honour ``/``, ``*args``, ``*`` and ``**kwargs``.</span>
+
+<span class="sd">This is the one job ``i2.Sig.mk_args_and_kwargs`` was going to buy, and it is a page of</span>
+<span class="sd">:mod:`inspect`. argh does the same job in its own dispatcher without i2, and so does cw:</span>
+<span class="sd">split ``POSITIONAL_ONLY`` and ``POSITIONAL_OR_KEYWORD`` into positional arguments, put</span>
+<span class="sd">``KEYWORD_ONLY`` into a keyword dict, extend the positionals with ``VAR_POSITIONAL``, and</span>
+<span class="sd">collect whatever is left over for ``VAR_KEYWORD``.</span>
+
+<span class="sd">:func:`mk_ingress` returns a callable whose contract is ``{name: value} -&gt; (args, kwargs)``</span>
+<span class="sd">-- deliberately the *same* contract as ``i2.wrapper.Ingress``, so that an i2 ``Ingress``</span>
+<span class="sd">remains a drop-in substitute for anyone who wants one. The contract is honoured; the</span>
+<span class="sd">import is not paid. (It is reachable as ``cw.ingress.mk_ingress`` and is deliberately not</span>
+<span class="sd">re-exported from the ``cw`` facade: nobody has asked for it as a public name.)</span>
+
+<span class="sd">&gt;&gt;&gt; def move(source, /, destination='.', *extra, force=False, **options):</span>
+<span class="sd">...     ...</span>
+<span class="sd">&gt;&gt;&gt; ingress = mk_ingress(move)</span>
+<span class="sd">&gt;&gt;&gt; ingress({'source': 'a', 'destination': 'b', 'extra': ['c', 'd'],</span>
+<span class="sd">...          'force': True, 'dry_run': 'yes'})</span>
+<span class="sd">(('a', 'b', 'c', 'd'), {'force': True, 'dry_run': 'yes'})</span>
+
+<span class="sd">Note what that shows and what it hides. ``source`` is positional-only and ``destination``</span>
+<span class="sd">is not, yet both are passed positionally -- because a parameter's *kind* decides how it is</span>
+<span class="sd">called, while :mod:`cw.grammar` decides, separately, whether it is spelt ``dest`` or</span>
+<span class="sd">``--destination`` on the command line. And ``dry_run`` reaches ``**options`` only because</span>
+<span class="sd">something put it in the mapping; under :data:`cw.ARGH` the parser never adds an argument</span>
+<span class="sd">for ``**options`` at all, so in a real dispatch that key is simply never there.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mk_ingress"</span><span class="p">]</span>
+
+<span class="c1">#: Parameter kinds that are passed by position, whatever their command-line spelling.</span>
+<span class="n">POSITIONAL_KINDS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_ONLY</span><span class="p">,</span>
+    <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="IngressError">
+<a class="viewcode-back" href="../../module_docs/cw.html#cw.IngressError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">IngressError</span><span class="p">(</span><span class="ne">KeyError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A parsed namespace cannot be turned into a call to this function.</span>
+
+<span class="sd">    In practice this means a parameter with no default was hidden from the command line</span>
+<span class="sd">    (``config={'x': cw.HIDE}``), so nothing supplies it and the function's own signature</span>
+<span class="sd">    cannot either.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># KeyError's repr()s its argument; this is a message</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Kinds</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``func``'s parameters, bucketed by kind once, at parser-build time.</span>
+
+<span class="sd">    Everything :func:`mk_ingress` needs to know about a signature, computed before the</span>
+<span class="sd">    first command line is ever seen -- ``inspect.signature`` is the expensive part and it</span>
+<span class="sd">    happens once per command, not once per call.</span>
+<span class="sd">    """</span>
+
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"name"</span><span class="p">,</span>
+        <span class="s2">"positional"</span><span class="p">,</span>
+        <span class="s2">"keyword_only"</span><span class="p">,</span>
+        <span class="s2">"var_positional"</span><span class="p">,</span>
+        <span class="s2">"var_keyword"</span><span class="p">,</span>
+        <span class="s2">"defaults"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="nb">repr</span><span class="p">(</span><span class="n">func</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">positional</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="n">POSITIONAL_KINDS</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keyword_only</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_positional</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var_keyword</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaults</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">default</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parameters</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">empty</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">named</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Every parameter name the signature spells out, so leftovers can be spotted."""</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positional</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">keyword_only</span>
+            <span class="o">+</span> <span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">var_positional</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">var_positional</span> <span class="k">else</span> <span class="p">[])</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="mk_ingress">
+<a class="viewcode-back" href="../../module_docs/cw/ingress.html#cw.mk_ingress">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mk_ingress</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">codecs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Build ``{param_name: value} -&gt; (args, kwargs)`` for one function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        func: The command. Inspected once, here, not on every call.</span>
+<span class="sd">        codecs: Optional per-parameter post-parse decoders, keyed by parameter name.</span>
+<span class="sd">            :mod:`cw.cli` fills this from each :class:`cw.grammar.ArgSpec`'s ``codec``, so</span>
+<span class="sd">            that the promotion of a bare callable to a :class:`cw.Codec` happens in exactly</span>
+<span class="sd">            one place. This is the "ingress site" of the two conversion sites -- the other</span>
+<span class="sd">            is argparse's ``type=``, and which one a conversion runs at is decided per</span>
+<span class="sd">            parameter by which key you wrote.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The ingress: a callable taking one mapping and returning ``(args, kwargs)``.</span>
+
+<span class="sd">    Four rules, each of which is observable, and three of which are argh's:</span>
+
+<span class="sd">    A ``*args`` parameter re-expands by extension rather than being passed as a tuple,</span>
+<span class="sd">    which is why ``def estimate(*agents)`` needs no configuration at all:</span>
+
+<span class="sd">    &gt;&gt;&gt; mk_ingress(lambda *agents: None)({'agents': ['a', 'b']})</span>
+<span class="sd">    (('a', 'b'), {})</span>
+
+<span class="sd">    A parameter absent from the mapping falls back to the function's own default. That is</span>
+<span class="sd">    what makes ``cw.HIDE`` work: the argument is gone from the command line, and the</span>
+<span class="sd">    function still receives the value it was partial-ed with.</span>
+
+<span class="sd">    &gt;&gt;&gt; def packages(project=None, *, config_type='setup.cfg'): ...</span>
+<span class="sd">    &gt;&gt;&gt; mk_ingress(packages)({'project': 'p'})</span>
+<span class="sd">    (('p',), {'config_type': 'setup.cfg'})</span>
+
+<span class="sd">    A parameter that is neither supplied nor defaulted is an error naming the likely</span>
+<span class="sd">    cause, rather than a :class:`TypeError` from deep inside the call:</span>
+
+<span class="sd">    &gt;&gt;&gt; mk_ingress(lambda pool: None)({})</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    cw.ingress.IngressError: &lt;lambda&gt;: no value for parameter 'pool', and it has no</span>
+<span class="sd">    default. Was it hidden with cw.HIDE?</span>
+
+<span class="sd">    Leftover keys go to ``**kwargs`` when the function takes it, and are dropped when it</span>
+<span class="sd">    does not -- and under :data:`cw.ARGH` nothing ever creates such a key, because argh</span>
+<span class="sd">    contributes no command-line argument for ``**kwargs`` at all:</span>
+
+<span class="sd">    &gt;&gt;&gt; mk_ingress(lambda a, **rest: None)({'a': 1, 'extra': 2})</span>
+<span class="sd">    ((1,), {'extra': 2})</span>
+<span class="sd">    &gt;&gt;&gt; mk_ingress(lambda a: None)({'a': 1, 'extra': 2})</span>
+<span class="sd">    ((1,), {})</span>
+<span class="sd">    """</span>
+    <span class="n">kinds</span> <span class="o">=</span> <span class="n">_Kinds</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">codecs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">codecs</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">named</span> <span class="o">=</span> <span class="n">kinds</span><span class="o">.</span><span class="n">named</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ingress</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">codecs</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="n">codecs</span><span class="p">[</span><span class="n">name</span><span class="p">](</span><span class="n">value</span><span class="p">)</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">codecs</span> <span class="k">else</span> <span class="n">value</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">value_of</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kinds</span><span class="o">.</span><span class="n">defaults</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">kinds</span><span class="o">.</span><span class="n">defaults</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="n">IngressError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kinds</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: no value for parameter </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">, and it has no default. "</span>
+                <span class="s2">"Was it hidden with cw.HIDE?"</span>
+            <span class="p">)</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">value_of</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kinds</span><span class="o">.</span><span class="n">positional</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">kinds</span><span class="o">.</span><span class="n">var_positional</span><span class="p">:</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kinds</span><span class="o">.</span><span class="n">var_positional</span><span class="p">)</span> <span class="ow">or</span> <span class="p">())</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value_of</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kinds</span><span class="o">.</span><span class="n">keyword_only</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">kinds</span><span class="o">.</span><span class="n">var_keyword</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">named</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="n">kwargs</span>
+
+    <span class="k">return</span> <span class="n">ingress</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

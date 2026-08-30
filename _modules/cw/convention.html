@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.convention &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.convention</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.convention</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""What cw's defaults ARE, as one frozen value per context.</span>
+
+<span class="sd">``config`` and ``convention`` are the fleet's existing pair of words -- ``streamlitfront``'s</span>
+<span class="sd">``mk_app(objs, config=None, convention=None)`` already uses them with exactly these</span>
+<span class="sd">meanings, so cw rhymes with it rather than inventing a third vocabulary:</span>
+
+<span class="sd">``convention``</span>
+<span class="sd">    *What the defaults are.* A frozen dataclass, swapped per **context** -- a repo, a</span>
+<span class="sd">    house style, the whole fleet. Rebinding it is how a project's per-call ``config``</span>
+<span class="sd">    entries shrink to nothing.</span>
+
+<span class="sd">``config``</span>
+<span class="sd">    *This call's particulars.* A plain mapping, swapped per **call**.</span>
+
+<span class="sd">Two values ship:</span>
+
+<span class="sd">&gt;&gt;&gt; ARGH.naming, ARGH.short_flags, ARGH.resolve_hints</span>
+<span class="sd">('by_name_if_has_default', True, False)</span>
+<span class="sd">&gt;&gt;&gt; ARGH.decode.__name__, ARGH.egress.__name__</span>
+<span class="sd">('argh_decode', 'argh_egress')</span>
+<span class="sd">&gt;&gt;&gt; MODERN.naming, MODERN.resolve_hints, MODERN.hints_when_declared</span>
+<span class="sd">('by_name_if_kwonly', True, True)</span>
+<span class="sd">&gt;&gt;&gt; MODERN.decode.__name__, MODERN.egress.__name__</span>
+<span class="sd">('modern_decode', 'iterable_egress')</span>
+
+<span class="sd">:data:`ARGH` is the default everywhere, and it reproduces argh 0.31.3 including the parts</span>
+<span class="sd">nobody likes. Every improvement is opt-in, and opting in is **one** act:</span>
+
+<span class="sd">&gt;&gt;&gt; import functools, cw</span>
+<span class="sd">&gt;&gt;&gt; dispatch = functools.partial(cw.dispatch, convention=MODERN)  # doctest: +SKIP</span>
+
+<span class="sd">That is the whole mechanism -- there is no ``cw.bind`` and no ``set_dispatch_defaults``.</span>
+<span class="sd">Anything in between is a :func:`dataclasses.replace`:</span>
+
+<span class="sd">&gt;&gt;&gt; import dataclasses</span>
+<span class="sd">&gt;&gt;&gt; half_way = dataclasses.replace(ARGH, resolve_hints=True)</span>
+<span class="sd">&gt;&gt;&gt; half_way.resolve_hints, half_way.naming</span>
+<span class="sd">(True, 'by_name_if_has_default')</span>
+
+<span class="sd">``decode`` and ``egress`` -- two of cw's three seams -- are fields here rather than only</span>
+<span class="sd">``dispatch`` keywords, for one reason: if ``MODERN`` did not carry its own, flipping to it</span>
+<span class="sd">would need a coordinated three-keyword edit at every call site, and a seam whose</span>
+<span class="sd">replacement touches every caller is in the wrong place. So ``dispatch(decode=...)`` and</span>
+<span class="sd">``dispatch(egress=...)`` default to ``None``, meaning *take the convention's*.</span>
+
+<span class="sd">**The merge ladder** -- what a convention presides over -- is four tiers, later wins::</span>
+
+<span class="sd">    1. signature inference     kind, default, name, flag spellings</span>
+<span class="sd">    2. hint inference          convention.decode(param, hint)</span>
+<span class="sd">    3. function attribute      func._cw['params'][param]     (cw.compat.arg writes it)</span>
+<span class="sd">    4. config                  config[...][param]            (this call's particulars)</span>
+
+<span class="sd">Tiers 3 and 4 both count as "declared", so either one switches tier 2 off for the *whole*</span>
+<span class="sd">function unless ``hints_when_declared`` says otherwise; and the merge is argh's</span>
+<span class="sd">field-specific one, not ``dict.update`` (ADR-0003). It is implemented once, as</span>
+<span class="sd">:func:`cw.grammar.specs_for_function`, and lives there rather than here because it is the</span>
+<span class="sd">only place that knows what a :class:`cw.grammar.ArgSpec` is. There is no second copy.</span>
+
+<span class="sd">``formatter_class`` is deliberately **not** a field (ADR-0006): it is already an</span>
+<span class="sd">``argparse.ArgumentParser`` keyword, and cw invents no vocabulary for anything argparse</span>
+<span class="sd">already names. :func:`cw.mk_parser` defaults it to :class:`cw.ArghHelpFormatter` and passes</span>
+<span class="sd">whatever you give it straight through, to the top parser and to every subparser.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decode</span><span class="p">,</span> <span class="n">Egress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.egress</span><span class="w"> </span><span class="kn">import</span> <span class="n">argh_egress</span><span class="p">,</span> <span class="n">iterable_egress</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BY_NAME_IF_HAS_DEFAULT</span><span class="p">,</span>
+    <span class="n">BY_NAME_IF_KWONLY</span><span class="p">,</span>
+    <span class="n">argh_decode</span><span class="p">,</span>
+    <span class="n">modern_decode</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Convention"</span><span class="p">,</span>
+    <span class="s2">"ARGH"</span><span class="p">,</span>
+    <span class="s2">"MODERN"</span><span class="p">,</span>
+    <span class="s2">"BY_NAME_IF_HAS_DEFAULT"</span><span class="p">,</span>
+    <span class="s2">"BY_NAME_IF_KWONLY"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="Convention">
+<a class="viewcode-back" href="../../module_docs/cw/convention.html#cw.Convention">[docs]</a>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Convention</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The grammar switches, as one hashable value.</span>
+
+<span class="sd">    Every field is read somewhere in ``cw.grammar`` or ``cw.commands``; a field that</span>
+<span class="sd">    changed nothing would be exactly the speculative generality this design refuses.</span>
+
+<span class="sd">    &gt;&gt;&gt; Convention() == ARGH</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; hash(Convention()) == hash(ARGH)</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: ``BY_NAME_IF_HAS_DEFAULT`` (argh's legacy rule: a default makes it an option) or</span>
+    <span class="c1">#: ``BY_NAME_IF_KWONLY`` (keyword-only makes it an option; a default only makes a</span>
+    <span class="c1">#: positional optional).</span>
+    <span class="n">naming</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BY_NAME_IF_HAS_DEFAULT</span>
+    <span class="c1">#: Infer ``-x`` from a parameter's first character -- suppressed when two parameters</span>
+    <span class="c1">#: share one, and always lost to ``--help`` for ``h``.</span>
+    <span class="n">short_flags</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1">#: ``a_b`` becomes the command ``a-b``.</span>
+    <span class="n">hyphenate_commands</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1">#: ``git_ops`` becomes the group ``git-ops``. argh leaves a group name verbatim.</span>
+    <span class="n">hyphenate_groups</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Give every argument the help string ``'%(default)s'``.</span>
+    <span class="n">default_in_help</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1">#: Keep inferring from type hints even when a parameter has been overridden. argh</span>
+    <span class="c1">#: switches hint inference off for the *whole function* as soon as one ``@arg``</span>
+    <span class="c1">#: appears; ADR-0003 extends "overridden" to cover ``config`` entries too.</span>
+    <span class="n">hints_when_declared</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Resolve annotations with :func:`typing.get_type_hints` instead of reading</span>
+    <span class="c1">#: ``__annotations__`` raw. ``False`` reproduces argh's blindness to PEP 563, under</span>
+    <span class="c1">#: which every annotation is a string and therefore infers nothing.</span>
+    <span class="n">resolve_hints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: Seam 1: ``(Parameter, hint) -&gt; add_argument kwargs | callable | None``.</span>
+    <span class="n">decode</span><span class="p">:</span> <span class="n">Decode</span> <span class="o">=</span> <span class="n">argh_decode</span>
+    <span class="c1">#: Seam 2: ``(result, *, out, err) -&gt; exit code``.</span>
+    <span class="n">egress</span><span class="p">:</span> <span class="n">Egress</span> <span class="o">=</span> <span class="n">argh_egress</span></div>
+
+
+
+<span class="c1">#: cw's default in every entry point: argh 0.31.3's grammar, footguns included.</span>
+<span class="n">ARGH</span> <span class="o">=</span> <span class="n">Convention</span><span class="p">()</span>
+
+<span class="c1">#: The same machinery with the improvements switched on. ``naming`` follows parameter</span>
+<span class="c1">#: kind rather than the presence of a default, annotations are actually resolved and</span>
+<span class="c1">#: still consulted when a parameter is overridden, groups are hyphenated like commands,</span>
+<span class="c1">#: ``decode`` additionally understands ``Optional[X]``, ``Enum`` and ``pathlib``, and</span>
+<span class="c1">#: ``egress`` iterates anything iterable rather than argh's three-type whitelist.</span>
+<span class="c1">#:</span>
+<span class="c1">#: ``default_in_help`` stays ``True`` here (ADR-0004 rule 4): docstring-derived per-parameter</span>
+<span class="c1">#: help is not in v1, so turning the default off would leave an undocumented flag with an</span>
+<span class="c1">#: empty help column -- strictly worse than argh, in the value the fleet is told to adopt.</span>
+<span class="n">MODERN</span> <span class="o">=</span> <span class="n">Convention</span><span class="p">(</span>
+    <span class="n">naming</span><span class="o">=</span><span class="n">BY_NAME_IF_KWONLY</span><span class="p">,</span>
+    <span class="n">hyphenate_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">hints_when_declared</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">resolve_hints</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">decode</span><span class="o">=</span><span class="n">modern_decode</span><span class="p">,</span>
+    <span class="n">egress</span><span class="o">=</span><span class="n">iterable_egress</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

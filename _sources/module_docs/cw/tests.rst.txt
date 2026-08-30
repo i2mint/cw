@@ -1,0 +1,4 @@
+cw.tests
+========
+.. automodule:: cw.tests
+   :members:

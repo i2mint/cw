@@ -1,0 +1,974 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.grammar &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.grammar</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.grammar</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""How a Python signature becomes command-line arguments.</span>
+
+<span class="sd">This is cw's riskiest module and its most opinionated one: it reproduces argh 0.31.3's</span>
+<span class="sd">signature-to-``argparse`` inference exactly, footguns included, because a CLI that reads</span>
+<span class="sd">*almost* like the one it replaces is worse than one that reads nothing like it.</span>
+
+<span class="sd">argh arrives at its grammar through two uncoordinated code paths -- an annotation guesser</span>
+<span class="sd">(``TypingHintArgSpecGuesser``) and a default-value guesser</span>
+<span class="sd">(``guess_extra_parser_add_argument_spec_kwargs``) -- which collide on ``bool`` and are</span>
+<span class="sd">reconciled by two copy-pasted hand-patches. Here they are **one function with one</span>
+<span class="sd">precedence order**: :func:`specs_for_function`.</span>
+
+<span class="sd">Three things this module deliberately does *not* do:</span>
+
+<span class="sd">* It never imports :mod:`argparse`. It produces :class:`ArgSpec` values -- plain data --</span>
+<span class="sd">  and :meth:`ArgSpec.add_argument_args` turns one into the ``(args, kwargs)`` of an</span>
+<span class="sd">  ``add_argument`` call. ``cw.cli`` is the only module that makes that call.</span>
+<span class="sd">* It has no notion of a command tree, a parser, or a namespace. One function in, a list</span>
+<span class="sd">  of arguments out.</span>
+<span class="sd">* It hardcodes no policy. Every switch is read off the ``convention`` argument, so</span>
+<span class="sd">  ``convention=cw.MODERN`` is one act that changes all of them at once.</span>
+
+<span class="sd">The whole grammar in one look:</span>
+
+<span class="sd">&gt;&gt;&gt; def greet(name, greeting='hello', *, shout=False, times: int = 1):</span>
+<span class="sd">...     'Say hello.'</span>
+<span class="sd">&gt;&gt;&gt; for spec in specs_for_function(greet):</span>
+<span class="sd">...     print(spec.param_name, spec.flags, spec.add_argument_kwargs())</span>
+<span class="sd">name ['name'] {'help': '%(default)s'}</span>
+<span class="sd">greeting ['-g', '--greeting'] {'default': 'hello', 'type': &lt;class 'str'&gt;, 'help': '%(default)s'}</span>
+<span class="sd">shout ['-s', '--shout'] {'default': False, 'action': 'store_true', 'help': '%(default)s'}</span>
+<span class="sd">times ['-t', '--times'] {'default': 1, 'type': &lt;class 'int'&gt;, 'help': '%(default)s'}</span>
+
+<span class="sd">Read that output slowly, because every line of it is an argh compatibility decision:</span>
+<span class="sd">``greeting`` has a default so it becomes an *option* (``BY_NAME_IF_HAS_DEFAULT``);</span>
+<span class="sd">``shout=False`` becomes ``store_true`` (and ``shout=True`` would become ``store_false``);</span>
+<span class="sd">the short flags come from first characters and would vanish entirely if two parameters</span>
+<span class="sd">shared one; and every help string is ``'%(default)s'``, which</span>
+<span class="sd">:class:`cw.base.ArghHelpFormatter` renders as ``repr(default)``.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pathlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HIDE</span><span class="p">,</span> <span class="n">MISSING</span><span class="p">,</span> <span class="n">DFLT_HELP</span><span class="p">,</span> <span class="n">Codec</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"ArgSpec"</span><span class="p">,</span>
+    <span class="s2">"GrammarError"</span><span class="p">,</span>
+    <span class="s2">"argh_decode"</span><span class="p">,</span>
+    <span class="s2">"modern_decode"</span><span class="p">,</span>
+    <span class="s2">"cli_name"</span><span class="p">,</span>
+    <span class="s2">"command_name"</span><span class="p">,</span>
+    <span class="s2">"infer_specs"</span><span class="p">,</span>
+    <span class="s2">"specs_for_function"</span><span class="p">,</span>
+    <span class="s2">"BY_NAME_IF_HAS_DEFAULT"</span><span class="p">,</span>
+    <span class="s2">"BY_NAME_IF_KWONLY"</span><span class="p">,</span>
+    <span class="s2">"ZERO_OR_MORE"</span><span class="p">,</span>
+    <span class="s2">"OPTIONAL"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Vocabulary</span>
+<span class="c1">#</span>
+<span class="c1"># These are argparse's own spellings, repeated here as constants rather than imported,</span>
+<span class="c1"># because this module must not import argparse (see the module docstring).</span>
+
+<span class="c1">#: ``argparse.ZERO_OR_MORE`` -- "any number of values, including none".</span>
+<span class="n">ZERO_OR_MORE</span> <span class="o">=</span> <span class="s2">"*"</span>
+
+<span class="c1">#: ``argparse.OPTIONAL`` -- "one value, or none".</span>
+<span class="n">OPTIONAL</span> <span class="o">=</span> <span class="s2">"?"</span>
+
+<span class="c1">#: A parameter is named on the command line iff it has a default value (argh's legacy</span>
+<span class="c1">#: policy, and the one every fleet script was written against).</span>
+<span class="n">BY_NAME_IF_HAS_DEFAULT</span> <span class="o">=</span> <span class="s2">"by_name_if_has_default"</span>
+
+<span class="c1">#: A parameter is named on the command line iff it is keyword-only. Position and</span>
+<span class="c1">#: optionality become independent, which is what most people expect.</span>
+<span class="n">BY_NAME_IF_KWONLY</span> <span class="o">=</span> <span class="s2">"by_name_if_kwonly"</span>
+
+<span class="c1">#: The types argh's annotation guesser recognises as scalars. Nothing more, because argh</span>
+<span class="c1">#: has nothing more.</span>
+<span class="n">BASIC_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+
+<span class="c1">#: ``add_argument`` kwargs that :meth:`ArgSpec.update` merges field-by-field rather than</span>
+<span class="c1">#: by ``dict.update`` -- see :class:`ArgSpec`.</span>
+<span class="n">FIELD_MERGED_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"required"</span><span class="p">,</span> <span class="s2">"nargs"</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">)</span>
+
+<span class="n">_UNION_TYPES</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">,)</span>
+<span class="k">try</span><span class="p">:</span>  <span class="c1"># pragma: no cover - py&gt;=3.10 always has it; the fallback is for older readers</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">UnionType</span>
+
+    <span class="n">_UNION_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">,</span> <span class="n">UnionType</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">pass</span>
+
+<span class="n">_NONE_TYPE</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GrammarError">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.GrammarError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">GrammarError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A signature and its overrides cannot be reconciled into a CLI.</span>
+
+<span class="sd">    Raised eagerly, at parser-construction time, so a mis-keyed ``config`` entry is a</span>
+<span class="sd">    startup failure with a message rather than a flag that silently never appears.</span>
+<span class="sd">    """</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># The unit of the grammar</span>
+
+
+<div class="viewcode-block" id="ArgSpec">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.ArgSpec">[docs]</a>
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArgSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One command-line argument, as data, before argparse ever sees it.</span>
+
+<span class="sd">    ``required``, ``default`` and ``nargs`` are held in their own fields rather than in</span>
+<span class="sd">    ``extra`` because argh merges them by rules that ``dict.update`` does not have (see</span>
+<span class="sd">    :meth:`update`), and reproducing that merge is what makes ``--help`` byte-identical.</span>
+
+<span class="sd">    &gt;&gt;&gt; spec = ArgSpec('verbose', ['-v', '--verbose'], default=False)</span>
+<span class="sd">    &gt;&gt;&gt; spec.add_argument_args()</span>
+<span class="sd">    (('-v', '--verbose'), {'default': False})</span>
+<span class="sd">    &gt;&gt;&gt; spec.is_positional</span>
+<span class="sd">    False</span>
+<span class="sd">    """</span>
+
+    <span class="c1">#: The name of the Python parameter this argument feeds.</span>
+    <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="c1">#: Option strings (``['-v', '--verbose']``) or a single positional CLI name.</span>
+    <span class="n">flags</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="c1">#: ``add_argument(required=...)``; ``MISSING`` means "do not pass it".</span>
+    <span class="n">required</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="c1">#: ``add_argument(default=...)``; ``MISSING`` means "do not pass it".</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">MISSING</span>
+    <span class="c1">#: ``add_argument(nargs=...)``; ``None`` means "do not pass it".</span>
+    <span class="n">nargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Every other ``add_argument`` keyword: ``type``, ``action``, ``choices``, ``help``...</span>
+    <span class="n">extra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1">#: The optional post-parse decoder (``cw.ingress``'s site, not argparse's ``type=``).</span>
+    <span class="n">codec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Codec</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: Set by a ``cw.HIDE`` override: keep the parameter, drop the CLI argument.</span>
+    <span class="n">hidden</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="c1">#: argcomplete's per-argument completer. Not an ``add_argument`` keyword -- argparse</span>
+    <span class="c1">#: rejects it -- so it travels here and ``cw.cli`` assigns it to the created action,</span>
+    <span class="c1">#: which is where ``argcomplete`` looks for it.</span>
+    <span class="n">completer</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Is this a positional argument (as opposed to an option)?</span>
+
+<span class="sd">        &gt;&gt;&gt; ArgSpec('x', ['x']).is_positional</span>
+<span class="sd">        True</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArgSpec.update">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.ArgSpec.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="s2">"ArgSpec"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Merge an override into this spec, by argh's rules (``argh/dto.py:33-50``).</span>
+
+<span class="sd">        Four rules, none of which is ``dict.update``, and each of which is observable:</span>
+
+<span class="sd">        * ``flags`` **append**: the inferred spellings survive and the declared ones are</span>
+<span class="sd">          added after them if new. This is why theremin's ``@arg('--synth', '-s')`` on a</span>
+<span class="sd">          parameter whose short flag was suppressed renders ``--synth [SYNTH], -s [SYNTH]``</span>
+<span class="sd">          -- long first -- with no special case anywhere.</span>
+<span class="sd">        * ``required`` and ``default`` are taken only when the override *has* one.</span>
+<span class="sd">        * ``nargs`` is taken only when the override's is **truthy**, so there is no way to</span>
+<span class="sd">          unset an inferred ``nargs`` (argh has no spelling for it either; see ADR-0003).</span>
+<span class="sd">        * everything else is a plain ``dict.update``.</span>
+
+<span class="sd">        &gt;&gt;&gt; inferred = ArgSpec('synth', ['--synth'], default='sine')</span>
+<span class="sd">        &gt;&gt;&gt; inferred.update(ArgSpec('synth', ['--synth', '-s'], nargs='?'))</span>
+<span class="sd">        &gt;&gt;&gt; inferred.flags</span>
+<span class="sd">        ['--synth', '-s']</span>
+<span class="sd">        """</span>
+        <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">other</span><span class="o">.</span><span class="n">flags</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">required</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">required</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">nargs</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">codec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">codec</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">codec</span>
+        <span class="k">if</span> <span class="n">other</span><span class="o">.</span><span class="n">completer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">completer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArgSpec.add_argument_kwargs">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.ArgSpec.add_argument_kwargs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_argument_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""The ``**kwargs`` half of the ``add_argument`` call.</span>
+
+<span class="sd">        ``extra`` is applied last, which reproduces argh's</span>
+<span class="sd">        ``dict(kwargs, **other_add_parser_kwargs)`` -- including the quirk that a ``nargs``</span>
+<span class="sd">        guessed from a list-valued default overrides an explicitly declared one.</span>
+<span class="sd">        """</span>
+        <span class="n">kwargs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"required"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"nargs"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArgSpec.add_argument_args">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.ArgSpec.add_argument_args">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_argument_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The full ``(args, kwargs)`` of the ``add_argument`` call this spec describes.</span>
+
+<span class="sd">        A positional is registered under its **command-line** name, hyphens and all --</span>
+<span class="sd">        exactly as argh does -- because argparse reads that one string twice, and the two</span>
+<span class="sd">        readings cannot be separated: it is the ``{a,b}``-or-``project-dir`` displayed in</span>
+<span class="sd">        ``usage:`` *and* the name in ``error: argument project-dir: ...``. Synthesising a</span>
+<span class="sd">        ``metavar`` instead would win the second reading and lose the first, silently</span>
+<span class="sd">        turning ``{a,b}`` into ``project-dir`` for any hyphenated positional carrying</span>
+<span class="sd">        ``choices``.</span>
+
+<span class="sd">        The price is a ``dest`` with a hyphen in it, which no Python call can use.</span>
+<span class="sd">        :attr:`argparse_dest` names it and :mod:`cw.cli` renames it back on the way into</span>
+<span class="sd">        the call -- one dictionary lookup, in one place.</span>
+
+<span class="sd">        &gt;&gt;&gt; spec = ArgSpec('project_dir', ['project-dir'])</span>
+<span class="sd">        &gt;&gt;&gt; spec.add_argument_args()</span>
+<span class="sd">        (('project-dir',), {})</span>
+<span class="sd">        &gt;&gt;&gt; spec.argparse_dest</span>
+<span class="sd">        'project-dir'</span>
+<span class="sd">        """</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_argument_kwargs</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">kwargs</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">),</span> <span class="n">kwargs</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">argparse_dest</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The namespace key argparse will store this argument under.</span>
+
+<span class="sd">        argparse derives it from the first long option (``--project-dir`` -&gt;</span>
+<span class="sd">        ``project_dir``) or, for a positional, from the name itself -- hyphens intact.</span>
+
+<span class="sd">        &gt;&gt;&gt; ArgSpec('project_dir', ['-p', '--project-dir']).argparse_dest</span>
+<span class="sd">        'project_dir'</span>
+<span class="sd">        &gt;&gt;&gt; ArgSpec('project_dir', ['project-dir']).argparse_dest</span>
+<span class="sd">        'project-dir'</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="s2">"dest"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"dest"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">long</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">flag</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="k">if</span> <span class="n">flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"--"</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">long</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArgSpec.from_override">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.ArgSpec.from_override">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_override</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">override</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">"ArgSpec"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Build a spec from an override leaf -- ``add_argument`` kwargs plus cw's three.</span>
+
+<span class="sd">        The three cw additions are ``flags`` (explicit option strings, hyphenated the way</span>
+<span class="sd">        argh hyphenates ``@arg``'s), ``codec`` (the post-parse decoder), and the whole</span>
+<span class="sd">        leaf being :data:`cw.HIDE`, which :func:`specs_for_function` handles before it</span>
+<span class="sd">        gets here.</span>
+
+<span class="sd">        &gt;&gt;&gt; ArgSpec.from_override(       # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">        ...     'synth', {'flags': ['-s'], 'nargs': '?'})</span>
+<span class="sd">        ArgSpec(param_name='synth', flags=['-s'], required=cw.MISSING, default=cw.MISSING,</span>
+<span class="sd">                nargs='?', extra={}, codec=None, hidden=False, completer=None)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">override</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"the override for </span><span class="si">{</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2"> must be a mapping of add_argument "</span>
+                <span class="sa">f</span><span class="s2">"keyword arguments (or cw.HIDE), not </span><span class="si">{</span><span class="n">override</span><span class="si">!r}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">override</span><span class="p">)</span>
+        <span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="n">cli_name</span><span class="p">(</span><span class="n">flag</span><span class="p">)</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">rest</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"flags"</span><span class="p">,</span> <span class="p">())]</span>
+        <span class="n">codec</span> <span class="o">=</span> <span class="n">rest</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"codec"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">codec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">codec</span><span class="p">,</span> <span class="n">Codec</span><span class="p">):</span>
+            <span class="n">codec</span> <span class="o">=</span> <span class="n">Codec</span><span class="p">(</span><span class="n">decode</span><span class="o">=</span><span class="n">codec</span><span class="p">)</span>
+        <span class="c1"># argcomplete's own keyword, which argparse's add_argument rejects. argh pops it</span>
+        <span class="c1"># the same way and assigns it to the action it just created.</span>
+        <span class="n">completer</span> <span class="o">=</span> <span class="n">rest</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"completer"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">param_name</span><span class="o">=</span><span class="n">param_name</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span> <span class="n">codec</span><span class="o">=</span><span class="n">codec</span><span class="p">,</span> <span class="n">completer</span><span class="o">=</span><span class="n">completer</span><span class="p">)</span>
+        <span class="c1"># argh's `make_from_kwargs` POPS these three out of the kwargs dict so that</span>
+        <span class="c1"># `update` can merge them by their own rules. Same here.</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">FIELD_MERGED_KEYS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">rest</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">rest</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">extra</span> <span class="o">=</span> <span class="n">rest</span>
+        <span class="k">return</span> <span class="n">spec</span></div>
+</div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Seam 1: decode -- a resolved type hint becomes add_argument kwargs</span>
+
+
+<div class="viewcode-block" id="argh_decode">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.argh_decode">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">argh_decode</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Seam 1's default: argh's annotation guesser, if-branch for if-branch.</span>
+
+<span class="sd">    A type implies more than a converter, which is why this returns a mapping of</span>
+<span class="sd">    ``add_argument`` kwargs rather than a callable: ``list[str]`` implies ``nargs='*'``,</span>
+<span class="sd">    ``Literal['a', 'b']`` implies ``choices``, ``Optional[int]`` implies</span>
+<span class="sd">    ``required=False``. The covered set is exactly argh's -- ``str``, ``int``, ``float``,</span>
+<span class="sd">    ``bool``, ``list``, ``list[T]``, ``Literal[...]`` and ``Union``/``Optional`` -- and</span>
+<span class="sd">    nothing else, because argh recognises nothing else.</span>
+
+<span class="sd">    &gt;&gt;&gt; p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, int)</span>
+<span class="sd">    {'type': &lt;class 'int'&gt;}</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, typing.Literal['a', 'b'])</span>
+<span class="sd">    {'choices': ('a', 'b'), 'type': &lt;class 'str'&gt;}</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, list[int]) == {'nargs': '*', 'type': int}</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, typing.Optional[int]) == {'type': int, 'required': False}</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, dict)          # not in argh's if-chain: no inference at all</span>
+<span class="sd">    {}</span>
+<span class="sd">    """</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="n">hint</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">hint</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"nargs"</span><span class="p">:</span> <span class="n">ZERO_OR_MORE</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">typing</span><span class="o">.</span><span class="n">Literal</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"choices"</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span> <span class="s2">"type"</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])}</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">origin</span> <span class="ow">is</span> <span class="n">union</span> <span class="k">for</span> <span class="n">union</span> <span class="ow">in</span> <span class="n">_UNION_TYPES</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_decode_union</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">guessed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"nargs"</span><span class="p">:</span> <span class="n">ZERO_OR_MORE</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">args</span> <span class="ow">and</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+            <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">guessed</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode_union</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""argh's ``Union`` branch: the FIRST member decides, ``None`` makes it optional."""</span>
+    <span class="n">guessed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">first</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span>
+    <span class="k">if</span> <span class="n">first</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">):</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"nargs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZERO_OR_MORE</span>
+    <span class="k">if</span> <span class="n">first</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span> <span class="ow">and</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"nargs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZERO_OR_MORE</span>
+        <span class="n">item_args</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">first</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item_args</span> <span class="ow">and</span> <span class="n">item_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+            <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">item_args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">_NONE_TYPE</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"required"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">guessed</span>
+
+
+<div class="viewcode-block" id="modern_decode">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.modern_decode">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">modern_decode</span><span class="p">(</span><span class="n">param</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span> <span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Seam 1's shipped alternative: ``Optional[X]``, ``Enum`` and ``pathlib`` support.</span>
+
+<span class="sd">    Composition is fall-through, not a registry: three ``if``\\ s and then</span>
+<span class="sd">    ``return argh_decode(param, hint)``. Nothing to register, nothing to order.</span>
+
+<span class="sd">    ``Optional[X]`` is unwrapped to ``X`` rather than read as "the first member wins",</span>
+<span class="sd">    which is the single most useful difference: under argh, ``n: int | None = None``</span>
+<span class="sd">    quietly becomes ``nargs='?'``.</span>
+
+<span class="sd">    &gt;&gt;&gt; p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)</span>
+<span class="sd">    &gt;&gt;&gt; modern_decode(p, typing.Optional[int]) == {'type': int}</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; modern_decode(p, pathlib.Path) == {'type': pathlib.Path}</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; class Colour(enum.Enum):</span>
+<span class="sd">    ...     RED = 'r'</span>
+<span class="sd">    &gt;&gt;&gt; decoded = modern_decode(p, Colour)</span>
+<span class="sd">    &gt;&gt;&gt; decoded['type']('RED'), decoded['type']('r')</span>
+<span class="sd">    (&lt;Colour.RED: 'r'&gt;, &lt;Colour.RED: 'r'&gt;)</span>
+
+<span class="sd">    The help column advertises what the converter accepts, rather than member ``repr``\\ s</span>
+<span class="sd">    the converter would reject:</span>
+
+<span class="sd">    &gt;&gt;&gt; decoded['metavar']</span>
+<span class="sd">    '{RED}'</span>
+<span class="sd">    """</span>
+    <span class="n">hint</span> <span class="o">=</span> <span class="n">_unwrap_optional</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="c1"># `choices` must hold the CONVERTED values (argparse checks after `type` runs), so</span>
+        <span class="c1"># it holds members -- but members render as `Col.RED`, which the converter would</span>
+        <span class="c1"># then reject. `metavar` decides what is displayed, so it advertises the member</span>
+        <span class="c1"># names, which are exactly what may be typed.</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="n">_enum_by_name_then_value</span><span class="p">(</span><span class="n">hint</span><span class="p">),</span>
+            <span class="s2">"choices"</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">hint</span><span class="p">),</span>
+            <span class="s2">"metavar"</span><span class="p">:</span> <span class="s2">"{"</span> <span class="o">+</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">member</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">hint</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"}"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">argh_decode</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unwrap_optional</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``Optional[X]`` -&gt; ``X``; anything else unchanged."""</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span> <span class="ow">is</span> <span class="n">union</span> <span class="k">for</span> <span class="n">union</span> <span class="ow">in</span> <span class="n">_UNION_TYPES</span><span class="p">):</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span> <span class="k">if</span> <span class="n">arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NONE_TYPE</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">rest</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">hint</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_enum_by_name_then_value</span><span class="p">(</span><span class="n">enum_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A ``type=`` converter reading an ``Enum`` by member name, then by value."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decode</span><span class="p">(</span><span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">enum_class</span><span class="p">[</span><span class="n">token</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">enum_class</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+    <span class="c1"># argparse interpolates %(type)s from `type.__name__`, and the help formatter</span>
+    <span class="c1"># replaces any object having one; borrow the enum's so both read well.</span>
+    <span class="n">decode</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">enum_class</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="k">return</span> <span class="n">decode</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_add_argument_kwargs</span><span class="p">(</span><span class="n">decoded</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Normalise a ``decode`` return value: ``None`` | callable | Mapping -&gt; kwargs."""</span>
+    <span class="k">if</span> <span class="n">decoded</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">decoded</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">decoded</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">decoded</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="n">decoded</span><span class="p">}</span>
+    <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"a decode function must return None, a callable or a mapping of add_argument "</span>
+        <span class="sa">f</span><span class="s2">"keyword arguments; got </span><span class="si">{</span><span class="n">decoded</span><span class="si">!r}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Naming</span>
+
+
+<div class="viewcode-block" id="cli_name">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.cli_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cli_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hyphenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The one name-mangling rule, applied to commands, groups, flags and config keys.</span>
+
+<span class="sd">    ADR-0004 rule 2: derived names and the keys you address them by must go through the</span>
+<span class="sd">    *same* function, or a ``config`` written in one spelling silently misses a command</span>
+<span class="sd">    named in the other.</span>
+
+<span class="sd">    &gt;&gt;&gt; cli_name('git_ops'), cli_name('git_ops', hyphenate=False)</span>
+<span class="sd">    ('git-ops', 'git_ops')</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">)</span> <span class="k">if</span> <span class="n">hyphenate</span> <span class="k">else</span> <span class="n">name</span></div>
+
+
+
+<div class="viewcode-block" id="command_name">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.command_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">command_name</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">hyphenate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The command word for a callable: its ``__name__``, with ``_`` becoming ``-``.</span>
+
+<span class="sd">    &gt;&gt;&gt; def pack_go(): ...</span>
+<span class="sd">    &gt;&gt;&gt; command_name(pack_go)</span>
+<span class="sd">    'pack-go'</span>
+
+<span class="sd">    Anything without a ``__name__`` -- a ``functools.partial``, a callable instance --</span>
+<span class="sd">    has no name to derive, and guessing one is how you ship the wrong CLI:</span>
+
+<span class="sd">    &gt;&gt;&gt; import functools</span>
+<span class="sd">    &gt;&gt;&gt; command_name(functools.partial(pack_go))</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    TypeError: cannot derive a command name from functools.partial(...): it has no</span>
+<span class="sd">    __name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})</span>
+<span class="sd">    """</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cannot derive a command name from </span><span class="si">{</span><span class="n">func</span><span class="si">!r}</span><span class="s2">: it has no __name__. "</span>
+            <span class="s1">'Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})'</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cli_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="n">hyphenate</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Tier 1 + 2: the signature, and the hints</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_short_flag_collisions</span><span class="p">(</span><span class="n">signature</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Signature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""First characters shared by two or more *named* parameters.</span>
+
+<span class="sd">    argh's rule, and the one that surprises everyone: a collision suppresses the short</span>
+<span class="sd">    flag for **both** parameters rather than giving it to the first. That is why</span>
+<span class="sd">    ``wads pack populate_pkg_dir``'s 34 parameters have almost no short flags, and why it</span>
+<span class="sd">    is data rather than a heuristic -- adding a parameter can silently remove another</span>
+<span class="sd">    parameter's flag.</span>
+
+<span class="sd">    Note the set is computed from every parameter that *could* be named (has a default,</span>
+<span class="sd">    or is keyword-only), regardless of whether the naming policy actually names it.</span>
+<span class="sd">    """</span>
+    <span class="n">named</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span>
+    <span class="p">]</span>
+    <span class="n">first_chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">named</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">char</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">first_chars</span><span class="p">)</span> <span class="k">if</span> <span class="n">first_chars</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">char</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_flag_spellings</span><span class="p">(</span><span class="n">param_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">collisions</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">,</span> <span class="n">short_flags</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``('name-with-hyphens',), ('-n', '--name-with-hyphens')`` for one parameter."""</span>
+    <span class="n">hyphenated</span> <span class="o">=</span> <span class="n">cli_name</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+    <span class="n">positional</span> <span class="o">=</span> <span class="p">[</span><span class="n">hyphenated</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">short_flags</span> <span class="ow">and</span> <span class="n">param_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">collisions</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"-</span><span class="si">{</span><span class="n">hyphenated</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">hyphenated</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">hyphenated</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">positional</span><span class="p">,</span> <span class="n">options</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hints_of</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">resolve</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The annotations a decode function will be shown.</span>
+
+<span class="sd">    ``resolve=False`` is argh's behaviour: read ``__annotations__`` raw, which under</span>
+<span class="sd">    ``from __future__ import annotations`` means every hint is a *string* and therefore</span>
+<span class="sd">    matches nothing in the if-chain. That silently disables argh's coercion in roughly a</span>
+<span class="sd">    third of the fleet's annotated CLI files; it is reproduced, not fixed, because D2 says</span>
+<span class="sd">    improvements are opt-in (``convention=cw.MODERN`` resolves them).</span>
+<span class="sd">    """</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"__annotations__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">resolve</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">raw</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_type_hints</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">NameError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+        <span class="c1"># An unresolvable forward reference. Degrade to argh's raw reading rather than</span>
+        <span class="c1"># failing to build a CLI over an annotation nobody asked us to resolve.</span>
+        <span class="k">return</span> <span class="n">raw</span>
+
+
+<div class="viewcode-block" id="infer_specs">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.infer_specs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_specs</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">decode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">use_hints</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArgSpec</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Tiers 1 and 2 of the ladder: the signature, then its type hints.</span>
+
+<span class="sd">    The two argh code paths this replaces disagree about ``bool``, and argh patches the</span>
+<span class="sd">    disagreement twice, in two branches, with the same three lines. Here the annotation</span>
+<span class="sd">    result and the signature result meet in one place and the ``bool`` rule is stated</span>
+<span class="sd">    once: a hint of ``bool`` on a parameter with a ``bool`` default is dropped, because</span>
+<span class="sd">    ``type=bool`` and ``action='store_true'`` cannot both be passed to ``add_argument``.</span>
+
+<span class="sd">    &gt;&gt;&gt; def f(path, *, verbose: bool = False, tags: list = None):</span>
+<span class="sd">    ...     ...</span>
+<span class="sd">    &gt;&gt;&gt; for spec in infer_specs(f):</span>
+<span class="sd">    ...     print(spec.param_name, spec.flags, spec.extra)</span>
+<span class="sd">    path ['path'] {}</span>
+<span class="sd">    verbose ['-v', '--verbose'] {}</span>
+<span class="sd">    tags ['-t', '--tags'] {'nargs': '*'}</span>
+<span class="sd">    """</span>
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">convention</span> <span class="k">if</span> <span class="n">convention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_default_convention</span><span class="p">()</span>
+    <span class="n">decode</span> <span class="o">=</span> <span class="n">decode</span> <span class="k">if</span> <span class="n">decode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">convention</span><span class="o">.</span><span class="n">decode</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">collisions</span> <span class="o">=</span> <span class="n">_short_flag_collisions</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
+    <span class="n">hints</span> <span class="o">=</span> <span class="n">_hints_of</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">resolve_hints</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_hints</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">by_name</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">naming</span> <span class="o">==</span> <span class="n">BY_NAME_IF_HAS_DEFAULT</span>
+    <span class="n">specs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArgSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">positional</span><span class="p">,</span> <span class="n">options</span> <span class="o">=</span> <span class="n">_flag_spellings</span><span class="p">(</span>
+            <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">collisions</span><span class="p">,</span> <span class="n">convention</span><span class="o">.</span><span class="n">short_flags</span>
+        <span class="p">)</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="n">MISSING</span>
+        <span class="n">extra</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">hints</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="n">_as_add_argument_kwargs</span><span class="p">(</span><span class="n">decode</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">hints</span><span class="p">[</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">POSITIONAL_ONLY</span><span class="p">,</span> <span class="n">param</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">):</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">ArgSpec</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">positional</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">by_name</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">OPTIONAL</span>
+            <span class="k">if</span> <span class="n">use_hints</span><span class="p">:</span>
+                <span class="c1"># `required=` is meaningless on a positional, so Optional[X]'s</span>
+                <span class="c1"># `required=False` is re-read as "an optional positional".</span>
+                <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"required"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">OPTIONAL</span>
+                <span class="k">if</span> <span class="n">by_name</span><span class="p">:</span>
+                    <span class="n">_drop_redundant_bool_type</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">param</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">:</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">ArgSpec</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">positional</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">by_name</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">MISSING</span><span class="p">:</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">use_hints</span><span class="p">:</span>
+                <span class="n">_drop_redundant_bool_type</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">param</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">param</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">:</span>
+            <span class="n">specs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ArgSpec</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">positional</span><span class="p">),</span> <span class="n">nargs</span><span class="o">=</span><span class="n">ZERO_OR_MORE</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="n">extra</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># VAR_KEYWORD contributes nothing at all. argh has no branch for it, so `**kwargs`</span>
+        <span class="c1"># is silently absent from the parser; cw reproduces the silence. Name the</span>
+        <span class="c1"># parameters you want on the command line, or hand them in through `config`.</span>
+
+    <span class="k">return</span> <span class="n">specs</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_drop_redundant_bool_type</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">ArgSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``type=bool`` + a ``bool`` default -&gt; drop the type; ``store_true`` supersedes it."""</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">default</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># The default-value guesser, and the finishing touches</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_guess_from_default</span><span class="p">(</span><span class="n">spec</span><span class="p">:</span> <span class="n">ArgSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""argh's second inference path: what the *default value* implies.</span>
+
+<span class="sd">    Four rules, in argh's own order and with argh's own guards:</span>
+
+<span class="sd">    ====================================  =================================</span>
+<span class="sd">    a ``bool`` default, on an option       ``store_false`` / ``store_true``</span>
+<span class="sd">    a ``list``/``tuple`` default           ``nargs='*'``</span>
+<span class="sd">    any other non-``None`` default         ``type=type(default)``</span>
+<span class="sd">    a ``choices`` with no type yet         ``type=type(choices[0])``</span>
+<span class="sd">    ====================================  =================================</span>
+
+<span class="sd">    ``bool=True`` becoming ``store_false`` is the one everybody trips on: a parameter</span>
+<span class="sd">    that defaults to on gets a flag that turns it *off*, keeping its own name. It is</span>
+<span class="sd">    reproduced because a fleet of scripts is written against it.</span>
+<span class="sd">    """</span>
+    <span class="n">guessed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">default</span>
+
+    <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">MISSING</span> <span class="ow">and</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="c1"># Not applicable to positionals: argparse's _StoreTrueAction takes no nargs.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">is_positional</span> <span class="ow">and</span> <span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"action"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">guessed</span><span class="p">[</span><span class="s2">"action"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"store_false"</span> <span class="k">if</span> <span class="n">default</span> <span class="k">else</span> <span class="s2">"store_true"</span>
+        <span class="k">elif</span> <span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="s2">"nargs"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extra</span><span class="p">:</span>
+                    <span class="n">guessed</span><span class="p">[</span><span class="s2">"nargs"</span><span class="p">]</span> <span class="o">=</span> <span class="n">ZERO_OR_MORE</span>
+            <span class="k">elif</span> <span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"action"</span><span class="p">,</span> <span class="s2">"store"</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"store"</span><span class="p">,</span> <span class="s2">"append"</span><span class="p">):</span>
+                <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
+
+    <span class="n">choices</span> <span class="o">=</span> <span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"choices"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">choices</span> <span class="ow">and</span> <span class="s2">"type"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">guessed</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">extra</span><span class="p">):</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">guessed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">finalise_spec</span><span class="p">(</span>
+    <span class="n">spec</span><span class="p">:</span> <span class="n">ArgSpec</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">parser_adds_help</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">default_in_help</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ArgSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The last three things argh does to every spec, in argh's order.</span>
+
+<span class="sd">    1. the default-value guesses land **over** the hint guesses (which is how a</span>
+<span class="sd">       ``nargs`` guessed from a list default beats an explicitly declared one -- argh's</span>
+<span class="sd">       quirk, reproduced);</span>
+<span class="sd">    2. an argument with no help gets ``'%(default)s'``, which</span>
+<span class="sd">       :class:`cw.base.ArghHelpFormatter` renders as ``repr(default)``;</span>
+<span class="sd">    3. ``-h`` is taken away from whoever inferred or declared it, because ``--help``</span>
+<span class="sd">       owns it. A parameter named ``host`` never gets a short flag.</span>
+
+<span class="sd">    &gt;&gt;&gt; finalise_spec(ArgSpec('host', ['-h', '--host'], default='localhost')).flags</span>
+<span class="sd">    ['--host']</span>
+<span class="sd">    """</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_guess_from_default</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">default_in_help</span> <span class="ow">and</span> <span class="s2">"help"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="p">:</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">"help"</span><span class="p">]</span> <span class="o">=</span> <span class="n">DFLT_HELP</span>
+    <span class="k">if</span> <span class="n">parser_adds_help</span> <span class="ow">and</span> <span class="s2">"-h"</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">flags</span><span class="p">:</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="n">flag</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">flags</span> <span class="k">if</span> <span class="n">flag</span> <span class="o">!=</span> <span class="s2">"-h"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">spec</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># The ladder</span>
+
+
+<div class="viewcode-block" id="specs_for_function">
+<a class="viewcode-back" href="../../module_docs/cw/grammar.html#cw.specs_for_function">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">specs_for_function</span><span class="p">(</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">decode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">parser_adds_help</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ArgSpec</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""The whole grammar: one function in, its command-line arguments out.</span>
+
+<span class="sd">    Four tiers, later wins, merged field-by-field per ADR-0003 (argh's</span>
+<span class="sd">    ``ParserAddArgumentSpec.update``, *not* ``dict.update``)::</span>
+
+<span class="sd">        1. signature inference     kind, default, name, flag spellings</span>
+<span class="sd">        2. hint inference          decode(param, hint)</span>
+<span class="sd">        3. function attribute      func._cw['params'][param]     (cw.compat.arg writes it)</span>
+<span class="sd">        4. config                  config[param]                 (this call's particulars)</span>
+
+<span class="sd">    Tier 2 is skipped entirely -- for *every* parameter of the function -- when tier 3 or</span>
+<span class="sd">    tier 4 is non-empty and ``convention.hints_when_declared`` is false. That is argh's</span>
+<span class="sd">    ``can_use_hints = not declared_args``: one override anywhere disables type inference</span>
+<span class="sd">    everywhere in that function. ADR-0003 extends "declared" to cover ``config`` too, so</span>
+<span class="sd">    that migrating an ``@argh.arg`` into a ``config`` entry does not silently switch hint</span>
+<span class="sd">    inference back on.</span>
+
+<span class="sd">    A ``config`` leaf of :data:`cw.HIDE` removes the argument from the command line while</span>
+<span class="sd">    leaving the parameter to its own default:</span>
+
+<span class="sd">    &gt;&gt;&gt; def serve(host='0.0.0.0', port=8080, pool=None):</span>
+<span class="sd">    ...     ...</span>
+<span class="sd">    &gt;&gt;&gt; [s.flags for s in specs_for_function(serve, config={'pool': HIDE})]</span>
+<span class="sd">    [['--host'], ['--port']]</span>
+
+<span class="sd">    (``--port`` and ``--pool`` share a first character, so neither gets a short flag, and</span>
+<span class="sd">    ``--host`` loses ``-h`` to ``--help``. Both rules are argh's.)</span>
+
+<span class="sd">    A ``config`` key naming no parameter is an error, not a silent no-op -- unless the</span>
+<span class="sd">    function takes ``**kwargs``, in which case the argument is added and delivered there</span>
+<span class="sd">    (argh's rule):</span>
+
+<span class="sd">    &gt;&gt;&gt; specs_for_function(serve, config={'prot': {'help': 'typo'}})</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    cw.grammar.GrammarError: serve: override for 'prot' matches no parameter. This</span>
+<span class="sd">    function's parameters are: host, port, pool</span>
+<span class="sd">    """</span>
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">convention</span> <span class="k">if</span> <span class="n">convention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_default_convention</span><span class="p">()</span>
+    <span class="n">declared</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"_cw"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"params"</span><span class="p">,</span> <span class="p">{}))</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="n">use_hints</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">hints_when_declared</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">declared</span> <span class="ow">or</span> <span class="n">config</span><span class="p">)</span>
+    <span class="n">specs</span> <span class="o">=</span> <span class="n">infer_specs</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="n">decode</span><span class="p">,</span> <span class="n">use_hints</span><span class="o">=</span><span class="n">use_hints</span><span class="p">)</span>
+    <span class="n">by_param</span> <span class="o">=</span> <span class="p">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="p">:</span> <span class="n">spec</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">}</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">by_param</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">tier</span> <span class="ow">in</span> <span class="p">(</span><span class="n">declared</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">override</span> <span class="ow">in</span> <span class="n">tier</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">param_name</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">override</span> <span class="ow">is</span> <span class="n">HIDE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">param_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">by_param</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">_no_such_parameter</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">by_param</span><span class="p">)</span>
+                <span class="n">by_param</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span><span class="o">.</span><span class="n">hidden</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">continue</span>
+            <span class="n">over</span> <span class="o">=</span> <span class="n">ArgSpec</span><span class="o">.</span><span class="n">from_override</span><span class="p">(</span><span class="n">param_name</span><span class="p">,</span> <span class="n">override</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">by_param</span><span class="p">:</span>
+                <span class="n">_check_same_kind</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">by_param</span><span class="p">[</span><span class="n">param_name</span><span class="p">],</span> <span class="n">over</span><span class="p">)</span>
+                <span class="n">by_param</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">over</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">_accepts_var_keyword</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">over</span><span class="o">.</span><span class="n">flags</span><span class="p">:</span>
+                    <span class="n">over</span><span class="o">.</span><span class="n">flags</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"--</span><span class="si">{</span><span class="n">cli_name</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+                <span class="n">by_param</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">over</span>
+                <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">_no_such_parameter</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">by_param</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">finalise_spec</span><span class="p">(</span>
+            <span class="n">by_param</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+            <span class="n">parser_adds_help</span><span class="o">=</span><span class="n">parser_adds_help</span><span class="p">,</span>
+            <span class="n">default_in_help</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">default_in_help</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">order</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">by_param</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">hidden</span>
+    <span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_accepts_var_keyword</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Does ``func`` take ``**kwargs``? Asked only when an override matches no parameter,</span>
+<span class="sd">    so the common path inspects the signature exactly once."""</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_no_such_parameter</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">by_param</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GrammarError</span><span class="p">:</span>
+    <span class="n">known</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">by_param</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"(none)"</span>
+    <span class="k">return</span> <span class="n">GrammarError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="s1">'__name__'</span><span class="p">,</span><span class="w"> </span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">: override for </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> matches no parameter. "</span>
+        <span class="sa">f</span><span class="s2">"This function's parameters are: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_same_kind</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">inferred</span><span class="p">:</span> <span class="n">ArgSpec</span><span class="p">,</span> <span class="n">override</span><span class="p">:</span> <span class="n">ArgSpec</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An override may refine an argument; it may not turn a positional into an option."""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">override</span><span class="o">.</span><span class="n">flags</span> <span class="ow">or</span> <span class="n">override</span><span class="o">.</span><span class="n">is_positional</span> <span class="o">==</span> <span class="n">inferred</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s2">"positional"</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s2">"an option"</span><span class="p">}</span>
+    <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span><span class="w"> </span><span class="s1">'__name__'</span><span class="p">,</span><span class="w"> </span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">inferred</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2"> is "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="p">[</span><span class="n">inferred</span><span class="o">.</span><span class="n">is_positional</span><span class="p">]</span><span class="si">}</span><span class="s2"> in the signature but "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="p">[</span><span class="n">override</span><span class="o">.</span><span class="n">is_positional</span><span class="p">]</span><span class="si">}</span><span class="s2"> in the override "</span>
+        <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">override</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span><span class="si">}</span><span class="s2">). Give the parameter a default value to make it "</span>
+        <span class="sa">f</span><span class="s2">"an option, or drop the leading dashes to make it positional."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_convention</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""``cw.ARGH``, imported late so that ``convention`` may import ``grammar``."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARGH</span>
+
+    <span class="k">return</span> <span class="n">ARGH</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

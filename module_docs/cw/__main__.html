@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.__main__ &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="cw.base" href="base.html" />
+    <link rel="prev" title="cw" href="../cw.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cw.html">cw</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">cw.__main__</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cw.__main__.COMMANDS"><code class="docutils literal notranslate"><span class="pre">COMMANDS</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.__main__.help_for"><code class="docutils literal notranslate"><span class="pre">help_for()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.__main__.parity"><code class="docutils literal notranslate"><span class="pre">parity()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.__main__.specs"><code class="docutils literal notranslate"><span class="pre">specs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">cw.__main__</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/module_docs/cw/__main__.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cw.__main__">
+<span id="cw-main"></span><h1>cw.__main__<a class="headerlink" href="#module-cw.__main__" title="Link to this heading"></a></h1>
+<p>cw’s own CLI, built with cw.</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">cw</span></code> is dogfood: every command below is a plain function, and the parser that
+serves them is <a class="reference internal" href="../cw.html#cw.dispatch" title="cw.dispatch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.dispatch()</span></code></a> on a mapping. If cw could not build its own CLI
+comfortably, that would be worth knowing before 66 fleet console scripts find out.</p>
+<p>Three commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cw</span> <span class="n">specs</span>  <span class="s1">'pkg.mod:func'</span>     <span class="c1"># the command-line arguments cw would build</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cw</span> <span class="n">help</span>   <span class="s1">'pkg.mod:func'</span>     <span class="c1"># the --help cw would print for it</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cw</span> <span class="n">parity</span>                    <span class="c1"># the one-command migration test</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">specs</span></code> is the one that earns its place day to day: it answers “what flags does this
+function actually get, and why did that one not get a short flag” without building, running
+or importing anybody’s <code class="docutils literal notranslate"><span class="pre">__main__</span></code>.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.__main__.COMMANDS">
+<span class="sig-prename descclassname"><span class="pre">cw.__main__.</span></span><span class="sig-name descname"><span class="pre">COMMANDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'help':</span> <span class="pre">&lt;function</span> <span class="pre">help_for&gt;,</span> <span class="pre">'parity':</span> <span class="pre">&lt;function</span> <span class="pre">parity&gt;,</span> <span class="pre">'specs':</span> <span class="pre">&lt;function</span> <span class="pre">specs&gt;}</span></span><a class="headerlink" href="#cw.__main__.COMMANDS" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">cw</span></code>’s command tree. A plain mapping, exactly like a fleet repo’s.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.__main__.help_for">
+<span class="sig-prename descclassname"><span class="pre">cw.__main__.</span></span><span class="sig-name descname"><span class="pre">help_for</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'argh'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/__main__.html#help_for"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.__main__.help_for" title="Link to this definition"></a></dt>
+<dd><p>Print the –help that cw would produce for a function.</p>
+<p>REF is a ‘pkg.mod:name’ reference, e.g. ‘json:dumps’.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.__main__.parity">
+<span class="sig-prename descclassname"><span class="pre">cw.__main__.</span></span><span class="sig-name descname"><span class="pre">parity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">goldens_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/__main__.html#parity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.__main__.parity" title="Link to this definition"></a></dt>
+<dd><p>Run the recorded-golden migration test (cw.testing).</p>
+<p>Its result is an exit code rather than something to print, so it is raised rather than
+returned – <cite>SystemExit</cite> is how a command says “this is the process’s answer”.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.__main__.specs">
+<span class="sig-prename descclassname"><span class="pre">cw.__main__.</span></span><span class="sig-name descname"><span class="pre">specs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'argh'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/__main__.html#specs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.__main__.specs" title="Link to this definition"></a></dt>
+<dd><p>Show the command-line arguments cw would build for a function.</p>
+<p>REF is a ‘pkg.mod:name’ reference, e.g. ‘json:dumps’.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cw.html" class="btn btn-neutral float-left" title="cw" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="base.html" class="btn btn-neutral float-right" title="cw.base" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

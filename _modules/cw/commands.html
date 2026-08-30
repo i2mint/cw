@@ -1,0 +1,418 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.commands &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.commands</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.commands</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Turning an object into the ``{name: callable}`` tree a parser is built from.</span>
+
+<span class="sd">A function, a list, a mapping, a module, an instance, or a ``'pkg.mod:name'`` reference --</span>
+<span class="sd">each has one meaning, and the meaning is decided by **the value, not by a string DSL**:</span>
+
+<span class="sd">======================================  ===================================================</span>
+<span class="sd">``obj``                                 becomes</span>
+<span class="sd">======================================  ===================================================</span>
+<span class="sd">any callable                            **one command**, with no command word at all</span>
+<span class="sd">``[f, g]`` -- any iterable              commands named from each ``__name__``</span>
+<span class="sd">``{'name': f}`` -- a mapping            commands named **by the key**</span>
+<span class="sd">``{'grp': &lt;any of the above&gt;}``         a **group**: a mapping or iterable *value* is a</span>
+<span class="sd">                                        group, a callable value is a command</span>
+<span class="sd">a module, or any other object           its public callable attributes; ``__all__``, if</span>
+<span class="sd">                                        present, is the name list</span>
+<span class="sd">``'pkg.mod:name'`` -- a string          **always exactly one command**, imported lazily</span>
+<span class="sd">======================================  ===================================================</span>
+
+<span class="sd">Grouping is exactly one level deep -- argh's limit, and the fleet's only two group users</span>
+<span class="sd">(``t/xa`` and ``t/priv``) need exactly one.</span>
+
+<span class="sd">&gt;&gt;&gt; def ls(path='.'): ...</span>
+<span class="sd">&gt;&gt;&gt; def rm(path): ...</span>
+<span class="sd">&gt;&gt;&gt; commands_from([ls, rm])</span>
+<span class="sd">{'ls': &lt;function ls at ...&gt;, 'rm': &lt;function rm at ...&gt;}</span>
+
+<span class="sd">**The rule that makes ``t/priv`` work: a name from a mapping key or an ``__all__`` entry</span>
+<span class="sd">wins over the function's own ``__name__``**, and then has ``hyphenate_commands`` applied to</span>
+<span class="sd">it like any other derived name. It is hardcoded and not configurable, because making it a</span>
+<span class="sd">switch reintroduces exactly the ambiguity that produces the wrong name today:</span>
+
+<span class="sd">&gt;&gt;&gt; import functools</span>
+<span class="sd">&gt;&gt;&gt; def packages_from_all_projects(project=None, *, config_type='setup.cfg'): ...</span>
+<span class="sd">&gt;&gt;&gt; partial = functools.partial(packages_from_all_projects, config_type='setup.cfg')</span>
+<span class="sd">&gt;&gt;&gt; list(commands_from({'packages_from_all_setup_cfgs': partial}))</span>
+<span class="sd">['packages-from-all-setup-cfgs']</span>
+
+<span class="sd">That is the correct name, and it was in the package's ``__all__`` the whole time. Deriving</span>
+<span class="sd">it from the ``functools.partial`` instead gives ``packages-from-all-projects`` -- a command</span>
+<span class="sd">that describes a different function -- which is what the live CLI registers today and what</span>
+<span class="sd">``i2.name_of_obj`` also returns.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="n">cli_name</span><span class="p">,</span> <span class="n">command_name</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"commands_from"</span><span class="p">,</span> <span class="s2">"import_object"</span><span class="p">,</span> <span class="s2">"CommandTreeError"</span><span class="p">]</span>
+
+<span class="c1">#: The separator in a lazy object reference: ``'pkg.mod:name'``.</span>
+<span class="n">REF_SEPARATOR</span> <span class="o">=</span> <span class="s2">":"</span>
+
+<span class="c1">#: How deep a command tree may nest. argh's limit, and the fleet's need.</span>
+<span class="n">MAX_GROUP_DEPTH</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="c1">#: A tree value: a command, or (one level down) a group of them.</span>
+<span class="n">CommandTree</span> <span class="o">=</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="CommandTreeError">
+<a class="viewcode-back" href="../../module_docs/cw/commands.html#cw.CommandTreeError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandTreeError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``obj`` does not describe a command tree, and guessing would ship a wrong CLI."""</span></div>
+
+
+
+<div class="viewcode-block" id="import_object">
+<a class="viewcode-back" href="../../module_docs/cw/commands.html#cw.import_object">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">import_object</span><span class="p">(</span><span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``'pkg.mod:name'`` -&gt; the object, imported now.</span>
+
+<span class="sd">    The house spelling -- ``py2mcp.mk_mcp_from_refs(['pkg.tools:verb'])`` uses the same</span>
+<span class="sd">    one. The colon is required: it is what separates the module path from the attribute</span>
+<span class="sd">    path without guessing where one ends.</span>
+
+<span class="sd">    &gt;&gt;&gt; import_object('collections:OrderedDict')</span>
+<span class="sd">    &lt;class 'collections.OrderedDict'&gt;</span>
+<span class="sd">    &gt;&gt;&gt; import_object('json:JSONDecoder.decode')                # doctest: +ELLIPSIS</span>
+<span class="sd">    &lt;function JSONDecoder.decode at ...&gt;</span>
+<span class="sd">    &gt;&gt;&gt; import_object('collections.OrderedDict')</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    ValueError: bad object reference 'collections.OrderedDict': expected 'pkg.mod:name',</span>
+<span class="sd">    with a colon between the module and the attribute.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">REF_SEPARATOR</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ref</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"bad object reference </span><span class="si">{</span><span class="n">ref</span><span class="si">!r}</span><span class="s2">: expected 'pkg.mod:name', with a colon "</span>
+            <span class="s2">"between the module and the attribute."</span>
+        <span class="p">)</span>
+    <span class="n">module_name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">attribute_path</span> <span class="o">=</span> <span class="n">ref</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="n">REF_SEPARATOR</span><span class="p">)</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attribute</span> <span class="ow">in</span> <span class="n">attribute_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attribute</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">obj</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_command</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Is this tree value a command (rather than a group)?</span>
+
+<span class="sd">    The discriminator, in one place: a callable value is a command, and a mapping or other</span>
+<span class="sd">    iterable value is a group. It is structural, so a ``functools.partial`` and a callable</span>
+<span class="sd">    instance -- both of which crash argh -- are simply commands.</span>
+
+<span class="sd">    &gt;&gt;&gt; is_command(print), is_command([print]), is_command({'a': print})</span>
+<span class="sd">    (True, False, False)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Mapping</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_public_callables</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A module's or an instance's public callable attributes, ``__all__`` first.</span>
+
+<span class="sd">    Two filters, both there to stop a CLI from sprouting commands nobody wrote. Classes</span>
+<span class="sd">    are excluded, and -- for a module with no ``__all__`` -- so is anything defined</span>
+<span class="sd">    elsewhere, or every ``from x import y`` at the top of the module would become a</span>
+<span class="sd">    command.</span>
+<span class="sd">    """</span>
+    <span class="n">declared</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"__all__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="n">declared</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">declared</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">home</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismodule</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">or</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">declared</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">home</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"__module__"</span><span class="p">,</span> <span class="n">home</span><span class="p">)</span> <span class="o">!=</span> <span class="n">home</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="n">found</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">found</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_label</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``module.qualname`` for a callable, so a collision message names both sides."""</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"__module__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">qualname</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"__qualname__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">qualname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">module</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">qualname</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">module</span> <span class="k">else</span> <span class="n">qualname</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_put</span><span class="p">(</span><span class="n">tree</span><span class="p">:</span> <span class="n">CommandTree</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add one command to ``tree``, refusing to overwrite a name already taken.</span>
+
+<span class="sd">    argh raises ``ArgumentError: conflicting subparser`` for this; cw used to keep the last</span>
+<span class="sd">    one, so ``dispatch([run_a, run_b])`` -- two functions imported from different modules</span>
+<span class="sd">    that happen to share a ``__name__``, or an ``__all__`` listing a name twice -- silently</span>
+<span class="sd">    lost a command and ran the wrong one with exit 0. A crash is strictly better than a</span>
+<span class="sd">    wrong answer, and this is the one place a derived name is written down.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CommandTreeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"two commands are both called </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">_label</span><span class="p">(</span><span class="n">tree</span><span class="p">[</span><span class="n">name</span><span class="p">])</span><span class="si">}</span><span class="s2"> and "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_label</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">. argh refuses this too (`conflicting subparser`). Name them "</span>
+            <span class="s2">"apart with the mapping form -- cw.dispatch({'run-a': first, 'run-b': "</span>
+            <span class="s2">"second}) -- or put them in different groups."</span>
+        <span class="p">)</span>
+    <span class="n">tree</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_named</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convention</span><span class="p">,</span> <span class="n">group</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One naming function for derived names, mapping keys and group names alike.</span>
+
+<span class="sd">    A key does not win *verbatim*: it wins over ``__name__``, and is then hyphenated by the</span>
+<span class="sd">    same rule as any other name, which is the only reading under which ``'gen-secret'``,</span>
+<span class="sd">    ``'list'`` and ``'parse_pth_paths'`` all come out right at once.</span>
+<span class="sd">    """</span>
+    <span class="n">hyphenate</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">hyphenate_groups</span> <span class="k">if</span> <span class="n">group</span> <span class="k">else</span> <span class="n">convention</span><span class="o">.</span><span class="n">hyphenate_commands</span>
+    <span class="k">return</span> <span class="n">cli_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="n">hyphenate</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="commands_from">
+<a class="viewcode-back" href="../../module_docs/cw/commands.html#cw.commands_from">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">commands_from</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandTree</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``obj`` -&gt; ``{name: callable}``, with a nested mapping for each group.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: Any of the six forms in this module's docstring.</span>
+<span class="sd">        convention: Supplies ``hyphenate_commands`` and ``hyphenate_groups``. Defaults to</span>
+<span class="sd">            :data:`cw.ARGH`.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A mapping of command-line name to callable, whose values may themselves be such a</span>
+<span class="sd">        mapping -- one level deep, no further.</span>
+
+<span class="sd">    A mapping value that is itself a mapping or a list is a group, which is how ``t/xa``</span>
+<span class="sd">    gets two different commands both called ``list``:</span>
+
+<span class="sd">    &gt;&gt;&gt; def list_cmd(): ...</span>
+<span class="sd">    &gt;&gt;&gt; def archive_list_cmd(): ...</span>
+<span class="sd">    &gt;&gt;&gt; tree = commands_from({'list': list_cmd,</span>
+<span class="sd">    ...                       'archive': {'list': archive_list_cmd}})</span>
+<span class="sd">    &gt;&gt;&gt; {name: sorted(value) if isinstance(value, dict) else value.__name__</span>
+<span class="sd">    ...  for name, value in tree.items()}</span>
+<span class="sd">    {'list': 'list_cmd', 'archive': ['list']}</span>
+
+<span class="sd">    Group names are **verbatim** under :data:`cw.ARGH` -- ``priv git_ops`` is a string in</span>
+<span class="sd">    priv's own README -- and hyphenated under :data:`cw.MODERN`:</span>
+
+<span class="sd">    &gt;&gt;&gt; import cw</span>
+<span class="sd">    &gt;&gt;&gt; def g(): ...</span>
+<span class="sd">    &gt;&gt;&gt; list(commands_from({'git_ops': [g]}))</span>
+<span class="sd">    ['git_ops']</span>
+<span class="sd">    &gt;&gt;&gt; list(commands_from({'git_ops': [g]}, convention=cw.MODERN))</span>
+<span class="sd">    ['git-ops']</span>
+
+<span class="sd">    A zero-argument factory that *returns* commands is not called for you, because there is</span>
+<span class="sd">    no way to tell one from a command that happens to take no arguments -- and Python</span>
+<span class="sd">    already has parentheses:</span>
+
+<span class="sd">    &gt;&gt;&gt; def dispatch_funcs():</span>
+<span class="sd">    ...     return [g]</span>
+<span class="sd">    &gt;&gt;&gt; list(commands_from({'git_ops': dispatch_funcs()}))</span>
+<span class="sd">    ['git_ops']</span>
+
+<span class="sd">    A list of attribute *names* -- ``priv.__all__`` is 47 strings -- is refused, with the</span>
+<span class="sd">    two spellings that do work:</span>
+
+<span class="sd">    &gt;&gt;&gt; commands_from(['ls', 'rm'])</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    cw.commands.CommandTreeError: 'ls' is a string, and a list of strings is ambiguous: it</span>
+<span class="sd">    could be attribute names or object references. Pass the module itself (its __all__ is</span>
+<span class="sd">    used), or spell the mapping: {name: getattr(module, name) for name in module.__all__}.</span>
+<span class="sd">    """</span>
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">convention</span> <span class="k">if</span> <span class="n">convention</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_default_convention</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">import_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_command</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">command_name</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">hyphenate_commands</span><span class="p">):</span> <span class="n">obj</span><span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_from_mapping</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">_depth</span><span class="o">=</span><span class="n">_depth</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_from_iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">ismodule</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"__dict__"</span><span class="p">):</span>
+        <span class="n">tree</span><span class="p">:</span> <span class="n">CommandTree</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">_public_callables</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">_put</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">_named</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tree</span>
+    <span class="k">raise</span> <span class="n">CommandTreeError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"cannot derive commands from </span><span class="si">{</span><span class="n">obj</span><span class="si">!r}</span><span class="s2">: it is not a callable, a mapping, an "</span>
+        <span class="s2">"iterable of callables, a module, or a 'pkg.mod:name' reference."</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_mapping</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convention</span><span class="p">,</span> <span class="n">_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandTree</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Each key names its value: a command if the value is callable, a group otherwise."""</span>
+    <span class="n">tree</span><span class="p">:</span> <span class="n">CommandTree</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">import_object</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_command</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">_put</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">_named</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_depth</span> <span class="o">&gt;=</span> <span class="n">MAX_GROUP_DEPTH</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CommandTreeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"group </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> is nested more than </span><span class="si">{</span><span class="n">MAX_GROUP_DEPTH</span><span class="si">}</span><span class="s2"> level deep. argh "</span>
+                <span class="s2">"supports one level of grouping and so does cw; flatten the inner group, "</span>
+                <span class="s2">"or give its commands longer names."</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_put</span><span class="p">(</span>
+                <span class="n">tree</span><span class="p">,</span>
+                <span class="n">_named</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                <span class="n">commands_from</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">_depth</span><span class="o">=</span><span class="n">_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">tree</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_from_iterable</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convention</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandTree</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Each member names itself. A string member is refused rather than guessed at."""</span>
+    <span class="n">tree</span><span class="p">:</span> <span class="n">CommandTree</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">CommandTreeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> is a string, and a list of strings is ambiguous: it could be "</span>
+                <span class="s2">"attribute names or object references. Pass the module itself (its "</span>
+                <span class="s2">"__all__ is used), or spell the mapping: "</span>
+                <span class="s2">"{name: getattr(module, name) for name in module.__all__}."</span>
+            <span class="p">)</span>
+        <span class="n">_put</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">command_name</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">hyphenate_commands</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tree</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_convention</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">""":data:`cw.ARGH`, imported late so that ``convention`` may import this module."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARGH</span>
+
+    <span class="k">return</span> <span class="n">ARGH</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

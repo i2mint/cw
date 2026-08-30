@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.compat &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.compat</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.compat</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Transitional argh shim: a one-line import change retires a repo.</span>
+
+<span class="sd">**Deprecated from day one.** This module exists so that a repo can stop depending on</span>
+<span class="sd">LGPL-3.0-or-later ``argh`` *today*, in a diff a reviewer can read in one glance::</span>
+
+<span class="sd">    -import argh</span>
+<span class="sd">    +from cw import compat as argh</span>
+
+<span class="sd">and then migrate to cw's real API on its own schedule. New code should never import it.</span>
+<span class="sd">Every name warns once, on first use; ``CW_COMPAT_QUIET=1`` silences the lot for a repo that</span>
+<span class="sd">has decided to live here for a while.</span>
+
+<span class="sd">The surface is the fleet's entire *measured* argh usage -- nothing speculative:</span>
+<span class="sd">``dispatch_commands`` 34 · ``dispatch_command`` 30 · ``ArghParser`` 27 · ``dispatch`` 19 ·</span>
+<span class="sd">``arg`` 17 · ``add_commands`` 15 · ``NameMappingPolicy`` 4 · ``CommandError`` 4 ·</span>
+<span class="sd">``completion`` 2 · ``confirm`` 1, plus ``set_default_command``.</span>
+
+<span class="sd">Every function here is **three statements or fewer**. That is the design gauge, not a</span>
+<span class="sd">coding-style preference: :func:`arg` is thin *because* cw's merge ladder already has a</span>
+<span class="sd">function-attribute tier for it to write into, and if ``@arg`` had needed real work, the</span>
+<span class="sd">ladder would have been in the wrong shape. The one function with a body worth reading is</span>
+<span class="sd">:func:`dispatch`, and everything in it is argh-compatibility, not cw.</span>
+
+<span class="sd">Four things this shim does **not** do, each of which a literal reading of argh's signatures</span>
+<span class="sd">would have got wrong:</span>
+
+<span class="sd">1. **It does not swallow argparse's exit code.** ``argh.dispatch_commands`` is typed</span>
+<span class="sd">   ``-&gt; None``, but in argh the ``SystemExit(2)`` from a usage error propagates out of</span>
+<span class="sd">   ``main()``. ``cw.dispatch`` *returns* that 2 instead, so a literal ``-&gt; None`` shim</span>
+<span class="sd">   would make every migrated console script exit **0** on a bad command line -- across 64</span>
+<span class="sd">   dispatch-style call sites, breaking any CI step that checks ``$?``. These shims re-raise</span>
+<span class="sd">   a non-zero code.</span>
+<span class="sd">2. **It does not bind ``sys.stdout`` in a signature default.** argh's</span>
+<span class="sd">   ``output_file: IO = sys.stdout`` is bound at import (``dispatching.py:77``), which is why</span>
+<span class="sd">   ``redirect_stdout`` and pytest's ``capsys`` capture nothing from an argh CLI. That is the</span>
+<span class="sd">   single worst defect in argh's dispatch surface, and putting it back into the shim that</span>
+<span class="sd">   19 call sites will use would be an odd thing to do. Streams resolve at call time.</span>
+<span class="sd">3. **It does not forward argh's dispatch keywords to ``ArgumentParser``.** They are split</span>
+<span class="sd">   out explicitly (:data:`_ARGH_DISPATCH_KWARGS`), or ``dispatch_commands(...,</span>
+<span class="sd">   output_file=f)`` would raise ``TypeError: ArgumentParser.__init__() got an unexpected</span>
+<span class="sd">   keyword argument``.</span>
+<span class="sd">4. **It accepts BOTH ``group_name=`` and ``namespace=``.** argh 0.30 renamed the keyword</span>
+<span class="sd">   with no alias, leaving four fleet call sites passing something nothing reads. Accepting</span>
+<span class="sd">   both revives them -- a change from "would crash" to "works", which is worth knowing</span>
+<span class="sd">   about before you run one.</span>
+
+<span class="sd">And one thing it deliberately refuses to do: ``named``, ``aliases`` and ``add_subcommands``</span>
+<span class="sd">have zero uses anywhere in the fleet and are **not** shipped. A module ``__getattr__``</span>
+<span class="sd">raises an informative error instead. ``named`` in particular was specified as a shim that</span>
+<span class="sd">writes ``func._cw['name']`` -- which nothing reads, so it would silently do nothing, which</span>
+<span class="sd">is worse than the :class:`AttributeError` it existed to prevent.</span>
+
+<span class="sd">**One trap the shim structurally cannot fix**, and which belongs on every migration</span>
+<span class="sd">checklist: ``from argh import CommandError``. A module that imported the *name* rather than</span>
+<span class="sd">the module still imports argh after the one-line change, and cw will not catch an exception</span>
+<span class="sd">class it has never heard of, so ``CommandError: boom`` / exit 1 becomes an unhandled</span>
+<span class="sd">traceback. Grep for it.</span>
+
+<span class="sd">&gt;&gt;&gt; import io</span>
+<span class="sd">&gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">&gt;&gt;&gt; def hello(name, *, loudly=False):</span>
+<span class="sd">...     '''Greet someone.'''</span>
+<span class="sd">...     return f'HELLO {name}' if loudly else f'hello {name}'</span>
+<span class="sd">&gt;&gt;&gt; argh.dispatch_command(hello, ['world'], output_file=io.StringIO())</span>
+<span class="sd">&gt;&gt;&gt; argh.dispatch_command(hello, ['world'], output_file=None)</span>
+<span class="sd">'hello world\\n'</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">MISSING</span><span class="p">,</span> <span class="n">ArghHelpFormatter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_commands</span> <span class="k">as</span> <span class="n">_cw_add_commands</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch</span> <span class="k">as</span> <span class="n">_cw_dispatch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">mk_parser</span> <span class="k">as</span> <span class="n">_cw_mk_parser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">run</span> <span class="k">as</span> <span class="n">_cw_run</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_default_command</span> <span class="k">as</span> <span class="n">_cw_set_default_command</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"ArghParser"</span><span class="p">,</span>
+    <span class="s2">"CommandError"</span><span class="p">,</span>
+    <span class="s2">"NameMappingPolicy"</span><span class="p">,</span>
+    <span class="s2">"add_commands"</span><span class="p">,</span>
+    <span class="s2">"arg"</span><span class="p">,</span>
+    <span class="s2">"completion"</span><span class="p">,</span>
+    <span class="s2">"confirm"</span><span class="p">,</span>
+    <span class="s2">"dispatch"</span><span class="p">,</span>
+    <span class="s2">"dispatch_command"</span><span class="p">,</span>
+    <span class="s2">"dispatch_commands"</span><span class="p">,</span>
+    <span class="s2">"set_default_command"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: argh's expected-failure exception, which is cw's. Not an alias to keep around: it is the</span>
+<span class="c1">#: same class, so ``except argh.CommandError`` in migrated code catches what cw raises.</span>
+<span class="n">CommandError</span> <span class="o">=</span> <span class="n">cw</span><span class="o">.</span><span class="n">CommandError</span>
+
+<span class="c1">#: The environment variable that silences this module's deprecation warnings. A repo living</span>
+<span class="c1">#: in Wave 0 for a while sets it once rather than filtering warnings at every entry point.</span>
+<span class="n">QUIET_ENV</span> <span class="o">=</span> <span class="s2">"CW_COMPAT_QUIET"</span>
+
+<span class="c1">#: argh's ``dispatch`` keywords, which are **not** ``ArgumentParser`` keywords. Forwarding</span>
+<span class="c1">#: ``**kw`` blindly to :func:`cw.dispatch` -- whose own ``**parser_kwargs`` go straight to</span>
+<span class="c1">#: ``ArgumentParser`` -- would turn any one of them into a ``TypeError``. Zero fleet call</span>
+<span class="c1">#: sites pass one today, but argh's own signature accepts them all, so a migration must not</span>
+<span class="c1">#: be the thing that discovers it.</span>
+<span class="n">_ARGH_DISPATCH_KWARGS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"add_help_command"</span><span class="p">,</span>
+    <span class="s2">"always_flush"</span><span class="p">,</span>
+    <span class="s2">"completion"</span><span class="p">,</span>
+    <span class="s2">"errors_file"</span><span class="p">,</span>
+    <span class="s2">"namespace"</span><span class="p">,</span>
+    <span class="s2">"output_file"</span><span class="p">,</span>
+    <span class="s2">"raw_output"</span><span class="p">,</span>
+    <span class="s2">"skip_unknown_args"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Names already warned about, so each one warns once per process rather than once per call.</span>
+<span class="n">_WARNED</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="NameMappingPolicy">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.NameMappingPolicy">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">NameMappingPolicy</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""argh's naming policy, **exported** -- which argh itself never did.</span>
+
+<span class="sd">    ``hasattr(argh, 'NameMappingPolicy')`` is ``False``, so</span>
+<span class="sd">    ``illustration/__main__.py:23``'s ``getattr`` guard is a permanent silent no-op and</span>
+<span class="sd">    ``ir/__main__.py:19-34`` needs a triple-nested try/except to reach it. Both work</span>
+<span class="sd">    against this.</span>
+
+<span class="sd">    The values are cw's :data:`cw.Convention` ``naming`` strings, so a policy passed here</span>
+<span class="sd">    reaches cw without a translation table in between.</span>
+
+<span class="sd">    &gt;&gt;&gt; NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT.value</span>
+<span class="sd">    'by_name_if_has_default'</span>
+<span class="sd">    """</span>
+
+    <span class="n">BY_NAME_IF_HAS_DEFAULT</span> <span class="o">=</span> <span class="n">cw</span><span class="o">.</span><span class="n">BY_NAME_IF_HAS_DEFAULT</span>
+    <span class="n">BY_NAME_IF_KWONLY</span> <span class="o">=</span> <span class="n">cw</span><span class="o">.</span><span class="n">BY_NAME_IF_KWONLY</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_deprecated</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Warn once, on first use, that ``func`` is transitional. Silenced by the env var.</span>
+
+<span class="sd">    A decorator rather than a line in each body, so "every shim is three statements" stays</span>
+<span class="sd">    a statement about the shims and not about how they were counted.</span>
+<span class="sd">    """</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_WARNED</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">QUIET_ENV</span><span class="p">):</span>
+            <span class="n">_WARNED</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"cw.compat.</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is a transitional argh shim. Migrate to cw's "</span>
+                <span class="sa">f</span><span class="s2">"own API (see cw.dispatch); set </span><span class="si">{</span><span class="n">QUIET_ENV</span><span class="si">}</span><span class="s2">=1 to silence this."</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convention_for</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The :data:`cw.Convention` an argh ``name_mapping_policy`` asks for.</span>
+
+<span class="sd">    ``None`` means argh's dispatch default, which is cw's default too -- that asymmetry</span>
+<span class="sd">    (argh's ``dispatch_*`` defaults the policy while ``add_commands`` does not) is exactly</span>
+<span class="sd">    what cw removes by having one default everywhere.</span>
+
+<span class="sd">    &gt;&gt;&gt; _convention_for(None) is cw.ARGH</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _convention_for(NameMappingPolicy.BY_NAME_IF_KWONLY).naming</span>
+<span class="sd">    'by_name_if_kwonly'</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+
+    <span class="k">if</span> <span class="n">name_mapping_policy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cw</span><span class="o">.</span><span class="n">ARGH</span>
+    <span class="n">naming</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="n">name_mapping_policy</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">ARGH</span><span class="p">,</span> <span class="n">naming</span><span class="o">=</span><span class="n">naming</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``(argh dispatch kwargs, ArgumentParser kwargs)`` -- repair 3 above.</span>
+
+<span class="sd">    &gt;&gt;&gt; _split_kwargs({'output_file': None, 'prog': 'x'})</span>
+<span class="sd">    ({'output_file': None}, {'prog': 'x'})</span>
+<span class="sd">    """</span>
+    <span class="n">mine</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_ARGH_DISPATCH_KWARGS</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">mine</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_ARGH_DISPATCH_KWARGS</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_finish</span><span class="p">(</span><span class="n">code</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">captured</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""What an argh dispatch entry point returns, and how it exits -- repairs 1 and 2.</span>
+
+<span class="sd">    ``output_file=None`` means "give me the string" (argh's own documented behaviour), and</span>
+<span class="sd">    anything else means "this is a console script": return ``None``, but let a non-zero</span>
+<span class="sd">    exit code out, because that is what argh's propagating ``SystemExit`` did and what</span>
+<span class="sd">    every CI step checking ``$?`` is relying on.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">captured</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">captured</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_with_streams</span><span class="p">(</span><span class="n">build</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">argh_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Build a parser, run it, and honour argh's stream keywords. The shim's one body.</span>
+
+<span class="sd">    ``output_file=None`` is argh's "return the string instead of printing" mode, spelled</span>
+<span class="sd">    here as a :class:`io.StringIO` that :func:`_finish` reads back.</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">argh_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"output_file"</span><span class="p">,</span> <span class="n">MISSING</span><span class="p">)</span>
+    <span class="n">captured</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span> <span class="k">if</span> <span class="n">output_file</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">_cw_run</span><span class="p">(</span>
+        <span class="n">build</span><span class="p">(),</span>
+        <span class="n">argv</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="n">captured</span> <span class="k">if</span> <span class="n">captured</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_stream_or_none</span><span class="p">(</span><span class="n">output_file</span><span class="p">),</span>
+        <span class="n">err</span><span class="o">=</span><span class="n">_stream_or_none</span><span class="p">(</span><span class="n">argh_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"errors_file"</span><span class="p">,</span> <span class="n">MISSING</span><span class="p">)),</span>
+        <span class="n">completion</span><span class="o">=</span><span class="n">argh_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"completion"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_finish</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">captured</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream_or_none</span><span class="p">(</span><span class="n">given</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``None`` for "cw, resolve this at call time", else the stream the caller passed.</span>
+
+<span class="sd">    :data:`cw.MISSING` is what "the caller said nothing" looks like, and it must not become</span>
+<span class="sd">    ``sys.stdout`` here -- resolving it now is precisely the argh defect repair 2 is about.</span>
+
+<span class="sd">    &gt;&gt;&gt; _stream_or_none(MISSING) is None</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">given</span> <span class="ow">is</span> <span class="n">MISSING</span> <span class="k">else</span> <span class="n">given</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># The eleven names</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<div class="viewcode-block" id="dispatch">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.dispatch">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""argh's ``dispatch``: run a parser that already has its commands.</span>
+
+<span class="sd">    Accepts argh's ``output_file`` / ``errors_file`` / ``completion`` and the four keywords</span>
+<span class="sd">    that were verified to have zero fleet uses, so a call site that passes one gets cw's</span>
+<span class="sd">    behaviour rather than a ``TypeError``. ``output_file=None`` returns the output string.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; parser = argh.ArghParser(prog='demo')</span>
+<span class="sd">    &gt;&gt;&gt; def ping():</span>
+<span class="sd">    ...     return 'pong'</span>
+<span class="sd">    &gt;&gt;&gt; parser.add_commands([ping])</span>
+<span class="sd">    &gt;&gt;&gt; parser.dispatch(['ping'], output_file=None)</span>
+<span class="sd">    'pong\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">argh_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">_reject</span><span class="p">(</span><span class="n">parser_kwargs</span><span class="p">,</span> <span class="s2">"dispatch"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_run_with_streams</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">parser</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="n">argh_kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dispatch_commands">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.dispatch_commands">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_commands</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""argh's ``dispatch_commands``: build a parser for ``functions`` and run it.</span>
+
+<span class="sd">    The fleet's most-used argh name (34 call sites). Unlike argh's, a usage error still</span>
+<span class="sd">    exits 2 rather than 0.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; def add(a: int, b: int):</span>
+<span class="sd">    ...     return a + b</span>
+<span class="sd">    &gt;&gt;&gt; argh.dispatch_commands([add], ['add', '2', '3'], output_file=None)</span>
+<span class="sd">    '5\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">argh_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"name_mapping_policy"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_run_with_streams</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">_cw_mk_parser</span><span class="p">(</span>
+            <span class="n">functions</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">policy</span><span class="p">),</span> <span class="o">**</span><span class="n">parser_kwargs</span>
+        <span class="p">),</span>
+        <span class="n">argv</span><span class="p">,</span>
+        <span class="n">argh_kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="dispatch_command">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.dispatch_command">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_command</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""argh's ``dispatch_command``: one function, no command word.</span>
+
+<span class="sd">    ``old_name_mapping_policy`` is accepted and ignored, as it is in argh when it is</span>
+<span class="sd">    ``True`` -- which is the only value any fleet call site passes, and is cw's default</span>
+<span class="sd">    everywhere.</span>
+<span class="sd">    """</span>
+    <span class="n">argh_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">policy</span> <span class="o">=</span> <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"name_mapping_policy"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_run_with_streams</span><span class="p">(</span>
+        <span class="k">lambda</span><span class="p">:</span> <span class="n">_cw_mk_parser</span><span class="p">(</span>
+            <span class="n">function</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">policy</span><span class="p">),</span> <span class="o">**</span><span class="n">parser_kwargs</span>
+        <span class="p">),</span>
+        <span class="n">argv</span><span class="p">,</span>
+        <span class="n">argh_kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="add_commands">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.add_commands">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_commands</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span>
+    <span class="n">functions</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">name_mapping_policy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">group_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">func_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""argh's ``add_commands``, accepting the pre-0.30 spelling as well.</span>
+
+<span class="sd">    ``namespace=`` / ``namespace_kwargs=`` were renamed to ``group_name=`` /</span>
+<span class="sd">    ``group_kwargs=`` in argh 0.30 with no alias, which left ``wads/__init__.py:98``,</span>
+<span class="sd">    ``hedger/__main__.py:26``, ``ke/__main__.py:24`` and ``ek/__main__.py:24`` passing a</span>
+<span class="sd">    keyword nothing reads. Accepting both makes those four call sites work -- flag it in</span>
+<span class="sd">    the migration notes, because "would crash" becoming "works" is still a change.</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse</span>
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; def status():</span>
+<span class="sd">    ...     '''Say how things are.'''</span>
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='priv')</span>
+<span class="sd">    &gt;&gt;&gt; argh.add_commands(parser, [status], namespace='git_ops')</span>
+<span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
+<span class="sd">    'usage: priv [-h] {git_ops} ...\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">_reject_func_kwargs</span><span class="p">(</span><span class="n">func_kwargs</span><span class="p">)</span>
+    <span class="n">_cw_add_commands</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span>
+        <span class="n">functions</span><span class="p">,</span>
+        <span class="n">group_name</span><span class="o">=</span><span class="n">group_name</span><span class="p">,</span>
+        <span class="n">namespace</span><span class="o">=</span><span class="n">namespace</span><span class="p">,</span>
+        <span class="n">group_kwargs</span><span class="o">=</span><span class="n">group_kwargs</span><span class="p">,</span>
+        <span class="n">namespace_kwargs</span><span class="o">=</span><span class="n">namespace_kwargs</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_default_command">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.set_default_command">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_default_command</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">name_mapping_policy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""argh's ``set_default_command``: make ``function`` the parser's only command."""</span>
+    <span class="n">_cw_set_default_command</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="arg">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.arg">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">arg</span><span class="p">(</span><span class="o">*</span><span class="n">flags</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">add_argument_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""argh's ``@arg``: declare one argument's particulars on the function itself.</span>
+
+<span class="sd">    Three statements, because cw's merge ladder already has a function-attribute tier</span>
+<span class="sd">    (``func._cw['params'][param]``) for this to write into. ``_cw`` is a plain attribute on</span>
+<span class="sd">    purpose: it is the documented contract, and it is what lets a repo declare CLI details</span>
+<span class="sd">    without importing cw at all.</span>
+
+<span class="sd">    Not deprecated by a warning, unlike the rest of this module -- it is a decorator</span>
+<span class="sd">    evaluated at import time, so warning on it would fire before anybody could act, and it</span>
+<span class="sd">    is the one name here whose target (a plain attribute) is a supported cw contract rather</span>
+<span class="sd">    than a shim.</span>
+
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; @argh.arg('-i', '--ignore', nargs='*')</span>
+<span class="sd">    ... def quickstart(project_dir, *, ignore=None):</span>
+<span class="sd">    ...     '''Start a project.'''</span>
+<span class="sd">    &gt;&gt;&gt; quickstart._cw['params']['ignore']</span>
+<span class="sd">    {'nargs': '*', 'flags': ['-i', '--ignore']}</span>
+
+<span class="sd">    Two argh keywords are *not* ``add_argument`` keywords and are handled the way argh</span>
+<span class="sd">    handles them. ``dest=`` says which parameter a differently-spelt flag refers to</span>
+<span class="sd">    (``argh/decorators.py:143-146``), so it decides the key rather than being passed on:</span>
+
+<span class="sd">    &gt;&gt;&gt; @argh.arg('--al', dest='alpha', help='aliased')</span>
+<span class="sd">    ... def scale(alpha=1): ...</span>
+<span class="sd">    &gt;&gt;&gt; sorted(scale._cw['params'])</span>
+<span class="sd">    ['alpha']</span>
+
+<span class="sd">    And ``completer=`` is argcomplete's per-argument hook, which ``add_argument`` rejects;</span>
+<span class="sd">    it travels in the leaf and :mod:`cw.cli` assigns it to the action it creates.</span>
+
+<span class="sd">    &gt;&gt;&gt; @argh.arg('--host', completer=lambda **kw: ['localhost'])</span>
+<span class="sd">    ... def serve(host='0.0.0.0'): ...</span>
+<span class="sd">    &gt;&gt;&gt; callable(serve._cw['params']['host']['completer'])</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorate</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="c1"># argh pops `dest` and uses it as the parameter name; without this, `@arg('--al',</span>
+        <span class="c1"># dest='alpha')` looks like a declaration for a parameter called `al`.</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">add_argument_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"dest"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_param_name_of</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span>
+        <span class="c1"># Innermost decorator runs first but must read last: argh's own `insert(0, ...)`.</span>
+        <span class="n">declared</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">param</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">add_argument_kwargs</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">flags</span><span class="p">)),</span>
+            <span class="o">**</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"_cw"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"params"</span><span class="p">,</span> <span class="p">{}),</span>
+        <span class="p">}</span>
+        <span class="n">func</span><span class="o">.</span><span class="n">_cw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"_cw"</span><span class="p">,</span> <span class="p">{}),</span> <span class="n">params</span><span class="o">=</span><span class="n">declared</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">func</span>
+
+    <span class="k">return</span> <span class="n">decorate</span></div>
+
+
+
+<div class="viewcode-block" id="confirm">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.confirm">[docs]</a>
+<span class="nd">@_deprecated</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">confirm</span><span class="p">(</span><span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""argh's ``confirm``: a yes/no prompt, with argh's exact wording.</span>
+
+<span class="sd">    &gt;&gt;&gt; import io</span>
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; argh.confirm('Go', skip=True) is None</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">cw</span><span class="o">.</span><span class="n">confirm</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="n">skip</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ArghParser">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.ArghParser">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArghParser</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""argh's ``ArgumentParser`` subclass -- 27 fleet call sites.</span>
+
+<span class="sd">    The three convenience methods, and nothing else. Note that this is the **only** class</span>
+<span class="sd">    in cw that subclasses :class:`argparse.ArgumentParser`, and it exists solely because</span>
+<span class="sd">    those 27 call sites already do. :func:`cw.mk_parser` returns a plain</span>
+<span class="sd">    ``ArgumentParser``, which is what keeps ``argcomplete.autocomplete`` -- typed against</span>
+<span class="sd">    ``argparse.ArgumentParser`` -- working for the ten fleet files marked</span>
+<span class="sd">    ``# PYTHON_ARGCOMPLETE_OK``.</span>
+
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; def ping():</span>
+<span class="sd">    ...     return 'pong'</span>
+<span class="sd">    &gt;&gt;&gt; parser = argh.ArghParser(prog='demo')</span>
+<span class="sd">    &gt;&gt;&gt; parser.add_commands([ping])</span>
+<span class="sd">    &gt;&gt;&gt; parser.dispatch(['ping'], output_file=None)</span>
+<span class="sd">    'pong\\n'</span>
+
+<span class="sd">    It defaults ``formatter_class`` exactly as argh's own ``ArghParser.__init__`` does.</span>
+<span class="sd">    Without that line the one-line migration changes ``--help`` for every repo that holds</span>
+<span class="sd">    a parser object: a ``None`` default renders ``None`` instead of argh's ``-``, a string</span>
+<span class="sd">    default loses its quotes, and a multi-paragraph docstring is reflowed into one.</span>
+
+<span class="sd">    &gt;&gt;&gt; from cw import ArghHelpFormatter</span>
+<span class="sd">    &gt;&gt;&gt; ArghParser(prog='demo').formatter_class is ArghHelpFormatter</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"formatter_class"</span><span class="p">,</span> <span class="n">ArghHelpFormatter</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ArghParser.add_commands">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.ArghParser.add_commands">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""":func:`cw.compat.add_commands`, on this parser."""</span>
+        <span class="k">return</span> <span class="n">add_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArghParser.set_default_command">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.ArghParser.set_default_command">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_default_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""":func:`cw.compat.set_default_command`, on this parser."""</span>
+        <span class="k">return</span> <span class="n">set_default_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ArghParser.dispatch">
+<a class="viewcode-back" href="../../module_docs/cw/compat.html#cw.compat.ArghParser.dispatch">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">""":func:`cw.compat.dispatch`, on this parser."""</span>
+        <span class="k">return</span> <span class="n">dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Completion</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``argh.completion``, the submodule two fleet files reach into.</span>
+
+<span class="sd">    A namespace rather than a module because there is exactly one function behind it, and</span>
+<span class="sd">    a one-function module would be a file whose only content is an import.</span>
+<span class="sd">    """</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``argh.completion.autocomplete``: offer ``parser`` to argcomplete."""</span>
+        <span class="k">return</span> <span class="n">cw</span><span class="o">.</span><span class="n">enable_completion</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+
+
+<span class="c1">#: ``argh.completion.autocomplete(parser)`` keeps working after the import swap.</span>
+<span class="n">completion</span> <span class="o">=</span> <span class="n">_Completion</span><span class="p">()</span>
+
+
+<span class="c1"># =======================================================================================</span>
+<span class="c1"># Helpers, and the three names that are deliberately absent</span>
+<span class="c1"># =======================================================================================</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_param_name_of</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``('-i', '--ignore') -&gt; 'ignore'`` -- argh's ``naive_guess_func_arg_name``.</span>
+
+<span class="sd">    &gt;&gt;&gt; _param_name_of(('-i', '--ignore')), _param_name_of(('project',))</span>
+<span class="sd">    ('ignore', 'project')</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">flags</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">flags</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"-"</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">flags</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"--"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"cannot guess which parameter </span><span class="si">{</span><span class="n">flags</span><span class="si">}</span><span class="s2"> refers to. argh guesses from the long "</span>
+        <span class="sa">f</span><span class="s2">"flag, so give one -- @arg('-i', '--ignore') rather than @arg('-i')."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reject_func_kwargs</span><span class="p">(</span><span class="n">func_kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse a non-empty ``func_kwargs`` rather than mis-translating it.</span>
+
+<span class="sd">    argh's ``func_kwargs`` is a mapping of **ArgumentParser** keywords applied to every</span>
+<span class="sd">    subcommand's parser (``assembling.py:630-635``) -- *not* ``add_argument`` keywords, and</span>
+<span class="sd">    therefore not a cw ``config``, whose leaves are per-parameter. cw has no per-command</span>
+<span class="sd">    parser-keyword channel, and inventing one for a keyword **no fleet call site passes**</span>
+<span class="sd">    would be shipping a feature to nobody.</span>
+
+<span class="sd">    So it stays in the signature -- a call site that names it must not fail at import-shim</span>
+<span class="sd">    time on a ``TypeError`` about an unexpected keyword -- and says so plainly if used. The</span>
+<span class="sd">    first repo that actually needs it will produce a real requirement instead of a guess.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">func_kwargs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s2">"cw.compat.add_commands accepts argh's `func_kwargs` but does not implement "</span>
+            <span class="s2">"it: it is a mapping of ArgumentParser keywords applied to every subcommand, "</span>
+            <span class="s2">"which cw has no channel for, and no fleet call site passes it. If you need "</span>
+            <span class="s2">"it, build the parser yourself -- cw.mk_parser returns a plain "</span>
+            <span class="s2">"argparse.ArgumentParser -- and open an issue on i2mint/cw."</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_reject</span><span class="p">(</span><span class="n">parser_kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">where</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Refuse leftover keywords with a message that says which call is wrong."""</span>
+    <span class="k">if</span> <span class="n">parser_kwargs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cw.compat.</span><span class="si">{</span><span class="n">where</span><span class="si">}</span><span class="s2">() got unexpected keyword argument(s) "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">parser_kwargs</span><span class="p">))</span><span class="si">}</span><span class="s2">. A parser that already exists takes no "</span>
+            <span class="sa">f</span><span class="s2">"build-time keywords; pass them to ArgumentParser() or to cw.mk_parser()."</span>
+        <span class="p">)</span>
+
+
+<span class="c1">#: argh names with **zero** uses anywhere in the fleet, and why each one is not shipped.</span>
+<span class="c1">#: A module ``__getattr__`` raises these rather than shipping a shim, because a shim that</span>
+<span class="c1">#: does the wrong thing quietly is worse than the AttributeError it replaces.</span>
+<span class="n">_NOT_SHIPPED</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"named"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"argh's `named` renames a command. cw takes the name from a mapping KEY -- "</span>
+        <span class="s2">"`{'load': do_load}` -- which also lets two commands share a name in different "</span>
+        <span class="s2">"groups. (The shim originally specified for this wrote func._cw['name'], which "</span>
+        <span class="s2">"nothing reads: it would have silently done nothing.)"</span>
+    <span class="p">),</span>
+    <span class="s2">"aliases"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"argh's `aliases` adds alternative command names. cw has no equivalent in v1; "</span>
+        <span class="s2">"a mapping can name the same callable twice if you need one."</span>
+    <span class="p">),</span>
+    <span class="s2">"add_subcommands"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"argh's `add_subcommands` is `add_commands(..., group_name=...)` with the "</span>
+        <span class="s2">"arguments in a different order. Use cw.compat.add_commands(parser, funcs, "</span>
+        <span class="s2">"group_name='...')."</span>
+    <span class="p">),</span>
+    <span class="s2">"EntryPoint"</span><span class="p">:</span> <span class="s2">"argh's `EntryPoint` is a registry object, not a function. Use a mapping."</span><span class="p">,</span>
+    <span class="s2">"wrap_errors"</span><span class="p">:</span> <span class="s2">"Zero fleet uses. Raise cw.CommandError from the command instead."</span><span class="p">,</span>
+    <span class="s2">"raw_output"</span><span class="p">:</span> <span class="s2">"Not a name -- it is a `dispatch` keyword, and it is accepted as one."</span><span class="p">,</span>
+    <span class="s2">"ArghNamespace"</span><span class="p">:</span> <span class="s2">"An argh internal. cw's parsers produce a plain argparse.Namespace."</span><span class="p">,</span>
+    <span class="s2">"assembling"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"cw.compat is a single module, not a package, so there is no `cw.compat."</span>
+        <span class="s2">"assembling`. The one name four fleet files import from it is exported here "</span>
+        <span class="s2">"directly: `from cw.compat import NameMappingPolicy`."</span>
+    <span class="p">),</span>
+    <span class="s2">"interaction"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"cw.compat is a single module, not a package. `argh.interaction.confirm` is "</span>
+        <span class="s2">"`cw.compat.confirm` (and `cw.confirm`)."</span>
+    <span class="p">),</span>
+    <span class="s2">"PARSER_FORMATTER"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"argh's `PARSER_FORMATTER` is `cw.ArghHelpFormatter`, which cw.compat.ArghParser "</span>
+        <span class="s2">"and cw.mk_parser already default to. Pass it as "</span>
+        <span class="s2">"`formatter_class=cw.ArghHelpFormatter` if you are building the parser yourself."</span>
+    <span class="p">),</span>
+    <span class="s2">"expects_obj"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"argh's `expects_obj` hands the raw argparse Namespace to the function instead of "</span>
+        <span class="s2">"calling it with its own parameters. Zero fleet uses, and it is the opposite of "</span>
+        <span class="s2">"what cw is for: take the Namespace yourself with "</span>
+        <span class="s2">"`cw.mk_parser(...).parse_args(argv)`."</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Explain the deliberately-absent names, rather than failing with a bare message.</span>
+
+<span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     argh.named</span>
+<span class="sd">    ... except AttributeError as exc:</span>
+<span class="sd">    ...     print('does not ship `named`' in str(exc), 'mapping KEY' in str(exc))</span>
+<span class="sd">    True True</span>
+<span class="sd">    &gt;&gt;&gt; argh.no_such_thing_at_all</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    AttributeError: module 'cw.compat' has no attribute 'no_such_thing_at_all'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_NOT_SHIPPED</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cw.compat does not ship `</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">`, and it has zero uses across the fleet's "</span>
+            <span class="sa">f</span><span class="s2">"argh-touching files. </span><span class="si">{</span><span class="n">_NOT_SHIPPED</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"module </span><span class="si">{</span><span class="vm">__name__</span><span class="si">!r}</span><span class="s2"> has no attribute </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

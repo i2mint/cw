@@ -1,0 +1,976 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cw.cli &mdash; cw 0.0.15 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            cw
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw.html">cw</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/__main__.html">cw.__main__</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/base.html">cw.base</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/cli.html">cw.cli</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/commands.html">cw.commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/compat.html">cw.compat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/convention.html">cw.convention</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/egress.html">cw.egress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/grammar.html">cw.grammar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/ingress.html">cw.ingress</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/resolution.html">cw.resolution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/testing.html">cw.testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests.html">cw.tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../module_docs/cw/tests/fixtures.html">cw.tests.fixtures</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cw</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cw.cli</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cw.cli</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""The argparse surface: building a parser, and running one.</span>
+
+<span class="sd">Three functions, and the third is the composition of the first two::</span>
+
+<span class="sd">    parser = cw.mk_parser(obj, ...)        # build.  Pure: no parsing, no I/O.</span>
+<span class="sd">    code   = cw.run(parser, argv, ...)     # parse, call, print, return an exit code.</span>
+<span class="sd">    code   = cw.dispatch(obj, argv, ...)   # == run(mk_parser(obj))</span>
+
+<span class="sd">:func:`mk_parser` returns a **plain** :class:`argparse.ArgumentParser`, never a subclass.</span>
+<span class="sd">That is load-bearing rather than tasteful: ``argcomplete.autocomplete(argument_parser:</span>
+<span class="sd">argparse.ArgumentParser, ...)`` is argparse-typed at its signature, so eight fleet repos and</span>
+<span class="sd">ten ``# PYTHON_ARGCOMPLETE_OK`` markers survive the migration untouched -- which the one</span>
+<span class="sd">fleet repo that moved to ``typer`` could not manage.</span>
+
+<span class="sd">Because the parser is plain, cw cannot keep per-subcommand state on it as an attribute.</span>
+<span class="sd">It travels instead in one reserved ``set_defaults`` key, :data:`RESERVED_DEST`, which</span>
+<span class="sd">carries the target function, its ingress and the convention that built it. A parameter of</span>
+<span class="sd">that name is an error naming the collision, never silent corruption.</span>
+
+<span class="sd">&gt;&gt;&gt; import cw, io</span>
+<span class="sd">&gt;&gt;&gt; def greet(name, *, loudly=False):</span>
+<span class="sd">...     '''Say hello.'''</span>
+<span class="sd">...     return f'HELLO {name}' if loudly else f'hello {name}'</span>
+<span class="sd">&gt;&gt;&gt; out = io.StringIO()</span>
+<span class="sd">&gt;&gt;&gt; cw.dispatch(greet, ['world'], out=out)</span>
+<span class="sd">0</span>
+<span class="sd">&gt;&gt;&gt; out.getvalue()</span>
+<span class="sd">'hello world\\n'</span>
+
+<span class="sd">``standalone=False`` turns the same call into an ordinary function call -- nothing is</span>
+<span class="sd">printed, nothing is caught, and you get the function's own return value:</span>
+
+<span class="sd">&gt;&gt;&gt; cw.dispatch(greet, ['world', '--loudly'], standalone=False)</span>
+<span class="sd">'HELLO world'</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArghHelpFormatter</span><span class="p">,</span> <span class="n">CommandError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">commands_from</span><span class="p">,</span> <span class="n">import_object</span><span class="p">,</span> <span class="n">is_command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARGH</span><span class="p">,</span> <span class="n">Convention</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.egress</span><span class="w"> </span><span class="kn">import</span> <span class="n">guard_no_coroutine</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="n">GrammarError</span><span class="p">,</span> <span class="n">specs_for_function</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.ingress</span><span class="w"> </span><span class="kn">import</span> <span class="n">mk_ingress</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"mk_parser"</span><span class="p">,</span>
+    <span class="s2">"run"</span><span class="p">,</span>
+    <span class="s2">"dispatch"</span><span class="p">,</span>
+    <span class="s2">"add_commands"</span><span class="p">,</span>
+    <span class="s2">"set_default_command"</span><span class="p">,</span>
+    <span class="s2">"enable_completion"</span><span class="p">,</span>
+    <span class="s2">"BoundKeywordWarning"</span><span class="p">,</span>
+    <span class="s2">"RESERVED_DEST"</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="BoundKeywordWarning">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.BoundKeywordWarning">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BoundKeywordWarning</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""A ``functools.partial``'s pre-bound keyword is still exposed as a CLI option.</span>
+
+<span class="sd">    Its own category so that a repo which has decided the flag is fine can silence exactly</span>
+<span class="sd">    this warning without changing its CLI, and without silencing anything else::</span>
+
+<span class="sd">        warnings.filterwarnings('ignore', category=cw.BoundKeywordWarning)</span>
+<span class="sd">    """</span></div>
+
+
+
+<span class="c1">#: The one ``set_defaults`` key cw reserves on the parsers it builds. Everything a built</span>
+<span class="c1">#: parser needs to tell :func:`run` -- which function this subcommand is, how to call it,</span>
+<span class="c1">#: and under which convention -- travels in it.</span>
+<span class="n">RESERVED_DEST</span> <span class="o">=</span> <span class="s2">"_cw"</span>
+
+<span class="c1">#: The exit code argparse itself uses for a usage error, and therefore the one :func:`run`</span>
+<span class="c1">#: reports when it catches one.</span>
+<span class="n">USAGE_ERROR_CODE</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1">#: cw keywords that are real, but not on *this* call. Without this, ``mk_parser(f,</span>
+<span class="c1">#: egress=...)`` reports that ``argparse.ArgumentParser`` has no such keyword and lists</span>
+<span class="c1">#: argparse's parameters -- true, and the least useful true thing to say. A seam is one</span>
+<span class="c1">#: keyword argument, but not every seam is on every entry point: ``egress`` runs after the</span>
+<span class="c1">#: call, so it belongs to :func:`run` and :func:`dispatch`, and ``decode`` shapes the</span>
+<span class="c1">#: parser, so it belongs to :func:`mk_parser`, :func:`dispatch` and :func:`add_commands`.</span>
+<span class="n">SEAMS_ELSEWHERE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"egress"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"cw's egress seam turns a return value into output, which happens when a command "</span>
+        <span class="s2">"runs -- so it is a keyword of cw.run and cw.dispatch, not of cw.mk_parser. To "</span>
+        <span class="s2">"bind it to a parser instead, put it on the convention: "</span>
+        <span class="s2">"convention=dataclasses.replace(cw.ARGH, egress=my_egress)."</span>
+    <span class="p">),</span>
+    <span class="s2">"ingress"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"cw has no `ingress=` keyword. The namespace-to-call step is built from the "</span>
+        <span class="s2">"function's own signature (cw.ingress.mk_ingress); per-parameter conversion is "</span>
+        <span class="s2">"spelled config={'param': {'codec': ...}} or, for a whole convention, decode=."</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1">#: Set it to silence :class:`BoundKeywordWarning` for a console script that has nowhere to</span>
+<span class="c1">#: put a ``warnings.filterwarnings`` line. Named to rhyme with ``CW_COMPAT_QUIET``.</span>
+<span class="n">QUIET_ENV</span> <span class="o">=</span> <span class="s2">"CW_QUIET"</span>
+
+
+<span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Stash</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What a built parser tells :func:`run`, carried in one namespace attribute.</span>
+
+<span class="sd">    ``func`` is ``None`` on a parser that only holds subcommands: reaching :func:`run` with</span>
+<span class="sd">    that still set means no subcommand was chosen, which is the usage-line case.</span>
+<span class="sd">    """</span>
+
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ingress</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: ``{argparse dest: python parameter name}``, for the hyphenated positionals argh</span>
+    <span class="c1">#: registers under a name no Python call can use. Empty for every other argument.</span>
+    <span class="n">renames</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Building</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_new_parser</span><span class="p">(</span><span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An ``ArgumentParser`` with cw's default look, and a readable error for a typo.</span>
+
+<span class="sd">    ``prog``, ``description``, ``epilog``, ``formatter_class``, ``allow_abbrev`` and</span>
+<span class="sd">    friends pass through verbatim -- cw invents no vocabulary for anything argparse already</span>
+<span class="sd">    names -- so a misspelling would otherwise surface as a bare ``ArgumentParser.__init__``</span>
+<span class="sd">    ``TypeError`` that never mentions cw.</span>
+<span class="sd">    """</span>
+    <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"formatter_class"</span><span class="p">,</span> <span class="n">ArghHelpFormatter</span><span class="p">)</span>
+    <span class="n">misplaced</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">parser_kwargs</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">SEAMS_ELSEWHERE</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">misplaced</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">SEAMS_ELSEWHERE</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">misplaced</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="o">**</span><span class="n">parser_kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">accepted</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">"self"</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cw passes unknown keyword arguments straight to "</span>
+            <span class="sa">f</span><span class="s2">"argparse.ArgumentParser, and it rejected one: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"argparse.ArgumentParser accepts: </span><span class="si">{</span><span class="n">accepted</span><span class="si">}</span><span class="s2">."</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_child_formatter</span><span class="p">(</span><span class="n">formatter_class</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The formatter every subparser gets, given the one its parent carries.</span>
+
+<span class="sd">    argh hands ``PARSER_FORMATTER`` to every subparser it creates -- *unconditionally*,</span>
+<span class="sd">    even under a plain ``argparse.ArgumentParser`` whose own formatter it leaves alone</span>
+<span class="sd">    (verified against argh 0.31.3). So ``argparse.ArgumentParser() + add_commands`` gives</span>
+<span class="sd">    argh-looking subcommands and a stock root, and cw must do the same or the one-line</span>
+<span class="sd">    migration changes ``--help`` for every repo that holds a parser object: a ``None``</span>
+<span class="sd">    default printing ``None`` instead of ``-``, a string default losing its quotes, and a</span>
+<span class="sd">    multi-paragraph docstring reflowed into one.</span>
+
+<span class="sd">    cw promotes only the *stock* formatter rather than overriding unconditionally, so an</span>
+<span class="sd">    explicit ``formatter_class=`` still means what it says. The root parser is never</span>
+<span class="sd">    touched here -- :func:`mk_parser` defaults it at construction, ``ArghParser.__init__``</span>
+<span class="sd">    defaults it for the 27 fleet call sites that use it, and a parser somebody else built</span>
+<span class="sd">    keeps whatever they gave it, exactly as under argh.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">ArghHelpFormatter</span>
+        <span class="k">if</span> <span class="n">formatter_class</span> <span class="ow">is</span> <span class="n">argparse</span><span class="o">.</span><span class="n">HelpFormatter</span>
+        <span class="k">else</span> <span class="n">formatter_class</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_func_label</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A stable, address-free name for ``func``, partials included.</span>
+
+<span class="sd">    ``repr(functools.partial(f))`` embeds ``f``'s hex ``id()``, which makes any message</span>
+<span class="sd">    built from it differ on every run -- unusable in a golden, and noise in a warning.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"functools.partial(</span><span class="si">{</span><span class="n">_func_label</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">"__name__"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_bound_keywords</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">specs</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Warn about a ``functools.partial``'s pre-bound keyword that is still a CLI flag.</span>
+
+<span class="sd">    :func:`inspect.signature` keeps a partial's bound keyword (Python moves it to</span>
+<span class="sd">    keyword-only), so cw renders it as an option unless told not to. cw does **not**</span>
+<span class="sd">    auto-hide it: ``inspect.signature`` is cw's single source of truth for everything else,</span>
+<span class="sd">    and silently diverging from it would be a second, subtler bug than the one being fixed.</span>
+<span class="sd">    A warning names the leak and the one line that closes it.</span>
+
+<span class="sd">    It reads the finished ``specs`` rather than the signature, so that hiding the keyword</span>
+<span class="sd">    silences the warning -- a warning you cannot act on is noise. Three further properties</span>
+<span class="sd">    matter, because this fires on *every* invocation of a CLI that has such a command,</span>
+<span class="sd">    ``--help`` included:</span>
+
+<span class="sd">    * it names the **command** whose config key would close it, not a ``'&lt;command&gt;'``</span>
+<span class="sd">      placeholder, so the suggested line can be pasted;</span>
+<span class="sd">    * it carries no ``id()``, so the text is the same on every run; and</span>
+<span class="sd">    * it is a :class:`BoundKeywordWarning`, so a repo that has decided the flag is fine can</span>
+<span class="sd">      silence exactly this one -- ``warnings.filterwarnings('ignore',</span>
+<span class="sd">      category=cw.BoundKeywordWarning)``, or :data:`QUIET_ENV` for a console script that</span>
+<span class="sd">      has nowhere to put that line -- **without** changing its CLI. Hiding the parameter</span>
+<span class="sd">      also silences it, but that removes a flag argh exposed, which is not the same thing.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">QUIET_ENV</span><span class="p">):</span>
+        <span class="k">return</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">keywords</span> <span class="ow">or</span> <span class="p">())</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">param_name</span> <span class="ow">in</span> <span class="n">bound</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="si">{</span><span class="n">command</span><span class="si">!r}</span><span class="s2">: </span><span class="se">{{</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2">: cw.HIDE</span><span class="se">}}}}</span><span class="s2">"</span>
+                <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2">: cw.HIDE</span><span class="se">}}</span><span class="s2">"</span>
+            <span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_func_label</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">: the pre-bound keyword </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2"> is "</span>
+                <span class="sa">f</span><span class="s2">"still exposed as a command-line option. Hide it with config=</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">, or "</span>
+                <span class="sa">f</span><span class="s2">"silence this with </span><span class="si">{</span><span class="n">QUIET_ENV</span><span class="si">}</span><span class="s2">=1 to keep the flag."</span><span class="p">,</span>
+                <span class="n">BoundKeywordWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+            <span class="p">)</span>
+
+
+<div class="viewcode-block" id="set_default_command">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.set_default_command">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_default_command</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">ARGH</span><span class="p">,</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Bind one function to ``parser``: add its arguments, and stash how to call it.</span>
+
+<span class="sd">    This is what makes ``run``'s reason for existing true -- a repo can hand-build a</span>
+<span class="sd">    parser, ``add_argument`` to it, bind a function here, and still get cw's ingress and</span>
+<span class="sd">    egress:</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse, cw, io</span>
+<span class="sd">    &gt;&gt;&gt; from cw.cli import set_default_command</span>
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='count')</span>
+<span class="sd">    &gt;&gt;&gt; def tally(word, *, times=1):</span>
+<span class="sd">    ...     return [word] * times</span>
+<span class="sd">    &gt;&gt;&gt; _ = set_default_command(parser, tally)</span>
+<span class="sd">    &gt;&gt;&gt; out = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; cw.run(parser, ['hi', '-t', '2'], out=out)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; out.getvalue()</span>
+<span class="sd">    'hi\\nhi\\n'</span>
+
+<span class="sd">    The function's docstring becomes the parser's description, unless the parser already</span>
+<span class="sd">    has one -- argh's rule, and it is what lets ``description=`` override it.</span>
+
+<span class="sd">    ``command`` is the command word this function is bound to, when there is one. It is used</span>
+<span class="sd">    only in messages -- it is what lets the ``functools.partial`` warning print the</span>
+<span class="sd">    ``config`` key you would actually paste rather than a ``'&lt;command&gt;'`` placeholder -- so</span>
+<span class="sd">    a caller binding a single command has no reason to pass it.</span>
+<span class="sd">    """</span>
+    <span class="n">specs</span> <span class="o">=</span> <span class="n">specs_for_function</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">parser_adds_help</span><span class="o">=</span><span class="n">parser</span><span class="o">.</span><span class="n">add_help</span>
+    <span class="p">)</span>
+    <span class="n">_warn_bound_keywords</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">specs</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">param_name</span> <span class="o">==</span> <span class="n">RESERVED_DEST</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_func_label</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">: the parameter </span><span class="si">{</span><span class="n">RESERVED_DEST</span><span class="si">!r}</span><span class="s2"> "</span>
+                <span class="s2">"collides with the namespace key cw reserves for its own use. Rename the "</span>
+                <span class="s2">"parameter, or hide it with cw.HIDE."</span>
+            <span class="p">)</span>
+        <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">add_argument_args</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span><span class="n">_cannot_add</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">completer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># argcomplete reads it off the action, which is why it cannot be an</span>
+            <span class="c1"># add_argument keyword. argh assigns it in the same place.</span>
+            <span class="n">action</span><span class="o">.</span><span class="n">completer</span> <span class="o">=</span> <span class="n">spec</span><span class="o">.</span><span class="n">completer</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parser</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="n">codecs</span> <span class="o">=</span> <span class="p">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">codec</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span> <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">codec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+    <span class="n">renames</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">argparse_dest</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">param_name</span>
+        <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">specs</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">argparse_dest</span> <span class="o">!=</span> <span class="n">spec</span><span class="o">.</span><span class="n">param_name</span>
+    <span class="p">}</span>
+    <span class="n">_stash</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span>
+        <span class="n">_Stash</span><span class="p">(</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span>
+            <span class="n">ingress</span><span class="o">=</span><span class="n">mk_ingress</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">codecs</span><span class="o">=</span><span class="n">codecs</span><span class="p">),</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">renames</span><span class="o">=</span><span class="n">renames</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_cannot_add</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spec</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The message for an ``add_argument`` call argparse refused.</span>
+
+<span class="sd">    argparse says ``no`` in three different exception types and none of the messages names</span>
+<span class="sd">    the function, the parameter or the flags -- ``ValueError: dest= is required for options</span>
+<span class="sd">    like '---pool'`` is the whole of what a user sees otherwise. argh wraps all of them</span>
+<span class="sd">    (``AssemblingError: {func}: cannot add {param} as {flags}: {reason}``) and cw must not</span>
+<span class="sd">    be *worse* than the library it replaces at the one moment a migration goes wrong.</span>
+
+<span class="sd">    The leading-underscore case gets an extra sentence, because it is a reproduced argh</span>
+<span class="sd">    footgun with a documented one-line fix that the raw message cannot mention.</span>
+<span class="sd">    """</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="s2">"/"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">flags</span><span class="p">)</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">_func_label</span><span class="p">(</span><span class="n">func</span><span class="p">)</span><span class="si">}</span><span class="s2">: cannot add </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2"> as </span><span class="si">{</span><span class="n">flags</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">flag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"---"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">flag</span> <span class="o">==</span> <span class="s2">"--"</span> <span class="k">for</span> <span class="n">flag</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">flags</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">+=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">". A parameter named </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2"> starts with an underscore, which "</span>
+            <span class="s2">"argh -- and therefore cw -- hyphenates into an unusable flag. Hide it with "</span>
+            <span class="sa">f</span><span class="s2">"config=</span><span class="se">{{</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="si">!r}</span><span class="s2">: cw.HIDE</span><span class="se">}}</span><span class="s2"> (it keeps its default), or rename it."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">message</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stash</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span> <span class="n">stash</span><span class="p">:</span> <span class="n">_Stash</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">RESERVED_DEST</span><span class="p">:</span> <span class="n">stash</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_subparsers_of</span><span class="p">(</span><span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The parser's subparsers action, created on first use.</span>
+
+<span class="sd">    ``add_subparsers`` may be called only once per parser, so a second ``add_commands``</span>
+<span class="sd">    against the same parser has to find the first one's.</span>
+<span class="sd">    """</span>
+    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">_actions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">argparse</span><span class="o">.</span><span class="n">_SubParsersAction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">action</span>
+    <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_command</span><span class="p">(</span>
+    <span class="n">subparsers</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">,</span>
+    <span class="n">formatter_class</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One subcommand. Its listing row is its raw ``__doc__``, which is argh's choice."""</span>
+    <span class="n">command_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">,</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">formatter_class</span>
+    <span class="p">)</span>
+    <span class="n">set_default_command</span><span class="p">(</span>
+        <span class="n">command_parser</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">name</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_group</span><span class="p">(</span>
+    <span class="n">subparsers</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">,</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">members</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">,</span>
+    <span class="n">formatter_class</span><span class="p">,</span>
+    <span class="n">group_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One group of subcommands -- the only level of nesting there is.</span>
+
+<span class="sd">    Two details, both of which a plausible implementation gets wrong and neither of which</span>
+<span class="sd">    is visible until someone reads ``--help``:</span>
+
+<span class="sd">    * the **parent's listing row** reads ``group_kwargs['title']``, not ``['help']``; and</span>
+<span class="sd">    * ``help=`` must be passed to ``add_parser`` **even when it is None**, because that is</span>
+<span class="sd">      what makes argparse create the pseudo-action -- omit it and the group vanishes from</span>
+<span class="sd">      the parent's ``--help`` entirely.</span>
+
+<span class="sd">    The whole ``group_kwargs`` mapping then goes to ``add_subparsers``, ``help`` included,</span>
+<span class="sd">    where it renders inside the group's own ``--help``. Nothing is dropped.</span>
+<span class="sd">    """</span>
+    <span class="n">group_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">group_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">holder</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">group_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">),</span> <span class="n">formatter_class</span><span class="o">=</span><span class="n">formatter_class</span>
+    <span class="p">)</span>
+    <span class="n">inner</span> <span class="o">=</span> <span class="n">holder</span><span class="o">.</span><span class="n">add_subparsers</span><span class="p">(</span><span class="o">**</span><span class="n">group_kwargs</span><span class="p">)</span>
+    <span class="n">_stash</span><span class="p">(</span><span class="n">holder</span><span class="p">,</span> <span class="n">_Stash</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">))</span>
+    <span class="n">_add_tree</span><span class="p">(</span>
+        <span class="n">holder</span><span class="p">,</span>
+        <span class="n">members</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">formatter_class</span><span class="p">,</span>
+        <span class="n">subparsers</span><span class="o">=</span><span class="n">inner</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_config_keys</span><span class="p">(</span><span class="n">tree</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">what</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A ``config`` key naming no command is a startup error, never a silent no-op.</span>
+
+<span class="sd">    This is the rule that closes the trap where ``convention=cw.MODERN`` renames a group</span>
+<span class="sd">    (``hyphenate_groups``) and every config entry keyed by the old name quietly stops</span>
+<span class="sd">    applying. Keys and names go through one naming function, so a mismatch is a bug, and a</span>
+<span class="sd">    bug should be loud.</span>
+<span class="sd">    """</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"(none)"</span>
+        <span class="n">plural</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"config key</span><span class="si">{</span><span class="s1">'s'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">plural</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'match'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">plural</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'matches'</span><span class="si">}</span><span class="s2"> no </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Known </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> names: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s2">. Note that names are hyphenated by the "</span>
+            <span class="s2">"convention, so a config must be keyed the way the command line is typed."</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_tree</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span>
+    <span class="n">tree</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span><span class="p">,</span>
+    <span class="n">formatter_class</span><span class="p">,</span>
+    <span class="n">subparsers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">argparse</span><span class="o">.</span><span class="n">Action</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add every command and group in ``tree`` to ``parser``'s subparsers."""</span>
+    <span class="n">_check_config_keys</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s2">"command or group"</span><span class="p">)</span>
+    <span class="n">subparsers</span> <span class="o">=</span> <span class="n">_subparsers_of</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span> <span class="k">if</span> <span class="n">subparsers</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">subparsers</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">adder</span> <span class="o">=</span> <span class="n">_add_command</span> <span class="k">if</span> <span class="n">is_command</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">_add_group</span>
+        <span class="n">adder</span><span class="p">(</span>
+            <span class="n">subparsers</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">value</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">formatter_class</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_with_decode</span><span class="p">(</span><span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span><span class="p">,</span> <span class="n">decode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Convention</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``convention``, or a copy of it carrying an explicitly passed ``decode=``."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">convention</span> <span class="k">if</span> <span class="n">decode</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="n">decode</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="mk_parser">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.mk_parser">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mk_parser</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">ARGH</span><span class="p">,</span>
+    <span class="n">decode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">parser_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the parser ``obj`` describes. No parsing, no I/O, no side effects.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: A callable, a list, a mapping, a module, or a ``'pkg.mod:name'`` reference --</span>
+<span class="sd">            see :mod:`cw.commands` for what each one means.</span>
+<span class="sd">        config: This call's particulars, keyed the way you address the thing on the command</span>
+<span class="sd">            line: ``{param: add_argument_kwargs}`` for a single command,</span>
+<span class="sd">            ``{command: {param: ...}}`` for several, nested once more for a group.</span>
+<span class="sd">        convention: What the defaults ARE. :data:`cw.ARGH` by default.</span>
+<span class="sd">        decode: Seam 1, overriding ``convention.decode`` when given.</span>
+<span class="sd">        parser_kwargs: Passed verbatim to :class:`argparse.ArgumentParser` --</span>
+<span class="sd">            ``prog``, ``description``, ``epilog``, ``formatter_class``, ``allow_abbrev``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A plain :class:`argparse.ArgumentParser`. Not a subclass -- see the module</span>
+<span class="sd">        docstring for why that is load-bearing.</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse, cw</span>
+<span class="sd">    &gt;&gt;&gt; def ls(path='.'): ...</span>
+<span class="sd">    &gt;&gt;&gt; type(cw.mk_parser(ls)) is argparse.ArgumentParser</span>
+<span class="sd">    True</span>
+
+<span class="sd">    A single callable is one command with no command word; anything else is subcommands:</span>
+
+<span class="sd">    &gt;&gt;&gt; cw.mk_parser(ls, prog='x').format_usage()</span>
+<span class="sd">    'usage: x [-h] [-p PATH]\\n'</span>
+<span class="sd">    &gt;&gt;&gt; cw.mk_parser([ls], prog='x').format_usage()</span>
+<span class="sd">    'usage: x [-h] {ls} ...\\n'</span>
+
+<span class="sd">    Completion is **not** fired here. :func:`argcomplete.autocomplete` reads the</span>
+<span class="sd">    environment and may exit the process, and ``mk_parser`` is what a test inspects; so</span>
+<span class="sd">    completion happens in :func:`run`, which is also where argh does it.</span>
+<span class="sd">    """</span>
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">_with_decode</span><span class="p">(</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">import_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">_new_parser</span><span class="p">(</span><span class="n">convention</span><span class="p">,</span> <span class="n">parser_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_command</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="n">set_default_command</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_stash</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">_Stash</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">))</span>
+        <span class="n">_add_tree</span><span class="p">(</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">commands_from</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">),</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span> <span class="ow">or</span> <span class="p">{},</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">_child_formatter</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">formatter_class</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+
+<div class="viewcode-block" id="add_commands">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.add_commands">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_commands</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">group_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">group_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">namespace_kwargs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">ARGH</span><span class="p">,</span>
+    <span class="n">decode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add ``obj``'s commands to an existing parser, optionally under one group.</span>
+
+<span class="sd">    ``namespace=`` and ``namespace_kwargs=`` are argh's pre-0.30 spellings of</span>
+<span class="sd">    ``group_name=`` and ``group_kwargs=``. argh renamed them with no alias, which left four</span>
+<span class="sd">    fleet call sites passing a keyword nothing reads; accepting both revives them.</span>
+
+<span class="sd">    When ``group_name`` is given, ``config`` is keyed by *command* name -- ``config`` always</span>
+<span class="sd">    has the same shape as the ``obj`` beside it, and here that ``obj`` is the group's</span>
+<span class="sd">    members.</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse, cw</span>
+<span class="sd">    &gt;&gt;&gt; from cw.cli import add_commands</span>
+<span class="sd">    &gt;&gt;&gt; def status(): ...</span>
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='priv')</span>
+<span class="sd">    &gt;&gt;&gt; _ = add_commands(parser, [status], group_name='git_ops')</span>
+<span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
+<span class="sd">    'usage: priv [-h] {git_ops} ...\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">_with_decode</span><span class="p">(</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="p">)</span>
+    <span class="n">group_name</span> <span class="o">=</span> <span class="n">group_name</span> <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">namespace</span>
+    <span class="n">group_kwargs</span> <span class="o">=</span> <span class="n">group_kwargs</span> <span class="k">if</span> <span class="n">group_kwargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">namespace_kwargs</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">commands_from</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">config</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="n">RESERVED_DEST</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_stash</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="n">_Stash</span><span class="p">(</span><span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_add_tree</span><span class="p">(</span>
+            <span class="n">parser</span><span class="p">,</span>
+            <span class="n">tree</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+            <span class="n">formatter_class</span><span class="o">=</span><span class="n">_child_formatter</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">formatter_class</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">parser</span>
+    <span class="n">_check_config_keys</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s2">"command"</span><span class="p">)</span>
+    <span class="n">_add_group</span><span class="p">(</span>
+        <span class="n">_subparsers_of</span><span class="p">(</span><span class="n">parser</span><span class="p">),</span>
+        <span class="n">group_name</span><span class="p">,</span>
+        <span class="n">tree</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+        <span class="n">formatter_class</span><span class="o">=</span><span class="n">_child_formatter</span><span class="p">(</span><span class="n">parser</span><span class="o">.</span><span class="n">formatter_class</span><span class="p">),</span>
+        <span class="n">group_kwargs</span><span class="o">=</span><span class="n">group_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">parser</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Completion</span>
+
+
+<div class="viewcode-block" id="enable_completion">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.enable_completion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">enable_completion</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Offer ``parser`` to ``argcomplete``, if it is installed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parser: The parser to complete against. A plain ``ArgumentParser`` -- which is what</span>
+<span class="sd">            ``argcomplete.autocomplete`` is typed for, and the reason cw never subclasses.</span>
+<span class="sd">        silent: Swallow the ``ImportError`` when ``argcomplete`` is absent, which is the</span>
+<span class="sd">            point: completion is an optional extra (``pip install 'cw[completion]'``) and a</span>
+<span class="sd">            CLI must run without it. ``silent=False`` re-raises, for a script that means to</span>
+<span class="sd">            require it.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Whether completion was enabled.</span>
+
+<span class="sd">    The import is inside the function on purpose. ``import cw`` costs stdlib only, and a</span>
+<span class="sd">    module-scope third-party import here would quietly undo that for all 66 console</span>
+<span class="sd">    scripts. There is a test that greps for it.</span>
+
+<span class="sd">    &gt;&gt;&gt; import argparse</span>
+<span class="sd">    &gt;&gt;&gt; from cw.cli import enable_completion</span>
+<span class="sd">    &gt;&gt;&gt; enable_completion(argparse.ArgumentParser()) in (True, False)</span>
+<span class="sd">    True</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">argcomplete</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">silent</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">argcomplete</span><span class="o">.</span><span class="n">autocomplete</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Running</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_stream</span><span class="p">(</span><span class="n">given</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TextIO</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``given``, or the named ``sys`` stream looked up now rather than at import."""</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">given</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">given</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_exit_code</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">SystemExit</span><span class="p">,</span> <span class="n">err</span><span class="p">:</span> <span class="n">TextIO</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A ``SystemExit`` as the integer :func:`run` returns, mimicking the interpreter.</span>
+
+<span class="sd">    ``SystemExit(None)`` is success, an ``int`` is itself, and anything else is a message:</span>
+<span class="sd">    Python prints it to stderr and exits 1, and so does cw, so that</span>
+<span class="sd">    ``raise SystemExit(cw.dispatch(...))`` ends the process the same way argh did.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">exc</span><span class="o">.</span><span class="n">code</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">exc</span><span class="o">.</span><span class="n">code</span>
+    <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_redirect</span><span class="p">(</span><span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">],</span> <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">"""Point argparse's own output at ``out``/``err`` for the duration of parsing.</span>
+
+<span class="sd">    ``--help``, ``usage:`` and ``error:`` come from argparse and never pass through the</span>
+<span class="sd">    egress, so this is the only way an explicit ``out=`` can capture them. It wraps</span>
+<span class="sd">    **parsing only**, never the command body: a command's own ``print`` goes where the</span>
+<span class="sd">    process's ``print`` goes, exactly as under argh, and redirecting it would be a</span>
+<span class="sd">    surprising, process-global side effect of asking for a string.</span>
+<span class="sd">    """</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">ExitStack</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stdout</span><span class="p">(</span><span class="n">out</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">enter_context</span><span class="p">(</span><span class="n">contextlib</span><span class="o">.</span><span class="n">redirect_stderr</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">stack</span>
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+    <span class="n">parser</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">,</span>
+    <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Convention</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">egress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">standalone</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">completion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Parse ``argv`` with ``parser``, call the command it names, and report.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        parser: Any parser -- one from :func:`mk_parser`, or a hand-built one that has been</span>
+<span class="sd">            given a function by :func:`set_default_command`.</span>
+<span class="sd">        argv: The argument strings. ``None`` means :data:`sys.argv` ``[1:]``. Keyword or</span>
+<span class="sd">            positional: four fleet call sites spell it as a keyword.</span>
+<span class="sd">        config: Per-parameter particulars, when they were not given at build time. Only the</span>
+<span class="sd">            ``codec=`` entries can still take effect this late; the rest is token grammar</span>
+<span class="sd">            and is already in the parser.</span>
+<span class="sd">        convention: Overrides the one the parser was built with -- which is what supplies</span>
+<span class="sd">            ``egress`` when you do not pass one.</span>
+<span class="sd">        egress: Seam 2, overriding ``convention.egress`` when given.</span>
+<span class="sd">        out: Where results go. ``None`` means :data:`sys.stdout`, resolved **now**.</span>
+<span class="sd">        err: Where an expected failure goes. ``None`` means :data:`sys.stderr`, now.</span>
+<span class="sd">        standalone: ``True`` prints and returns an exit code; ``False`` returns the</span>
+<span class="sd">            function's own value and lets everything propagate.</span>
+<span class="sd">        completion: Offer the parser to ``argcomplete`` before parsing, as argh does.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        An ``int`` exit code when ``standalone``, else whatever the command returned.</span>
+
+<span class="sd">    The convention travels with the parser, so flipping to :data:`cw.MODERN` stays one act</span>
+<span class="sd">    even when the build and the run are two calls:</span>
+
+<span class="sd">    &gt;&gt;&gt; import cw, io</span>
+<span class="sd">    &gt;&gt;&gt; def counted():</span>
+<span class="sd">    ...     return map(str, range(2))</span>
+<span class="sd">    &gt;&gt;&gt; parser = cw.mk_parser(counted, convention=cw.MODERN)</span>
+<span class="sd">    &gt;&gt;&gt; out = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; cw.run(parser, [], out=out)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; out.getvalue()</span>
+<span class="sd">    '0\\n1\\n'</span>
+
+<span class="sd">    An expected failure is one line and an exit code; an unexpected one keeps its</span>
+<span class="sd">    traceback, because a bug deserves one:</span>
+
+<span class="sd">    &gt;&gt;&gt; err = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; def risky():</span>
+<span class="sd">    ...     raise cw.CommandError('no such pipeline', code=3)</span>
+<span class="sd">    &gt;&gt;&gt; cw.dispatch(risky, [], err=err)</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; err.getvalue()</span>
+<span class="sd">    'CommandError: no such pipeline\\n'</span>
+<span class="sd">    """</span>
+    <span class="n">stash</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">get_default</span><span class="p">(</span><span class="n">RESERVED_DEST</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="s2">"stdout"</span><span class="p">)</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">_stream</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="s2">"stderr"</span><span class="p">)</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">argv</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">completion</span><span class="p">:</span>
+        <span class="n">enable_completion</span><span class="p">(</span><span class="n">parser</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">_redirect</span><span class="p">(</span>
+        <span class="n">out</span> <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span> <span class="n">err</span> <span class="k">if</span> <span class="n">err</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">namespace</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">SystemExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">standalone</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="k">return</span> <span class="n">_exit_code</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+
+    <span class="c1"># The stash the *subcommand* left behind wins over the top parser's, because it is</span>
+    <span class="c1"># the one that knows which function was chosen and under which convention it was</span>
+    <span class="c1"># built -- an `add_commands(..., convention=MODERN)` group inside an ARGH parser is</span>
+    <span class="c1"># rare, but getting it wrong would be silent.</span>
+    <span class="n">stash</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">namespace</span><span class="p">,</span> <span class="n">RESERVED_DEST</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">stash</span>
+    <span class="k">if</span> <span class="n">stash</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">stash</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">print_usage</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">standalone</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="n">convention</span> <span class="o">=</span> <span class="n">convention</span> <span class="ow">or</span> <span class="n">stash</span><span class="o">.</span><span class="n">convention</span>
+    <span class="n">egress</span> <span class="o">=</span> <span class="n">egress</span> <span class="k">if</span> <span class="n">egress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">convention</span><span class="o">.</span><span class="n">egress</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_call_args</span><span class="p">(</span><span class="n">stash</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">standalone</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">stash</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">stash</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">guard_no_coroutine</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">egress</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">CommandError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">err</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">exc</span><span class="o">.</span><span class="n">code</span>
+    <span class="k">except</span> <span class="ne">SystemExit</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_exit_code</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_call_args</span><span class="p">(</span><span class="n">stash</span><span class="p">:</span> <span class="n">_Stash</span><span class="p">,</span> <span class="n">namespace</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">convention</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``(args, kwargs)`` for the stashed command, from the parsed namespace."""</span>
+    <span class="n">renames</span> <span class="o">=</span> <span class="n">stash</span><span class="o">.</span><span class="n">renames</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">renames</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span> <span class="n">value</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="n">namespace</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="n">RESERVED_DEST</span>
+    <span class="p">}</span>
+    <span class="n">ingress</span> <span class="o">=</span> <span class="n">stash</span><span class="o">.</span><span class="n">ingress</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">specs</span> <span class="o">=</span> <span class="n">specs_for_function</span><span class="p">(</span><span class="n">stash</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">ingress</span> <span class="o">=</span> <span class="n">mk_ingress</span><span class="p">(</span>
+            <span class="n">stash</span><span class="o">.</span><span class="n">func</span><span class="p">,</span>
+            <span class="n">codecs</span><span class="o">=</span><span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">param_name</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">codec</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">specs</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">codec</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ingress</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="dispatch">
+<a class="viewcode-back" href="../../module_docs/cw/cli.html#cw.dispatch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">convention</span><span class="p">:</span> <span class="n">Convention</span> <span class="o">=</span> <span class="n">ARGH</span><span class="p">,</span>
+    <span class="n">decode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">egress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">err</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TextIO</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">standalone</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">completion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">parser_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The front door: ``dispatch == run o mk_parser``.</span>
+
+<span class="sd">    Everything :func:`mk_parser` and :func:`run` take, in one call. The console-script</span>
+<span class="sd">    idiom is::</span>
+
+<span class="sd">        def main():</span>
+<span class="sd">            raise SystemExit(cw.dispatch(COMMANDS, prog='priv'))</span>
+
+<span class="sd">    and the house dispatch -- the thing that makes a project's per-call configs shrink to</span>
+<span class="sd">    nothing -- is :func:`functools.partial`, not a cw-specific binder::</span>
+
+<span class="sd">        dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog='priv')</span>
+
+<span class="sd">    &gt;&gt;&gt; import cw, io</span>
+<span class="sd">    &gt;&gt;&gt; def add(a: int, b: int):</span>
+<span class="sd">    ...     return a + b</span>
+<span class="sd">    &gt;&gt;&gt; out = io.StringIO()</span>
+<span class="sd">    &gt;&gt;&gt; cw.dispatch(add, ['2', '3'], out=out)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; out.getvalue()</span>
+<span class="sd">    '5\\n'</span>
+
+<span class="sd">    A usage error is argparse's, and keeps argparse's exit code -- which matters, because a</span>
+<span class="sd">    console script that starts exiting 0 on a bad command line breaks every CI step that</span>
+<span class="sd">    checks it:</span>
+
+<span class="sd">    &gt;&gt;&gt; cw.dispatch(add, ['nope'], out=io.StringIO(), err=io.StringIO())</span>
+<span class="sd">    2</span>
+<span class="sd">    """</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">mk_parser</span><span class="p">(</span>
+        <span class="n">obj</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="n">decode</span><span class="p">,</span> <span class="o">**</span><span class="n">parser_kwargs</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">run</span><span class="p">(</span>
+        <span class="n">parser</span><span class="p">,</span>
+        <span class="n">argv</span><span class="p">,</span>
+        <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
+        <span class="n">egress</span><span class="o">=</span><span class="n">egress</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="n">out</span><span class="p">,</span>
+        <span class="n">err</span><span class="o">=</span><span class="n">err</span><span class="p">,</span>
+        <span class="n">standalone</span><span class="o">=</span><span class="n">standalone</span><span class="p">,</span>
+        <span class="n">completion</span><span class="o">=</span><span class="n">completion</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
