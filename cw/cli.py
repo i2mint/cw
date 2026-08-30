@@ -284,10 +284,12 @@ def _check_config_keys(tree: Mapping, config: Mapping, *, what: str) -> None:
     unknown = [key for key in config if key not in tree]
     if unknown:
         known = ", ".join(tree) or "(none)"
+        plural = len(unknown) > 1
         raise GrammarError(
-            f"config key{'s' if len(unknown) > 1 else ''} "
-            f"{', '.join(repr(key) for key in unknown)} match no {what}. "
-            f"The {what}s are: {known}. Note that names are hyphenated by the "
+            f"config key{'s' if plural else ''} "
+            f"{', '.join(repr(key) for key in unknown)} "
+            f"{'match' if plural else 'matches'} no {what}. "
+            f"Known {what} names: {known}. Note that names are hyphenated by the "
             "convention, so a config must be keyed the way the command line is typed."
         )
 

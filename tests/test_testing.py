@@ -581,3 +581,68 @@ class TestCommandLineInProcess:
             return 0
 
         assert testing.capture(closes_its_own_stdout)["returncode"] == 0
+
+
+class TestAGoldenReplaysOnAnyCPython:
+    """The gate's goldens were recorded on one interpreter and asserted on the matrix.
+
+    cw's CI runs 3.10 and 3.12, and argparse's *own* rendering differs between them. Those
+    differences belong to CPython, not to cw -- argh and cw print the same bytes as each
+    other on any one interpreter -- so `canonical_argparse_text` neutralises exactly two of
+    them and nothing else. Without it `python -m cw.testing parity` is red on 3.10 with a
+    correct cw, which is the worst kind of gate: one that cries wolf.
+    """
+
+    def test_the_invalid_choice_quoting_change_is_forgiven(self):
+        """argparse quoted its choices up to 3.11 and stopped in 3.12."""
+        upto_311 = "x: error: invalid choice: 'q' (choose from 'a', 'b')"
+        since_312 = "x: error: invalid choice: 'q' (choose from a, b)"
+        assert testing.canonical_argparse_text(upto_311) == since_312
+        assert testing.canonical_argparse_text(since_312) == since_312
+
+    def test_the_usage_block_rewrap_is_forgiven(self):
+        """3.13 stopped wrapping a trailing `...` onto its own line."""
+        upto_312 = "usage: p [-h]\n       {a,b}\n       ...\n\nnext"
+        since_313 = "usage: p [-h] {a,b} ...\n\nnext"
+        assert testing.canonical_argparse_text(upto_312) == since_313
+        assert testing.canonical_argparse_text(since_313) == since_313
+
+    def test_a_case_differing_only_by_interpreter_compares_equal(self):
+        recorded = {
+            "tier": 1,
+            "returncode": 2,
+            "stdout": "",
+            "stderr": "err: invalid choice: 'q' (choose from 'a', 'b')\n",
+            "usage": "",
+        }
+        fresh = dict(recorded, stderr="err: invalid choice: 'q' (choose from a, b)\n")
+        assert testing.compare_case(recorded, fresh) == ""
+
+    def test_it_forgives_ONLY_those_two_and_still_sees_a_real_difference(self):
+        """The normalisation must not have quietly become `assert True`."""
+        recorded = {
+            "tier": 1,
+            "returncode": 0,
+            "stdout": "hi\n",
+            "stderr": "",
+            "usage": "",
+        }
+        # a different choice set is a real grammar change, not a rendering difference
+        a = {"tier": 1, "returncode": 2, "stdout": "", "stderr": "", "usage": ""}
+        assert testing.compare_case(recorded, dict(recorded, stdout="ho\n")) != ""
+        assert testing.compare_case(recorded, dict(recorded, returncode=1)) != ""
+        assert (
+            testing.compare_case(
+                dict(a, stderr="(choose from 'a', 'b')"),
+                dict(a, stderr="(choose from 'a', 'c')"),
+            )
+            != ""
+        )
+        # and the usage collapse must not swallow a missing option
+        assert (
+            testing.compare_case(
+                dict(a, stdout="usage: p [-h] [-v]\n"),
+                dict(a, stdout="usage: p [-h]\n"),
+            )
+            != ""
+        )

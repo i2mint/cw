@@ -72,6 +72,10 @@ def test_collision_suppression_at_scale():
     about the whole signature: adding one parameter can silently take another's short
     flag away, which is why cw writes the rule as data rather than as a heuristic.
     """
+    # The corpus is shared with the live differential, so it imports argh -- a dev extra.
+    pytest.importorskip(
+        "argh", reason="the shared corpus needs argh: pip install -e '.[dev]'"
+    )
     from tests.argh_parity.corpus import many_parameters
 
     specs = specs_for_function(many_parameters)

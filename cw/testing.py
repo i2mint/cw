@@ -136,9 +136,7 @@ _USAGE = re.compile(r"^usage:.*?(?=\n[ \t]*\n|\Z)", re.MULTILINE | re.DOTALL)
 def normalise_text(text: str) -> str:
     """Newline-normalise ``text`` so a Mac recording asserts on a Windows runner.
 
-    This is the whole of the Windows decision (option A) as it applies to tier 1. It is
-    deliberately the *only* normalisation applied to recorded output -- anything else would
-    be forgiving a real difference.
+    This is the whole of the Windows decision (option A) as it applies to tier 1.
 
     >>> normalise_text('one\\r\\ntwo\\rthree\\n')
     'one\\ntwo\\nthree\\n'
@@ -148,6 +146,43 @@ def normalise_text(text: str) -> str:
     if text is None:
         return None
     return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+#: ``(choose from 'a', 'b')`` -- argparse quoted the items until 3.11 and stopped in 3.12.
+_CHOOSE_FROM = re.compile(r"\(choose from [^)]*\)")
+
+
+def canonical_argparse_text(text: str) -> str:
+    """Neutralise the *interpreter's* argparse rendering, so a golden replays anywhere.
+
+    A golden records what **argh** printed on the machine that recorded it; the gate
+    replays it against what **cw** prints here. Those are only the same claim when both
+    sides are read through the same argparse. Two renderings are not — they are CPython's,
+    identical for argh and cw on any one interpreter, and different between interpreters:
+
+    - the ``invalid choice`` message quoted its choices up to 3.11 and stopped in 3.12;
+    - the ``usage:`` block's line wrapping changed in 3.13 (a trailing ``...`` that used
+      to wrap now does not).
+
+    Comparing those would assert the recording machine's Python version, not cw's grammar,
+    and cw's CI matrix spans 3.10 and 3.12. So both are canonicalised on *both* sides.
+    Nothing else is forgiven: this is the only normalisation beyond newlines, and each of
+    its two rules names the CPython change it answers.
+
+    >>> canonical_argparse_text("x: error: invalid choice: 'q' (choose from 'a', 'b')")
+    "x: error: invalid choice: 'q' (choose from a, b)"
+    >>> canonical_argparse_text('usage: p [-h]\\n       {a,b}\\n       ...\\n\\nnext')
+    'usage: p [-h] {a,b} ...\\n\\nnext'
+
+    Text with neither is returned unchanged:
+
+    >>> canonical_argparse_text('hello\\n')
+    'hello\\n'
+    """
+    if text is None:
+        return None
+    text = _CHOOSE_FROM.sub(lambda m: m.group(0).replace("'", ""), text)
+    return _USAGE.sub(lambda m: " ".join(m.group(0).split()), text)
 
 
 def normalise_usage(text: str) -> str:
@@ -598,6 +633,16 @@ def compare_case(recorded: dict, fresh: dict) -> str:
     stdout:
       - hi
       + ho
+
+    A golden recorded under one CPython replays under another: only argparse's own
+    version-dependent rendering is forgiven, and it is forgiven on both sides (see
+    :func:`canonical_argparse_text`).
+
+    >>> quoted = "err: invalid choice: 'q' (choose from 'a', 'b')"
+    >>> bare = "err: invalid choice: 'q' (choose from a, b)"
+    >>> compare_case({'tier': 3, 'returncode': 2, 'usage': quoted},
+    ...              {'tier': 3, 'returncode': 2, 'usage': bare})
+    ''
     """
     fields = TIER1_FIELDS if recorded.get("tier", 1) == 1 else TIER3_FIELDS
     chunks = []
@@ -607,7 +652,8 @@ def compare_case(recorded: dict, fresh: dict) -> str:
             if want != got:
                 chunks.append(f"returncode:\n  - {want!r}\n  + {got!r}")
             continue
-        want, got = normalise_text(want), normalise_text(got)
+        want = canonical_argparse_text(normalise_text(want))
+        got = canonical_argparse_text(normalise_text(got))
         if want != got:
             chunks.append(f"{field}:\n" + _text_diff(want, got))
     return "\n".join(chunks)

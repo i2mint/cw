@@ -247,7 +247,11 @@ class TestArghIsNotADependency:
     def test_argh_is_not_a_runtime_dependency_nor_in_the_test_extra(self):
         """Issue #7: CI installs `cw[test]`, and `cw[test]` must not pull LGPL argh."""
         import pathlib
-        import tomllib
+
+        # `tomllib` is stdlib only from 3.11, and cw's CI matrix includes 3.10. The
+        # assertion is about a file, not about an interpreter, so running it on the
+        # other leg is enough.
+        tomllib = pytest.importorskip("tomllib", reason="stdlib tomllib needs 3.11+")
 
         root = pathlib.Path(testing.__file__).parent.parent
         config = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))

@@ -1,24 +1,50 @@
 [build-system]
+# >=1.27 for PEP 639 (`license` as an SPDX expression + `license-files`).
 requires = [
-    "hatchling",
+    "hatchling>=1.27",
 ]
 build-backend = "hatchling.build"
 
 [project]
 name = "cw"
 version = "0.0.15"
-description = "Command line Wizard - Transform your python functions into CLI tools"
+description = "Command line Wizard - turn your Python functions into a CLI"
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = []
-authors = []
+license = "MIT"
+license-files = [
+    "LICENSE",
+]
+keywords = [
+    "argparse",
+    "argh",
+    "cli",
+    "command-line",
+    "console",
+]
+authors = [
+    { name = "Thor Whalen" },
+]
+# Deliberately empty, and asserted by tests/test_import_is_cheap.py: `import cw` is
+# stdlib-only. i2 is an optional extra used only by cw.resolution.resource_inputs.
 dependencies = []
-
-[project.license]
-text = "MIT"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
 
 [project.urls]
 Homepage = "https://github.com/i2mint/cw"
+Issues = "https://github.com/i2mint/cw/issues"
 
 [project.optional-dependencies]
 resource = [
@@ -29,8 +55,14 @@ completion = [
 ]
 # What CI installs. Deliberately NO argh: `python -m cw.testing parity` -- the definition
 # of v1 -- runs against committed goldens and must prove it needs nothing but cw. The
-# `tests/argh_parity` differential skips itself when argh is absent.
+# `tests/argh_parity` differential (and the two tests outside it that share its corpus)
+# skip themselves when argh is absent.
+#
+# `cw[resource]` IS here, and that is not a contradiction: i2 is the house's own package,
+# not the LGPL one cw exists to replace, and `cw.resolution.resource_inputs` is a shipped
+# feature whose tests and doctests need it. Without this line CI silently skipped them.
 test = [
+    "cw[resource]",
     "pytest>=7.0",
     "pytest-cov>=4.0",
 ]

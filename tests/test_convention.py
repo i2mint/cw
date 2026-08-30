@@ -1,4 +1,4 @@
-"""`cw.convention`: two values, ten switches, and no field that does nothing.
+"""`cw.convention`: two values, nine fields, and no field that does nothing.
 
 `Convention` is the third seam, and the rule it lives by is that a field which changes
 nothing does not ship. So every field gets a test that flips it and watches the parser

@@ -16,12 +16,24 @@ about what the assembled CLI does, and they are the two the migration is judged 
 import functools
 import io
 
-import argh
 import pytest
 
 import cw
 
-from tests.argh_parity.test_cli_parity import _capture, run_argh
+from tests.capture import capture as _capture
+
+# argh is a **dev** extra; CI installs `cw[test]`, which has none. Only the one test
+# below that actually diffs against argh needs it, so the module imports without it and
+# that test skips itself -- everything else here asserts cw's own behaviour and must run
+# in the environment CI really uses.
+try:
+    import argh
+except ImportError:  # pragma: no cover -- exercised by the `cw[test]` CI leg
+    argh = None
+
+requires_argh = pytest.mark.skipif(
+    argh is None, reason="the live differential needs argh: pip install -e '.[dev]'"
+)
 
 
 # ------------------------------------------------------------------ t/priv, shape only
@@ -121,10 +133,15 @@ class TestPrivShape:
 
 
 def _declare(*flags, **kwargs):
-    """`@argh.arg` and cw's `func._cw` from one call, so the two cannot drift."""
+    """`@argh.arg` and cw's `func._cw` from one call, so the two cannot drift.
+
+    When argh is absent only cw's half is written, which is what the two cw-only
+    assertions below need; the differential that needs both is skipped.
+    """
 
     def decorate(func):
-        func = argh.arg(*flags, **kwargs)(func)
+        if argh is not None:
+            func = argh.arg(*flags, **kwargs)(func)
         name = (flags[-1] if len(flags) > 1 else flags[0]).lstrip("-").replace("-", "_")
         params = dict(getattr(func, "_cw", {}).get("params", {}))
         func._cw = {"params": {name: dict(kwargs, flags=list(flags)), **params}}
@@ -155,6 +172,7 @@ THEREMIN_ARGVS = [
 ]
 
 
+@requires_argh
 @pytest.mark.parametrize("argv", THEREMIN_ARGVS, ids=lambda a: " ".join(a) or "(none)")
 def test_theremin_matches_argh(argv):
     """Including the two things that look like special cases and are neither.
@@ -163,6 +181,9 @@ def test_theremin_matches_argh(argv):
     *appended* to the inferred ones, and `--scale` gets no short flag at all because
     `synth`, `scale` and `seconds` all start with `s`. No line of cw knows about either.
     """
+    # Imported here, not at module scope: that module needs argh at import time.
+    from tests.argh_parity.test_cli_parity import run_argh
+
     left = run_argh(lambda p: p.set_default_command(theremin_cli), argv)
     right = _capture(
         lambda out, err: cw.dispatch(

@@ -305,11 +305,11 @@ class TestGroups:
 
 class TestConfigKeysAreChecked:
     def test_an_unknown_command_key_is_a_hard_error(self):
-        with pytest.raises(GrammarError, match="match no command"):
+        with pytest.raises(GrammarError, match="matche?s? no command"):
             cw.mk_parser({"echo": echo}, config={"ehco": {"word": {"help": "h"}}})
 
     def test_an_unknown_group_key_is_a_hard_error(self):
-        with pytest.raises(GrammarError, match="match no command"):
+        with pytest.raises(GrammarError, match="matche?s? no command"):
             cw.mk_parser(
                 {"grp": {"echo": echo}},
                 config={"grp": {"ehco": {"word": {"help": "h"}}}},

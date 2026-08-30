@@ -13,14 +13,14 @@ different flag or a different line of output is not.
 argh is a test-only dependency. Nothing under `cw/` imports it.
 """
 
-import contextlib
-import io
 import os
 
 import argh
 import pytest
 
 import cw
+
+from tests.capture import capture
 
 os.environ.setdefault("COLUMNS", "100")
 
@@ -158,15 +158,8 @@ ERROR_BUILDERS = [_cmderr, _cmderr7, _sysexit_str, _sysexit_int, _gen_then_err]
 # ---------------------------------------------------------------------------- running
 
 
-def _capture(call):
-    """`call(out, err) -> code`, with argparse's own output captured into the buffers."""
-    out, err = io.StringIO(), io.StringIO()
-    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
-        try:
-            code = call(out, err)
-        except SystemExit as exc:
-            code = exc.code
-    return code, out.getvalue(), err.getvalue()
+#: Defined in `tests/capture.py` so that importing it does not drag in argh.
+_capture = capture
 
 
 def run_argh(build, argv):
