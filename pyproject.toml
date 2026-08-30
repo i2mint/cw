@@ -31,6 +31,10 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
+    # TEST ONLY, and deliberately not a runtime dependency: `tests/argh_parity` builds
+    # the same parser with argh and with cw and diffs them. cw itself never imports argh
+    # (LGPL-3.0-or-later; cw is MIT), and `tests/test_import_is_cheap.py` enforces that.
+    "argh==0.31.3",
 ]
 docs = [
     "sphinx>=6.0",

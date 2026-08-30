@@ -43,6 +43,19 @@ from cw.base import (
     HIDE,
     MISSING,
 )
+from cw.convention import (
+    ARGH,
+    BY_NAME_IF_HAS_DEFAULT,
+    BY_NAME_IF_KWONLY,
+    MODERN,
+    Convention,
+)
+from cw.grammar import (
+    GrammarError,
+    argh_decode,
+    command_name,
+    modern_decode,
+)
 from cw.resolution import (
     parse_ast_spec,
     parse_json_spec,
@@ -62,6 +75,17 @@ __all__ = [
     "Egress",
     "HIDE",
     "MISSING",
+    # -- grammar: a signature becomes command-line arguments ----------------------------
+    "GrammarError",
+    "argh_decode",
+    "command_name",
+    "modern_decode",
+    # -- convention: what the defaults ARE ----------------------------------------------
+    "ARGH",
+    "BY_NAME_IF_HAS_DEFAULT",
+    "BY_NAME_IF_KWONLY",
+    "MODERN",
+    "Convention",
     # -- resolution: string specification -> callable -----------------------------------
     "parse_ast_spec",
     "parse_json_spec",
