@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.testing &mdash; cw 0.0.15 documentation</title>
+  <title>cw.testing &mdash; cw 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -144,11 +144,15 @@
 <span class="sd">Recorded text is stored newline-normalised (``\\r\\n`` and ``\\r`` both become ``\\n``) and</span>
 <span class="sd">every comparison normalises both sides, so a golden recorded on a Mac asserts cleanly on a</span>
 <span class="sd">Windows runner. The subprocess environment pins ``COLUMNS``, ``PYTHONUTF8``,</span>
-<span class="sd">``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM`` so the bytes are reproducible rather</span>
-<span class="sd">than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``</span>
-<span class="sd">line, because ``shlex`` is POSIX-only and a Windows user must never need it. And</span>
-<span class="sd">:func:`parity` spawns no subprocess at all -- it runs in-process against shipped fixtures --</span>
-<span class="sd">so the ``.exe`` console-script shim and the cp1252 console never enter the picture.</span>
+<span class="sd">``PYTHONIOENCODING``, ``PYTHONHASHSEED`` and ``TERM``, and ``stdin`` is pinned closed, so</span>
+<span class="sd">the bytes are reproducible rather than merely comparable. :func:`read_cases` reads a JSON-list form as well as a ``shlex``</span>
+<span class="sd">line, because ``shlex`` is POSIX-only and a Windows user must never need it. The ``.exe``</span>
+<span class="sd">a console script is installed as on Windows is scrubbed out of recorded text by</span>
+<span class="sd">:func:`scrub_exe_suffix`, because ``argparse`` takes its ``prog`` from</span>
+<span class="sd">``basename(sys.argv[0])`` and would otherwise report ``usage: opsward.EXE`` on the runner</span>
+<span class="sd">and ``usage: opsward`` everywhere else. And :func:`parity` spawns no subprocess at all --</span>
+<span class="sd">it runs in-process against shipped fixtures -- so the console-script shim and the cp1252</span>
+<span class="sd">console never enter the picture there either.</span>
 
 <span class="sd">    &gt;&gt;&gt; normalise_text('a\\r\\nb\\r\\n')</span>
 <span class="sd">    'a\\nb\\n'</span>
@@ -181,6 +185,8 @@
     <span class="s2">"pinned_env"</span><span class="p">,</span>
     <span class="s2">"read_cases"</span><span class="p">,</span>
     <span class="s2">"replay"</span><span class="p">,</span>
+    <span class="s2">"scrub_addresses"</span><span class="p">,</span>
+    <span class="s2">"scrub_exe_suffix"</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="c1">#: Bumped when the golden JSON schema changes incompatibly. A golden that does not carry</span>
@@ -346,6 +352,8 @@
 <span class="n">_ADDRESS</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"0x[0-9a-fA-F]{4,16}"</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="scrub_addresses">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.scrub_addresses">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">scrub_addresses</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Replace object-repr memory addresses with a placeholder.</span>
 
@@ -358,7 +366,64 @@
 <span class="sd">    &gt;&gt;&gt; scrub_addresses('&lt;map object at 0x104f2b910&gt;')</span>
 <span class="sd">    '&lt;map object at 0xADDR&gt;'</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">_ADDRESS</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">"0xADDR"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">_ADDRESS</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">"0xADDR"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span> <span class="k">if</span> <span class="n">text</span> <span class="k">else</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="scrub_exe_suffix">
+<a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.scrub_exe_suffix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">scrub_exe_suffix</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">program</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Strip Windows' ``.exe`` off the program name a CLI prints about itself.</span>
+
+<span class="sd">    ``argparse`` derives ``prog`` from ``os.path.basename(sys.argv[0])``, and on Windows a</span>
+<span class="sd">    console script is installed as ``opsward.exe``. So the *same* CLI, at the same commit,</span>
+<span class="sd">    reports ``usage: opsward ...`` on a Mac and ``usage: opsward.EXE ...`` on a Windows</span>
+<span class="sd">    runner -- and every case that prints a usage line or an error prefix differs. That is a</span>
+<span class="sd">    fact about packaging, not about the command line, and this module promises that "a</span>
+<span class="sd">    golden recorded on a Mac asserts cleanly on a Windows runner".</span>
+
+<span class="sd">    Only the *program's own* stem is rewritten, so a CLI that talks about some other</span>
+<span class="sd">    ``.exe`` is left alone. The match is case-insensitive because the shim's extension is</span>
+<span class="sd">    reported as ``.EXE`` on some Windows configurations and ``.exe`` on others -- which</span>
+<span class="sd">    would otherwise make two Windows runners disagree with each other.</span>
+
+<span class="sd">    ``program`` is the **whole command**, not just its first word, because the console</span>
+<span class="sd">    script is not always the first word: a caller may pass ``['python', 'toy.exe']`` as</span>
+<span class="sd">    readily as ``['opsward.exe']``, and ``argparse`` names whichever of them landed in</span>
+<span class="sd">    ``sys.argv[0]``. Every part is considered; a part that is not the program yields a stem</span>
+<span class="sd">    that appears nowhere in the text, so considering it costs nothing.</span>
+
+<span class="sd">    Both path separators are handled, and the replacement is a function rather than a</span>
+<span class="sd">    template string, because a Windows path reaches this on a POSIX host -- through a</span>
+<span class="sd">    golden's recorded ``prog`` -- where ``os.path.basename`` does not split on a backslash</span>
+<span class="sd">    and ``re.sub`` would read the remaining ``\\p`` as a bad escape.</span>
+
+<span class="sd">    &gt;&gt;&gt; scrub_exe_suffix('usage: opsward.EXE [-h]', r'C:\\Scripts\\opsward.exe')</span>
+<span class="sd">    'usage: opsward [-h]'</span>
+<span class="sd">    &gt;&gt;&gt; scrub_exe_suffix('usage: toy.EXE [-h]', ['/usr/bin/python', '/tmp/toy.exe'])</span>
+<span class="sd">    'usage: toy [-h]'</span>
+<span class="sd">    &gt;&gt;&gt; scrub_exe_suffix('usage: opsward [-h]', '/usr/local/bin/opsward')</span>
+<span class="sd">    'usage: opsward [-h]'</span>
+<span class="sd">    &gt;&gt;&gt; scrub_exe_suffix('run setup.exe first', '/usr/local/bin/opsward')</span>
+<span class="sd">    'run setup.exe first'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">program</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">program</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">program</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">program</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">:</span>
+        <span class="n">stem</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[</span><span class="se">\\</span><span class="s2">/]"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">stem</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">".exe"</span><span class="p">:</span>
+            <span class="n">stem</span> <span class="o">=</span> <span class="n">stem</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stem</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">stem</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">"\.exe\b"</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_match</span><span class="p">,</span> <span class="n">matched</span><span class="o">=</span><span class="n">stem</span><span class="p">:</span> <span class="n">matched</span><span class="p">,</span>
+            <span class="n">text</span><span class="p">,</span>
+            <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_usage_of</span><span class="p">(</span><span class="n">stdout</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">stderr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -540,8 +605,14 @@
     <span class="n">_flush</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">,</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">err_file</span><span class="p">:</span>
         <span class="n">saved_fds</span> <span class="o">=</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="c1"># Descriptor 0 is pinned closed for the same reason the subprocess path pins it --</span>
+        <span class="c1"># see _run_subprocess. A command with an interactive path must read EOF here, not</span>
+        <span class="c1"># whatever console the recorder happens to be attached to.</span>
+        <span class="n">saved_stdin_fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">null_fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDONLY</span><span class="p">)</span>
         <span class="n">trailer</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="k">try</span><span class="p">:</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">null_fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">out_file</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">err_file</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">_stream_on_fd</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -568,6 +639,9 @@
             <span class="k">for</span> <span class="n">saved</span><span class="p">,</span> <span class="n">fd</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">saved_fds</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">saved</span><span class="p">,</span> <span class="n">fd</span><span class="p">)</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">saved</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="n">saved_stdin_fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">saved_stdin_fd</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">null_fd</span><span class="p">)</span>
         <span class="n">out_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">err_file</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">stdout</span> <span class="o">=</span> <span class="n">out_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">,</span> <span class="s2">"replace"</span><span class="p">)</span>
@@ -620,7 +694,17 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_run_subprocess</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">argv</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""One case, run as a real subprocess. The heart of the standalone half."""</span>
+<span class="w">    </span><span class="sd">"""One case, run as a real subprocess. The heart of the standalone half.</span>
+
+<span class="sd">    ``stdin`` is :data:`subprocess.DEVNULL`, not the recorder's own. A CLI with an</span>
+<span class="sd">    interactive path -- a REPL entered when a query is omitted, a ``confirm()`` prompt --</span>
+<span class="sd">    reads stdin, and inheriting the recorder's makes the *recording itself* depend on where</span>
+<span class="sd">    it was run: at a terminal the child blocks on a prompt nobody answers and the case is</span>
+<span class="sd">    recorded as a timeout, while under CI or pytest the same case sees an immediate EOF and</span>
+<span class="sd">    records the real behaviour. A golden is a claim about a CLI, so it must not be a claim</span>
+<span class="sd">    about the console that recorded it; pinning stdin closed is the same measure as pinning</span>
+<span class="sd">    ``COLUMNS``, and it belongs for the same reason.</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">done</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
             <span class="n">command</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">argv</span><span class="p">),</span>
@@ -631,6 +715,7 @@
             <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
             <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
             <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+            <span class="n">stdin</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
@@ -640,8 +725,8 @@
         <span class="p">}</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">"returncode"</span><span class="p">:</span> <span class="n">done</span><span class="o">.</span><span class="n">returncode</span><span class="p">,</span>
-        <span class="s2">"stdout"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span>
-        <span class="s2">"stderr"</span><span class="p">:</span> <span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span>
+        <span class="s2">"stdout"</span><span class="p">:</span> <span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stdout</span><span class="p">),</span> <span class="n">command</span><span class="p">),</span>
+        <span class="s2">"stderr"</span><span class="p">:</span> <span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="n">normalise_text</span><span class="p">(</span><span class="n">done</span><span class="o">.</span><span class="n">stderr</span><span class="p">),</span> <span class="n">command</span><span class="p">),</span>
     <span class="p">}</span>
 
 

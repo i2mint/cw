@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.testing &mdash; cw 0.0.15 documentation</title>
+  <title>cw.testing &mdash; cw 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=f0357c94"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -78,6 +78,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.pinned_env"><code class="docutils literal notranslate"><span class="pre">pinned_env</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.read_cases"><code class="docutils literal notranslate"><span class="pre">read_cases()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.replay"><code class="docutils literal notranslate"><span class="pre">replay()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.scrub_addresses"><code class="docutils literal notranslate"><span class="pre">scrub_addresses()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.scrub_exe_suffix"><code class="docutils literal notranslate"><span class="pre">scrub_exe_suffix()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">cw.tests</a></li>
@@ -174,11 +176,15 @@ not move; <a class="reference internal" href="#cw.testing.diff_help" title="cw.t
 <p>Recorded text is stored newline-normalised (<code class="docutils literal notranslate"><span class="pre">\r\n</span></code> and <code class="docutils literal notranslate"><span class="pre">\r</span></code> both become <code class="docutils literal notranslate"><span class="pre">\n</span></code>) and
 every comparison normalises both sides, so a golden recorded on a Mac asserts cleanly on a
 Windows runner. The subprocess environment pins <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code>, <code class="docutils literal notranslate"><span class="pre">PYTHONUTF8</span></code>,
-<code class="docutils literal notranslate"><span class="pre">PYTHONIOENCODING</span></code>, <code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED</span></code> and <code class="docutils literal notranslate"><span class="pre">TERM</span></code> so the bytes are reproducible rather
-than merely comparable. <a class="reference internal" href="#cw.testing.read_cases" title="cw.testing.read_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_cases()</span></code></a> reads a JSON-list form as well as a <code class="docutils literal notranslate"><span class="pre">shlex</span></code>
-line, because <code class="docutils literal notranslate"><span class="pre">shlex</span></code> is POSIX-only and a Windows user must never need it. And
-<a class="reference internal" href="#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">parity()</span></code></a> spawns no subprocess at all – it runs in-process against shipped fixtures –
-so the <code class="docutils literal notranslate"><span class="pre">.exe</span></code> console-script shim and the cp1252 console never enter the picture.</p>
+<code class="docutils literal notranslate"><span class="pre">PYTHONIOENCODING</span></code>, <code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED</span></code> and <code class="docutils literal notranslate"><span class="pre">TERM</span></code>, and <code class="docutils literal notranslate"><span class="pre">stdin</span></code> is pinned closed, so
+the bytes are reproducible rather than merely comparable. <a class="reference internal" href="#cw.testing.read_cases" title="cw.testing.read_cases"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_cases()</span></code></a> reads a JSON-list form as well as a <code class="docutils literal notranslate"><span class="pre">shlex</span></code>
+line, because <code class="docutils literal notranslate"><span class="pre">shlex</span></code> is POSIX-only and a Windows user must never need it. The <code class="docutils literal notranslate"><span class="pre">.exe</span></code>
+a console script is installed as on Windows is scrubbed out of recorded text by
+<a class="reference internal" href="#cw.testing.scrub_exe_suffix" title="cw.testing.scrub_exe_suffix"><code class="xref py py-func docutils literal notranslate"><span class="pre">scrub_exe_suffix()</span></code></a>, because <code class="docutils literal notranslate"><span class="pre">argparse</span></code> takes its <code class="docutils literal notranslate"><span class="pre">prog</span></code> from
+<code class="docutils literal notranslate"><span class="pre">basename(sys.argv[0])</span></code> and would otherwise report <code class="docutils literal notranslate"><span class="pre">usage:</span> <span class="pre">opsward.EXE</span></code> on the runner
+and <code class="docutils literal notranslate"><span class="pre">usage:</span> <span class="pre">opsward</span></code> everywhere else. And <a class="reference internal" href="#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">parity()</span></code></a> spawns no subprocess at all –
+it runs in-process against shipped fixtures – so the console-script shim and the cp1252
+console never enter the picture there either.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="s1">'a</span><span class="se">\r\n</span><span class="s1">b</span><span class="se">\r\n</span><span class="s1">'</span><span class="p">)</span>
 <span class="go">'a\nb\n'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog [-h]</span><span class="se">\n</span><span class="s1">            [--wrapped]</span><span class="se">\n\n</span><span class="s1">Some description.'</span><span class="p">)</span>
@@ -462,6 +468,56 @@ never told “identical” about output that visibly changed.</p></li>
 <p>Statuses are <code class="docutils literal notranslate"><span class="pre">identical</span></code>, <code class="docutils literal notranslate"><span class="pre">differs</span></code>, <code class="docutils literal notranslate"><span class="pre">help-differs</span></code>, <code class="docutils literal notranslate"><span class="pre">expected-diff</span></code> and
 <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code>. <a class="reference internal" href="#cw.testing.assert_replay" title="cw.testing.assert_replay"><code class="xref py py-func docutils literal notranslate"><span class="pre">assert_replay()</span></code></a> is the version that raises, and it raises
 on <code class="docutils literal notranslate"><span class="pre">differs</span></code> and <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code> only.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.scrub_addresses">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">scrub_addresses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#scrub_addresses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.scrub_addresses" title="Link to this definition"></a></dt>
+<dd><p>Replace object-repr memory addresses with a placeholder.</p>
+<p>The one <strong>content</strong> normalisation in this module, and it exists because a golden that
+records <code class="docutils literal notranslate"><span class="pre">&lt;list_iterator</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x1017642e0&gt;</span></code> asserts the heap layout of the machine
+that recorded it. It is applied at record time as well as at replay time, so the
+committed golden shows what is actually being asserted rather than hiding it in the
+comparator.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_addresses</span><span class="p">(</span><span class="s1">'&lt;map object at 0x104f2b910&gt;'</span><span class="p">)</span>
+<span class="go">'&lt;map object at 0xADDR&gt;'</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cw.testing.scrub_exe_suffix">
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">scrub_exe_suffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">program</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/cw/testing.html#scrub_exe_suffix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.scrub_exe_suffix" title="Link to this definition"></a></dt>
+<dd><p>Strip Windows’ <code class="docutils literal notranslate"><span class="pre">.exe</span></code> off the program name a CLI prints about itself.</p>
+<p><code class="docutils literal notranslate"><span class="pre">argparse</span></code> derives <code class="docutils literal notranslate"><span class="pre">prog</span></code> from <code class="docutils literal notranslate"><span class="pre">os.path.basename(sys.argv[0])</span></code>, and on Windows a
+console script is installed as <code class="docutils literal notranslate"><span class="pre">opsward.exe</span></code>. So the <em>same</em> CLI, at the same commit,
+reports <code class="docutils literal notranslate"><span class="pre">usage:</span> <span class="pre">opsward</span> <span class="pre">...</span></code> on a Mac and <code class="docutils literal notranslate"><span class="pre">usage:</span> <span class="pre">opsward.EXE</span> <span class="pre">...</span></code> on a Windows
+runner – and every case that prints a usage line or an error prefix differs. That is a
+fact about packaging, not about the command line, and this module promises that “a
+golden recorded on a Mac asserts cleanly on a Windows runner”.</p>
+<p>Only the <em>program’s own</em> stem is rewritten, so a CLI that talks about some other
+<code class="docutils literal notranslate"><span class="pre">.exe</span></code> is left alone. The match is case-insensitive because the shim’s extension is
+reported as <code class="docutils literal notranslate"><span class="pre">.EXE</span></code> on some Windows configurations and <code class="docutils literal notranslate"><span class="pre">.exe</span></code> on others – which
+would otherwise make two Windows runners disagree with each other.</p>
+<p><code class="docutils literal notranslate"><span class="pre">program</span></code> is the <strong>whole command</strong>, not just its first word, because the console
+script is not always the first word: a caller may pass <code class="docutils literal notranslate"><span class="pre">['python',</span> <span class="pre">'toy.exe']</span></code> as
+readily as <code class="docutils literal notranslate"><span class="pre">['opsward.exe']</span></code>, and <code class="docutils literal notranslate"><span class="pre">argparse</span></code> names whichever of them landed in
+<code class="docutils literal notranslate"><span class="pre">sys.argv[0]</span></code>. Every part is considered; a part that is not the program yields a stem
+that appears nowhere in the text, so considering it costs nothing.</p>
+<p>Both path separators are handled, and the replacement is a function rather than a
+template string, because a Windows path reaches this on a POSIX host – through a
+golden’s recorded <code class="docutils literal notranslate"><span class="pre">prog</span></code> – where <code class="docutils literal notranslate"><span class="pre">os.path.basename</span></code> does not split on a backslash
+and <code class="docutils literal notranslate"><span class="pre">re.sub</span></code> would read the remaining <code class="docutils literal notranslate"><span class="pre">\p</span></code> as a bad escape.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'usage: opsward.EXE [-h]'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'C:\Scripts\opsward.exe'</span><span class="p">)</span>
+<span class="go">'usage: opsward [-h]'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'usage: toy.EXE [-h]'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'/usr/bin/python'</span><span class="p">,</span> <span class="s1">'/tmp/toy.exe'</span><span class="p">])</span>
+<span class="go">'usage: toy [-h]'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'usage: opsward [-h]'</span><span class="p">,</span> <span class="s1">'/usr/local/bin/opsward'</span><span class="p">)</span>
+<span class="go">'usage: opsward [-h]'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'run setup.exe first'</span><span class="p">,</span> <span class="s1">'/usr/local/bin/opsward'</span><span class="p">)</span>
+<span class="go">'run setup.exe first'</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
