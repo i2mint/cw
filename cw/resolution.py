@@ -100,8 +100,8 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
     Examples:
         >>> import os.path
         >>> join_func = resolve_func_from_dot_path('os.path.join')
-        >>> join_func('a', 'b')  # doctest: +ELLIPSIS
-        'a/b'
+        >>> join_func('a', 'b') == os.path.join('a', 'b')   # a separator, whichever OS
+        True
 
         >>> len_func = resolve_func_from_dot_path('builtins.len')
         >>> len_func([1, 2, 3])

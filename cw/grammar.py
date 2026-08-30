@@ -266,7 +266,8 @@ class ArgSpec:
         leaf being :data:`cw.HIDE`, which :func:`specs_for_function` handles before it
         gets here.
 
-        >>> ArgSpec.from_override('synth', {'flags': ['-s'], 'nargs': '?'})
+        >>> ArgSpec.from_override(       # doctest: +NORMALIZE_WHITESPACE
+        ...     'synth', {'flags': ['-s'], 'nargs': '?'})
         ArgSpec(param_name='synth', flags=['-s'], required=cw.MISSING, default=cw.MISSING,
                 nargs='?', extra={}, codec=None, hidden=False, completer=None)
         """
@@ -554,10 +555,11 @@ def infer_specs(
 
     >>> def f(path, *, verbose: bool = False, tags: list = None):
     ...     ...
-    >>> [(s.param_name, s.flags, s.extra) for s in infer_specs(f)]
-    [('path', ['path'], {}),
-     ('verbose', ['-v', '--verbose'], {}),
-     ('tags', ['-t', '--tags'], {'nargs': '*'})]
+    >>> for spec in infer_specs(f):
+    ...     print(spec.param_name, spec.flags, spec.extra)
+    path ['path'] {}
+    verbose ['-v', '--verbose'] {}
+    tags ['-t', '--tags'] {'nargs': '*'}
     """
     convention = convention if convention is not None else _default_convention()
     decode = decode if decode is not None else convention.decode

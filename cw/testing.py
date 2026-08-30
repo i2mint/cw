@@ -497,15 +497,22 @@ def _flush(*streams) -> None:
 def _as_command(prog) -> list:
     """``prog`` as a command list, from either spelling.
 
-    A list is the cross-platform form and is taken as-is. A string is ``shlex``-split,
-    which is POSIX-only -- hence the list form, and hence this docstring.
+    A list is taken as-is and is the form to reach for when a path is involved. A string is
+    ``shlex``-split -- in POSIX mode on POSIX, and in non-POSIX mode on Windows, where
+    POSIX mode would silently eat the backslashes out of ``C:\\Python\\python.exe`` and
+    leave a command nothing can run. Non-POSIX mode keeps the quotes around a quoted token,
+    so they come off here.
 
     >>> _as_command('python -m cw')
     ['python', '-m', 'cw']
     >>> _as_command(['python', '-m', 'cw'])
     ['python', '-m', 'cw']
     """
-    return shlex.split(prog) if isinstance(prog, str) else [str(part) for part in prog]
+    if not isinstance(prog, str):
+        return [str(part) for part in prog]
+    if os.name == "nt":
+        return [part.strip('"') for part in shlex.split(prog, posix=False)]
+    return shlex.split(prog)
 
 
 def _run_subprocess(command, argv, *, env, cwd, timeout) -> dict:

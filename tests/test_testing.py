@@ -687,3 +687,34 @@ class TestAGoldenReplaysOnAnyCPython:
             )
             != ""
         )
+
+
+class TestTheCommandStringIsSplitPerPlatform:
+    """`shlex.split` is POSIX-only, and a Windows command is nothing but backslashes.
+
+    `characterize 'C:\\py\\python.exe C:\\repo\\tool.py'` used to become
+    `['C:pypython.exe', 'C:repotool.py']` -- a command nothing can run, reported as
+    `FileNotFoundError: [WinError 2]` with no clue where it came from.
+    """
+
+    def test_a_list_is_always_taken_as_is(self):
+        assert testing._as_command(["python", "-m", "cw"]) == ["python", "-m", "cw"]
+
+    def test_posix_splits_posix(self, monkeypatch):
+        monkeypatch.setattr(testing.os, "name", "posix")
+        assert testing._as_command("python -m cw") == ["python", "-m", "cw"]
+
+    def test_windows_keeps_its_backslashes(self, monkeypatch):
+        monkeypatch.setattr(testing.os, "name", "nt")
+        assert testing._as_command(r"C:\py\python.exe C:\repo\tool.py") == [
+            r"C:\py\python.exe",
+            r"C:\repo\tool.py",
+        ]
+
+    def test_windows_still_honours_quoting_for_a_path_with_a_space(self, monkeypatch):
+        monkeypatch.setattr(testing.os, "name", "nt")
+        assert testing._as_command(r'"C:\Program Files\py.exe" -m cw') == [
+            r"C:\Program Files\py.exe",
+            "-m",
+            "cw",
+        ]
