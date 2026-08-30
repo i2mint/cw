@@ -485,13 +485,20 @@ class TestWindowsConsoleScriptShim:
     runner, and every case that prints a usage line or an error prefix differs -- 22 of
     31 in the case that found this.
 
-    The simulation is exact rather than mocked: the same toy CLI is installed under two
-    names, one with the Windows extension, and the POSIX-recorded golden is replayed
-    against the `.exe` one.
+    The simulation is exact rather than mocked: the same toy CLI is written under two
+    names, one carrying the Windows extension, and the golden recorded from the plain one
+    is replayed against the `.exe` one.
+
+    Both are run as `[sys.executable, path]` rather than as executables in their own
+    right. A first version wrote a shebang and `chmod +x`, which is exactly the sort of
+    POSIX assumption this class exists to catch -- it failed on the Windows runner with
+    `OSError: [WinError 193] %1 is not a valid Win32 application`. It also made the test
+    weaker than it looks: with the interpreter in front, the console script is *not* the
+    command's first word, so this now covers the harder shape too.
     """
 
     DERIVES_PROG = (
-        "import argparse, sys\n"
+        "import argparse\n"
         "parser = argparse.ArgumentParser(description='A toy.')\n"
         "parser.add_argument('name')\n"
         "parser.parse_args()\n"
@@ -500,25 +507,29 @@ class TestWindowsConsoleScriptShim:
     @pytest.fixture
     def two_names(self, tmp_path):
         """The same CLI as `toy` and as `toy.EXE`, both letting argparse derive prog."""
-        posix = tmp_path / "toy"
-        posix.write_text("#!" + sys.executable + "\n" + self.DERIVES_PROG, encoding="utf-8")
-        posix.chmod(0o755)
+        plain = tmp_path / "toy"
+        plain.write_text(self.DERIVES_PROG, encoding="utf-8")
         windows = tmp_path / "toy.EXE"
-        windows.write_text(posix.read_text(encoding="utf-8"), encoding="utf-8")
-        windows.chmod(0o755)
-        return str(posix), str(windows)
+        windows.write_text(self.DERIVES_PROG, encoding="utf-8")
+        return (
+            [sys.executable, str(plain)],
+            [sys.executable, str(windows)],
+        )
 
     def test_the_exe_suffix_does_not_make_a_recording_os_specific(self, two_names):
-        posix, windows = two_names
-        cases = [["--help"], []]
-        golden = testing.characterize([posix], cases, timeout=30)
+        plain, windows = two_names
+        golden = testing.characterize(plain, [["--help"], []], timeout=30)
         assert "toy.EXE" not in json.dumps(golden)
-        # Replaying the POSIX-recorded golden against the .exe shim must be clean.
-        testing.assert_replay(golden, prog=[windows], strict_help=True)
+        # Replaying the plain-name golden against the .exe shim must be clean.
+        testing.assert_replay(golden, prog=windows, strict_help=True)
 
     def test_only_the_program_s_own_exe_is_scrubbed(self):
         assert testing.scrub_exe_suffix("run setup.exe", "/bin/toy") == "run setup.exe"
         assert testing.scrub_exe_suffix("toy.exe ran", "/bin/toy") == "toy ran"
+
+    def test_the_program_need_not_be_the_command_s_first_word(self):
+        command = ["/usr/bin/python", "/tmp/toy.exe"]
+        assert testing.scrub_exe_suffix("usage: toy.EXE [-h]", command) == "usage: toy [-h]"
 
 
 class TestExitStatus:

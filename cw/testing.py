@@ -272,7 +272,7 @@ def scrub_addresses(text: str) -> str:
     return _ADDRESS.sub("0xADDR", text) if text else text
 
 
-def scrub_exe_suffix(text: str, program: str) -> str:
+def scrub_exe_suffix(text: str, program) -> str:
     """Strip Windows' ``.exe`` off the program name a CLI prints about itself.
 
     ``argparse`` derives ``prog`` from ``os.path.basename(sys.argv[0])``, and on Windows a
@@ -287,6 +287,12 @@ def scrub_exe_suffix(text: str, program: str) -> str:
     reported as ``.EXE`` on some Windows configurations and ``.exe`` on others -- which
     would otherwise make two Windows runners disagree with each other.
 
+    ``program`` is the **whole command**, not just its first word, because the console
+    script is not always the first word: a caller may pass ``['python', 'toy.exe']`` as
+    readily as ``['opsward.exe']``, and ``argparse`` names whichever of them landed in
+    ``sys.argv[0]``. Every part is considered; a part that is not the program yields a stem
+    that appears nowhere in the text, so considering it costs nothing.
+
     Both path separators are handled, and the replacement is a function rather than a
     template string, because a Windows path reaches this on a POSIX host -- through a
     golden's recorded ``prog`` -- where ``os.path.basename`` does not split on a backslash
@@ -294,6 +300,8 @@ def scrub_exe_suffix(text: str, program: str) -> str:
 
     >>> scrub_exe_suffix('usage: opsward.EXE [-h]', r'C:\\Scripts\\opsward.exe')
     'usage: opsward [-h]'
+    >>> scrub_exe_suffix('usage: toy.EXE [-h]', ['/usr/bin/python', '/tmp/toy.exe'])
+    'usage: toy [-h]'
     >>> scrub_exe_suffix('usage: opsward [-h]', '/usr/local/bin/opsward')
     'usage: opsward [-h]'
     >>> scrub_exe_suffix('run setup.exe first', '/usr/local/bin/opsward')
@@ -301,14 +309,20 @@ def scrub_exe_suffix(text: str, program: str) -> str:
     """
     if not text or not program:
         return text
-    stem = re.split(r"[\\/]", program)[-1]
-    if stem[-4:].lower() == ".exe":
-        stem = stem[:-4]
-    if not stem:
-        return text
-    return re.sub(
-        re.escape(stem) + r"\.exe\b", lambda _match: stem, text, flags=re.IGNORECASE
-    )
+    parts = [program] if isinstance(program, str) else list(program)
+    for part in parts:
+        stem = re.split(r"[\\/]", str(part))[-1]
+        if stem[-4:].lower() == ".exe":
+            stem = stem[:-4]
+        if not stem:
+            continue
+        text = re.sub(
+            re.escape(stem) + r"\.exe\b",
+            lambda _match, matched=stem: matched,
+            text,
+            flags=re.IGNORECASE,
+        )
+    return text
 
 
 def _usage_of(stdout: str, stderr: str) -> str:
@@ -599,11 +613,10 @@ def _run_subprocess(command, argv, *, env, cwd, timeout) -> dict:
             "stdout": "",
             "stderr": f"cw.testing: timed out after {timeout}s\n",
         }
-    program = command[0] if command else ""
     return {
         "returncode": done.returncode,
-        "stdout": scrub_exe_suffix(normalise_text(done.stdout), program),
-        "stderr": scrub_exe_suffix(normalise_text(done.stderr), program),
+        "stdout": scrub_exe_suffix(normalise_text(done.stdout), command),
+        "stderr": scrub_exe_suffix(normalise_text(done.stderr), command),
     }
 
 
