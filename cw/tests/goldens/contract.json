@@ -1,0 +1,200 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: contract [-h]\n                {returns-none,returns-zero,returns-false,returns-empty-string,returns-list,returns-tuple,returns-dict,returns-set,returns-generator,returns-iterator,streams-then-fails,raises-command-error,raises-command-error-coded,raises-system-exit-code,raises-system-exit-message}\n                ...\n",
+      "tier": 1,
+      "usage": "usage: contract [-h] {returns-none,returns-zero,returns-false,returns-empty-string,returns-list,returns-tuple,returns-dict,returns-set,returns-generator,returns-iterator,streams-then-fails,raises-command-error,raises-command-error-coded,raises-system-exit-code,raises-system-exit-message} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: contract [-h]\n                {returns-none,returns-zero,returns-false,returns-empty-string,returns-list,returns-tuple,returns-dict,returns-set,returns-generator,returns-iterator,streams-then-fails,raises-command-error,raises-command-error-coded,raises-system-exit-code,raises-system-exit-message}\n                ...\n\nThe D2 contract rows, one command each.\n\npositional arguments:\n  {returns-none,returns-zero,returns-false,returns-empty-string,returns-list,returns-tuple,returns-dict,returns-set,returns-generator,returns-iterator,streams-then-fails,raises-command-error,raises-command-error-coded,raises-system-exit-code,raises-system-exit-message}\n    returns-none        Row 17: None prints NOTHING -- not 'None', not a blank line.\n    returns-zero        Row 17: 0 DOES print, which is why the check cannot be `if result:`.\n    returns-false       Row 17: False DOES print.\n    returns-empty-string\n                        Row 17: '' DOES print -- as a blank line.\n    returns-list        Row 16: a list iterates, one line per item.\n    returns-tuple       Row 16: a tuple iterates too.\n    returns-dict        Row 16: a dict is NOT iterated. It prints its repr, on one line.\n    returns-set         Row 16: a set is not in the whitelist either, so it prints its repr. Set\n                        repr ordering is stable here only because the set has one element -- which\n                        is the point: the corpus may not depend on hash ordering.\n    returns-generator   Row 16: a generator IS in the whitelist, and iterates.\n    returns-iterator    Row 16, the trap: `iter([...])` is a `list_iterator`, NOT a GeneratorType.\n                        The whitelist is three concrete types, so this prints a repr, not two\n                        lines. Any fleet command returning `map(...)`, `filter(...)` or a\n                        comprehension-fed iterator is printing a repr today.\n    streams-then-fails  Row 18: a generator streams LAZILY, so what it yielded lands before the\n                        error.\n    raises-command-error\n                        Row 19: `CommandError` is one line on stderr and a non-zero exit, no\n                        traceback.\n    raises-command-error-coded\n                        Row 19: and it carries its own exit code, which is NOT 1.\n    raises-system-exit-code\n                        Row 19: a SystemExit keeps its exit code.\n    raises-system-exit-message\n                        Row 19: a SystemExit with a string prints it and exits 1.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: contract [-h] {returns-none,returns-zero,returns-false,returns-empty-string,returns-list,returns-tuple,returns-dict,returns-set,returns-generator,returns-iterator,streams-then-fails,raises-command-error,raises-command-error-coded,raises-system-exit-code,raises-system-exit-message} ..."
+    },
+    {
+      "argv": [
+        "returns-none"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-zero"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "0\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-false"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-empty-string"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-list"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "alpha\nbeta\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-tuple"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "alpha\nbeta\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-dict"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "{'a': 1, 'b': 2}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-set"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "{'only'}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-generator"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "0\n1\n2\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "returns-iterator"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "<list_iterator object at 0xADDR>\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "streams-then-fails"
+      ],
+      "returncode": 1,
+      "stderr": "RuntimeError: halfway\n",
+      "stdout": "first\nsecond\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "raises-command-error"
+      ],
+      "returncode": 1,
+      "stderr": "CommandError: no such pipeline\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "raises-command-error-coded"
+      ],
+      "returncode": 7,
+      "stderr": "CommandError: gone\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "raises-system-exit-code"
+      ],
+      "returncode": 3,
+      "stderr": "",
+      "stdout": "",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "raises-system-exit-message"
+      ],
+      "returncode": 1,
+      "stderr": "bye\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": ""
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "the D2 contract itself",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "The egress and error rows, which every repo shape has in it but none exercises on purpose: the three-concrete-type whitelist (a dict prints on ONE line and a plain iterator prints a repr), None printing nothing while 0/False/'' print, lazy generator streaming, and CommandError's one-line stderr and exit code.",
+  "prog": [
+    "contract"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    16,
+    17,
+    18,
+    19
+  ],
+  "shape": "contract"
+}

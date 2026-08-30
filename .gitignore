@@ -73,6 +73,9 @@ instance/
 # Sphinx documentation
 docs/_build/
 docs/*
+# ...but the architecture decision records are source, not build output. Without this
+# negation `docs/*` swallows them silently -- they simply never get committed.
+!docs/adr/
 
 # PyBuilder
 target/

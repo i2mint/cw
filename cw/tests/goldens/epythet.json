@@ -1,0 +1,196 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: epythet [-h] {quickstart,make-docsrc,check-pages} ...\n",
+      "tier": 1,
+      "usage": "usage: epythet [-h] {quickstart,make-docsrc,check-pages} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: epythet [-h] {quickstart,make-docsrc,check-pages} ...\n\nSetup and generate Sphinx docs effortlessly\n\npositional arguments:\n  {quickstart,make-docsrc,check-pages}\n    quickstart          Create a docsrc directory for a project. The annotation is a real `list`\n                        object, not a string, because this module has no `from __future__ import\n                        annotations` -- which is exactly the condition under which argh's hint\n                        guesser fires and the `@argh.arg('--ignore', nargs='*')` decorator can be\n                        deleted outright.\n    make-docsrc         Generate the docsrc for a project.\n    check-pages         Check that a project's GitHub Pages site is live. Row 12, and the pair\n                        that makes it observable: this function is identical to `quickstart` in\n                        the two ways that matter, except that it carries one `@argh.arg`. That one\n                        declaration turns hint inference OFF for the WHOLE function, so: *\n                        `--depth 2` arrives here as the STRING `'2'`, where `quickstart` gets the\n                        int `2` (`depth`'s type comes only from its annotation -- its default is\n                        None, so the default-value guesser has nothing to say about it); and *\n                        `ignore` would lose its `nargs='*'` too, which is why the declaration has\n                        to put it back explicitly. `timeout` is coerced either way: its default is\n                        `30`, and the default-value guesser runs regardless of whether hints do.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: epythet [-h] {quickstart,make-docsrc,check-pages} ..."
+    },
+    {
+      "argv": [
+        "quickstart",
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: epythet quickstart [-h] [-i [IGNORE ...]] [-d DEPTH] project-dir\n\nCreate a docsrc directory for a project.\n\nThe annotation is a real `list` object, not a string, because this module has no\n`from __future__ import annotations` -- which is exactly the condition under which\nargh's hint guesser fires and the `@argh.arg('--ignore', nargs='*')` decorator can be\ndeleted outright.\n\npositional arguments:\n  project-dir           -\n\noptions:\n  -h, --help            show this help message and exit\n  -i [IGNORE ...], --ignore [IGNORE ...]\n                        -\n  -d DEPTH, --depth DEPTH\n                        -\n",
+      "tier": 3,
+      "usage": "usage: epythet quickstart [-h] [-i [IGNORE ...]] [-d DEPTH] project-dir"
+    },
+    {
+      "argv": [
+        "quickstart",
+        "."
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "quickstart('.', ignore=None, depth=None)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "quickstart",
+        ".",
+        "--ignore"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "quickstart('.', ignore=[], depth=None)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "quickstart",
+        ".",
+        "--ignore",
+        "a",
+        "b"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "quickstart('.', ignore=['a', 'b'], depth=None)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "quickstart",
+        ".",
+        "-i",
+        "a"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "quickstart('.', ignore=['a'], depth=None)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "quickstart",
+        ".",
+        "--depth",
+        "2"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "quickstart('.', ignore=None, depth=2)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "make-docsrc",
+        ".",
+        "--verbose"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "make_docsrc('.', verbose=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "check-pages",
+        ".",
+        "--depth",
+        "2"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "check_pages('.', ignore=None, depth='2', timeout=30)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "check-pages",
+        ".",
+        "--timeout",
+        "5"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "check_pages('.', ignore=None, depth=None, timeout=5)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "check-pages",
+        ".",
+        "--ignore"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "check_pages('.', ignore=[], depth=None, timeout=30)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "check-pages",
+        ".",
+        "--ignore",
+        "x"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "check_pages('.', ignore=['x'], depth=None, timeout=30)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "quickstart"
+      ],
+      "returncode": 2,
+      "stderr": "usage: epythet quickstart [-h] [-i [IGNORE ...]] [-d DEPTH] project-dir\nepythet quickstart: error: the following arguments are required: project-dir\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: epythet quickstart [-h] [-i [IGNORE ...]] [-d DEPTH] project-dir epythet quickstart: error: the following arguments are required: project-dir"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "i/epythet",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "A `list` annotation infers nargs='*', so epythet's decorator can be deleted. The CI-critical case is `quickstart . --ignore` with ZERO values -- the literal line in publish-github-pages/action.yml, running in every fleet repo's docs job -- which must still parse to `ignore=[]`. Also row 12: the @argh.arg on `check_pages` turns hint inference off for that whole function, so `timeout` arrives as a string.",
+  "prog": [
+    "epythet"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    12,
+    13
+  ],
+  "shape": "epythet"
+}

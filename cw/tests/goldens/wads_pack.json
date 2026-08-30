@@ -1,0 +1,237 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: pack [-h] {populate-pkg-dir,go} ...\n",
+      "tier": 1,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: pack [-h] {populate-pkg-dir,go} ...\n\nUtils to package and publish.\n\npositional arguments:\n  {populate-pkg-dir,go}\n    populate-pkg-dir    Populate a package directory from a template. Thirty-four parameters,\n                        which is what makes the short-flag collision pass observable as data\n                        rather than as a heuristic: with this many first characters almost\n                        everything collides and almost nothing gets a short flag. `verbose: bool =\n                        True` becomes `store_false`, so `--verbose` turns verbosity OFF -- the\n                        footgun D2 preserves on purpose. And `**configs` contributes no command-\n                        line arguments at all.\n    go                  Package and publish, in one step.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ..."
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: pack populate-pkg-dir [-h] [--version VERSION] [--description DESCRIPTION] [-r ROOT_URL]\n                             [--author AUTHOR] [--author-email AUTHOR_EMAIL] [--license LICENSE]\n                             [-k KEYWORDS] [-u URL] [--project-urls PROJECT_URLS] [-c CLASSIFIERS]\n                             [--python-requires PYTHON_REQUIRES]\n                             [--install-requires INSTALL_REQUIRES]\n                             [--extras-require EXTRAS_REQUIRE] [--entry-points ENTRY_POINTS]\n                             [--package-data PACKAGE_DATA] [--include-package-data] [-z]\n                             [--long-description LONG_DESCRIPTION]\n                             [--long-description-content-type LONG_DESCRIPTION_CONTENT_TYPE]\n                             [--platforms PLATFORMS] [--provides PROVIDES] [--obsoletes OBSOLETES]\n                             [--download-url DOWNLOAD_URL] [--maintainer MAINTAINER]\n                             [--maintainer-email MAINTAINER_EMAIL] [--docsrc DOCSRC]\n                             [--display-name DISPLAY_NAME] [--dry-run] [--overwrite] [--verbose]\n                             pkg-dir\n\nPopulate a package directory from a template.\n\nThirty-four parameters, which is what makes the short-flag collision pass observable as\ndata rather than as a heuristic: with this many first characters almost everything\ncollides and almost nothing gets a short flag. `verbose: bool = True` becomes\n`store_false`, so `--verbose` turns verbosity OFF -- the footgun D2 preserves on\npurpose. And `**configs` contributes no command-line arguments at all.\n\npositional arguments:\n  pkg-dir               -\n\noptions:\n  -h, --help            show this help message and exit\n  --version VERSION     -\n  --description DESCRIPTION\n                        -\n  -r ROOT_URL, --root-url ROOT_URL\n                        -\n  --author AUTHOR       -\n  --author-email AUTHOR_EMAIL\n                        -\n  --license LICENSE     'mit'\n  -k KEYWORDS, --keywords KEYWORDS\n                        -\n  -u URL, --url URL     -\n  --project-urls PROJECT_URLS\n                        -\n  -c CLASSIFIERS, --classifiers CLASSIFIERS\n                        -\n  --python-requires PYTHON_REQUIRES\n                        -\n  --install-requires INSTALL_REQUIRES\n                        -\n  --extras-require EXTRAS_REQUIRE\n                        -\n  --entry-points ENTRY_POINTS\n                        -\n  --package-data PACKAGE_DATA\n                        -\n  --include-package-data\n                        False\n  -z, --zip-safe        False\n  --long-description LONG_DESCRIPTION\n                        -\n  --long-description-content-type LONG_DESCRIPTION_CONTENT_TYPE\n                        -\n  --platforms PLATFORMS\n                        -\n  --provides PROVIDES   -\n  --obsoletes OBSOLETES\n                        -\n  --download-url DOWNLOAD_URL\n                        -\n  --maintainer MAINTAINER\n                        -\n  --maintainer-email MAINTAINER_EMAIL\n                        -\n  --docsrc DOCSRC       -\n  --display-name DISPLAY_NAME\n                        -\n  --dry-run             False\n  --overwrite           False\n  --verbose             True\n",
+      "tier": 3,
+      "usage": "usage: pack populate-pkg-dir [-h] [--version VERSION] [--description DESCRIPTION] [-r ROOT_URL] [--author AUTHOR] [--author-email AUTHOR_EMAIL] [--license LICENSE] [-k KEYWORDS] [-u URL] [--project-urls PROJECT_URLS] [-c CLASSIFIERS] [--python-requires PYTHON_REQUIRES] [--install-requires INSTALL_REQUIRES] [--extras-require EXTRAS_REQUIRE] [--entry-points ENTRY_POINTS] [--package-data PACKAGE_DATA] [--include-package-data] [-z] [--long-description LONG_DESCRIPTION] [--long-description-content-type LONG_DESCRIPTION_CONTENT_TYPE] [--platforms PLATFORMS] [--provides PROVIDES] [--obsoletes OBSOLETES] [--download-url DOWNLOAD_URL] [--maintainer MAINTAINER] [--maintainer-email MAINTAINER_EMAIL] [--docsrc DOCSRC] [--display-name DISPLAY_NAME] [--dry-run] [--overwrite] [--verbose] pkg-dir"
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='mit' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "--verbose"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=False license='mit' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "go",
+        "/p",
+        "--verbose"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "go('/p', version=None, verbose=False)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "go",
+        "/p"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "go('/p', version=None, verbose=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "go",
+        "/p",
+        "--version",
+        "0.0.1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "go('/p', version='0.0.1', verbose=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-d",
+        "x"
+      ],
+      "returncode": 2,
+      "stderr": "usage: pack [-h] {populate-pkg-dir,go} ...\npack: error: unrecognized arguments: -d x\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ... pack: error: unrecognized arguments: -d x"
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-v"
+      ],
+      "returncode": 2,
+      "stderr": "usage: pack [-h] {populate-pkg-dir,go} ...\npack: error: unrecognized arguments: -v\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ... pack: error: unrecognized arguments: -v"
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-l",
+        "apache"
+      ],
+      "returncode": 2,
+      "stderr": "usage: pack [-h] {populate-pkg-dir,go} ...\npack: error: unrecognized arguments: -l apache\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ... pack: error: unrecognized arguments: -l apache"
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "--license",
+        "apache"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='apache' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-k",
+        "cli"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='mit' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-z"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='mit' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "-c",
+        "Topic"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='mit' version=None dry_run=False configs={}\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "--anything-at-all",
+        "1"
+      ],
+      "returncode": 2,
+      "stderr": "usage: pack [-h] {populate-pkg-dir,go} ...\npack: error: unrecognized arguments: --anything-at-all 1\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: pack [-h] {populate-pkg-dir,go} ... pack: error: unrecognized arguments: --anything-at-all 1"
+    },
+    {
+      "argv": [
+        "populate-pkg-dir",
+        "/p",
+        "--dry-run",
+        "--overwrite"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "populate_pkg_dir('/p') verbose=True license='mit' version=None dry_run=True configs={}\n",
+      "tier": 1,
+      "usage": ""
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "i/wads",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "Collision suppression at scale: 34 parameters, so almost no short flag survives. `verbose: bool = True` -> store_false, so `--verbose` turns verbosity OFF. `**configs` contributes no CLI arguments, and the leftovers argparse never produced are collected on ingress anyway.",
+  "prog": [
+    "pack"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    3,
+    4,
+    6,
+    8,
+    11
+  ],
+  "shape": "wads_pack"
+}

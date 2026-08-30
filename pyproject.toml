@@ -1,33 +1,84 @@
 [build-system]
+# >=1.27 for PEP 639 (`license` as an SPDX expression + `license-files`).
 requires = [
-    "hatchling",
+    "hatchling>=1.27",
 ]
 build-backend = "hatchling.build"
 
 [project]
 name = "cw"
 version = "0.0.15"
-description = "Command line Wizard - Transform your python functions into CLI tools"
+description = "Command line Wizard - turn your Python functions into a CLI"
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = []
-authors = []
-dependencies = [
-    "i2",
-    "argh",
+license = "MIT"
+license-files = [
+    "LICENSE",
 ]
-
-[project.license]
-text = "MIT"
+keywords = [
+    "argparse",
+    "argh",
+    "cli",
+    "command-line",
+    "console",
+]
+authors = [
+    { name = "Thor Whalen" },
+]
+# Deliberately empty, and asserted by tests/test_import_is_cheap.py: `import cw` is
+# stdlib-only. i2 is an optional extra used only by cw.resolution.resource_inputs.
+dependencies = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
 
 [project.urls]
 Homepage = "https://github.com/i2mint/cw"
+Issues = "https://github.com/i2mint/cw/issues"
 
 [project.optional-dependencies]
-dev = [
+resource = [
+    "i2",
+]
+completion = [
+    "argcomplete>=3",
+]
+# The extra CI installs -- and CI really does install it, because
+# `[tool.wads.ci.install].extras` below says so. Without that section wads' reusable
+# workflow runs a bare `uv pip install -e .` and three shipped `cw.resolution` tests fail
+# on a missing i2.
+#
+# Deliberately NO argh: `python -m cw.testing parity` -- the definition of v1 -- runs
+# against committed goldens and must prove it needs nothing but cw. The
+# `tests/argh_parity` differential (and the two tests outside it that share its corpus)
+# skip themselves when argh is absent.
+#
+# `cw[resource]` IS here, and that is not a contradiction: i2 is the house's own package,
+# not the LGPL one cw exists to replace, and `cw.resolution.resource_inputs` is a shipped
+# feature whose tests and doctests need it. Without this line CI silently skipped them.
+test = [
+    "cw[resource]",
     "pytest>=7.0",
     "pytest-cov>=4.0",
+]
+# What a developer installs. argh is here and ONLY here: `tests/argh_parity` builds the
+# same parser with argh and with cw and diffs them, and `misc/record_goldens.py` records
+# the parity goldens. cw itself never imports argh (LGPL-3.0-or-later; cw is MIT), and
+# `tests/test_import_is_cheap.py` enforces that.
+dev = [
+    "cw[test]",
     "ruff>=0.1.0",
+    "argh==0.31.3",
 ]
 docs = [
     "sphinx>=6.0",
@@ -76,7 +127,9 @@ convention = "google"
 minversion = "6.0"
 testpaths = [
     "tests",
+    "cw",
 ]
+addopts = "--doctest-modules"
 doctest_optionflags = [
     "NORMALIZE_WHITESPACE",
     "ELLIPSIS",
@@ -84,6 +137,12 @@ doctest_optionflags = [
 
 [tool.wads.ci]
 project_name = ""
+
+# What `uv pip install -e ".[...]"` gets in CI. wads' reusable workflow reads this key
+# (`wads/ci_config.py:install_extras`); with no section it installs the package bare, and
+# `cw[resource]`'s i2 is then missing for `cw.resolution`'s test and two doctests.
+[tool.wads.ci.install]
+extras = "test"
 
 [tool.wads.ci.commands]
 pre_test = []
