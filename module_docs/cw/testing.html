@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.testing &mdash; cw 0.1.0 documentation</title>
+  <title>cw.testing &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -75,7 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.normalise_text"><code class="docutils literal notranslate"><span class="pre">normalise_text()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.normalise_usage"><code class="docutils literal notranslate"><span class="pre">normalise_usage()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.parity"><code class="docutils literal notranslate"><span class="pre">parity()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cw.testing.pinned_env"><code class="docutils literal notranslate"><span class="pre">pinned_env</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cw.testing.pinned_env"><code class="docutils literal notranslate"><span class="pre">pinned_env()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.read_cases"><code class="docutils literal notranslate"><span class="pre">read_cases()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.replay"><code class="docutils literal notranslate"><span class="pre">replay()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.testing.scrub_addresses"><code class="docutils literal notranslate"><span class="pre">scrub_addresses()</span></code></a></li>
@@ -113,9 +113,9 @@
   <section id="module-cw.testing">
 <span id="cw-testing"></span><h1>cw.testing<a class="headerlink" href="#module-cw.testing" title="Link to this heading"></a></h1>
 <p>Record a CLI’s behaviour before a migration and assert it after.</p>
-<p>This file is <strong>standalone</strong> (D4). Its module-level imports are <code class="docutils literal notranslate"><span class="pre">argparse</span></code>, <code class="docutils literal notranslate"><span class="pre">difflib</span></code>,
-<code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">os</span></code>, <code class="docutils literal notranslate"><span class="pre">re</span></code>, <code class="docutils literal notranslate"><span class="pre">shlex</span></code>, <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> and <code class="docutils literal notranslate"><span class="pre">sys</span></code> – stdlib, all of it, and no
-<code class="docutils literal notranslate"><span class="pre">cw</span></code> anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose
+<p>This file is <strong>standalone</strong> (D4). Its module-level imports are <code class="docutils literal notranslate"><span class="pre">argparse</span></code>,
+<code class="docutils literal notranslate"><span class="pre">contextlib</span></code>, <code class="docutils literal notranslate"><span class="pre">difflib</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">os</span></code>, <code class="docutils literal notranslate"><span class="pre">re</span></code>, <code class="docutils literal notranslate"><span class="pre">shlex</span></code>, <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> and
+<code class="docutils literal notranslate"><span class="pre">sys</span></code> – stdlib, all of it, and no <code class="docutils literal notranslate"><span class="pre">cw</span></code> anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose
 CLI is being deleted and 35 that are argparse-only and will never depend on <code class="docutils literal notranslate"><span class="pre">cw</span></code>, and all
 of them want the same thing: <em>proof that the command line did not change</em>. Copy this one
 file into such a repo and it works.</p>
@@ -406,16 +406,42 @@ repo’s own CI, which is what a migration test is for.</p>
 </dl>
 </dd></dl>
 
-<dl class="py class">
+<dl class="py function">
 <dt class="sig sig-object py" id="cw.testing.pinned_env">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">pinned_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/testing.html#pinned_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.pinned_env" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">pinned_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/cw/testing.html#pinned_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.pinned_env" title="Link to this definition"></a></dt>
 <dd><p>Context manager applying <a class="reference internal" href="#cw.testing.RECORDING_ENV" title="cw.testing.RECORDING_ENV"><code class="xref py py-data docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a> to the <strong>current</strong> process.</p>
 <p><a class="reference internal" href="#cw.testing.characterize" title="cw.testing.characterize"><code class="xref py py-func docutils literal notranslate"><span class="pre">characterize()</span></code></a> hands the pins to a subprocess, where they belong. <a class="reference internal" href="#cw.testing.parity" title="cw.testing.parity"><code class="xref py py-func docutils literal notranslate"><span class="pre">parity()</span></code></a>
 runs in-process and needs the same pins applied here instead – <code class="docutils literal notranslate"><span class="pre">COLUMNS</span></code> above all,
 since that is what <code class="docutils literal notranslate"><span class="pre">argparse</span></code> wraps to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env</strong> – Extra pins, applied over <a class="reference internal" href="#cw.testing.RECORDING_ENV" title="cw.testing.RECORDING_ENV"><code class="xref py py-data docutils literal notranslate"><span class="pre">RECORDING_ENV</span></code></a>.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p>The mapping that was applied, which is what <code class="docutils literal notranslate"><span class="pre">as</span></code> gives you.</p>
+</dd>
+</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">pinned_env</span><span class="p">():</span>
 <span class="gp">... </span>    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'COLUMNS'</span><span class="p">]</span>
 <span class="go">'100'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">pinned_env</span><span class="p">({</span><span class="s1">'COLUMNS'</span><span class="p">:</span> <span class="s1">'80'</span><span class="p">})</span> <span class="k">as</span> <span class="n">pins</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">'COLUMNS'</span><span class="p">],</span> <span class="n">pins</span><span class="p">[</span><span class="s1">'COLUMNS'</span><span class="p">])</span>
+<span class="go">('80', '80')</span>
+</pre></div>
+</div>
+<p>The name is lowercase because it reads as a statement rather than as a type, and it is
+a function rather than a class because there is no object here worth having – the
+house rule is functional over OOP, and <code class="docutils literal notranslate"><span class="pre">contextlib</span></code> is where the state machine goes.
+Restoration is in a <code class="docutils literal notranslate"><span class="pre">finally</span></code>, so an exception inside the block does not leak the
+pins into the rest of the process:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">before</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'COLUMNS'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">pinned_env</span><span class="p">():</span>
+<span class="gp">... </span>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">'boom'</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">pass</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'COLUMNS'</span><span class="p">)</span> <span class="o">==</span> <span class="n">before</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </dd></dl>

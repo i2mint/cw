@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.testing &mdash; cw 0.1.0 documentation</title>
+  <title>cw.testing &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -89,9 +89,9 @@
   <h1>Source code for cw.testing</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Record a CLI's behaviour before a migration and assert it after.</span>
 
-<span class="sd">This file is **standalone** (D4). Its module-level imports are ``argparse``, ``difflib``,</span>
-<span class="sd">``json``, ``os``, ``re``, ``shlex``, ``subprocess`` and ``sys`` -- stdlib, all of it, and no</span>
-<span class="sd">``cw`` anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose</span>
+<span class="sd">This file is **standalone** (D4). Its module-level imports are ``argparse``,</span>
+<span class="sd">``contextlib``, ``difflib``, ``json``, ``os``, ``re``, ``shlex``, ``subprocess`` and</span>
+<span class="sd">``sys`` -- stdlib, all of it, and no ``cw`` anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose</span>
 <span class="sd">CLI is being deleted and 35 that are argparse-only and will never depend on ``cw``, and all</span>
 <span class="sd">of them want the same thing: *proof that the command line did not change*. Copy this one</span>
 <span class="sd">file into such a repo and it works.</span>
@@ -161,6 +161,7 @@
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">difflib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
@@ -509,37 +510,55 @@
 
 <div class="viewcode-block" id="pinned_env">
 <a class="viewcode-back" href="../../module_docs/cw/testing.html#cw.testing.pinned_env">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">pinned_env</span><span class="p">:</span>
+<span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pinned_env</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Context manager applying :data:`RECORDING_ENV` to the **current** process.</span>
 
 <span class="sd">    :func:`characterize` hands the pins to a subprocess, where they belong. :func:`parity`</span>
 <span class="sd">    runs in-process and needs the same pins applied here instead -- ``COLUMNS`` above all,</span>
 <span class="sd">    since that is what ``argparse`` wraps to.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        env: Extra pins, applied over :data:`RECORDING_ENV`.</span>
+
+<span class="sd">    Yields:</span>
+<span class="sd">        The mapping that was applied, which is what ``as`` gives you.</span>
+
 <span class="sd">    &gt;&gt;&gt; with pinned_env():</span>
 <span class="sd">    ...     os.environ['COLUMNS']</span>
 <span class="sd">    '100'</span>
+<span class="sd">    &gt;&gt;&gt; with pinned_env({'COLUMNS': '80'}) as pins:</span>
+<span class="sd">    ...     (os.environ['COLUMNS'], pins['COLUMNS'])</span>
+<span class="sd">    ('80', '80')</span>
+
+<span class="sd">    The name is lowercase because it reads as a statement rather than as a type, and it is</span>
+<span class="sd">    a function rather than a class because there is no object here worth having -- the</span>
+<span class="sd">    house rule is functional over OOP, and ``contextlib`` is where the state machine goes.</span>
+<span class="sd">    Restoration is in a ``finally``, so an exception inside the block does not leak the</span>
+<span class="sd">    pins into the rest of the process:</span>
+
+<span class="sd">    &gt;&gt;&gt; before = os.environ.get('COLUMNS')</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     with pinned_env():</span>
+<span class="sd">    ...         raise RuntimeError('boom')</span>
+<span class="sd">    ... except RuntimeError:</span>
+<span class="sd">    ...     pass</span>
+<span class="sd">    &gt;&gt;&gt; os.environ.get('COLUMNS') == before</span>
+<span class="sd">    True</span>
 <span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">RECORDING_ENV</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{}))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">UNSET_ENV</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNSET_ENV</span><span class="p">:</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exc_info</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_saved</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">RECORDING_ENV</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">env</span> <span class="ow">or</span> <span class="p">{}))</span>
+    <span class="n">saved</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">env</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">UNSET_ENV</span><span class="p">)}</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">UNSET_ENV</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">env</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">saved</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
 
 

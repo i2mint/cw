@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.cli &mdash; cw 0.1.0 documentation</title>
+  <title>cw.cli &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -175,13 +175,40 @@
 <span class="c1">#: reports when it catches one.</span>
 <span class="n">USAGE_ERROR_CODE</span> <span class="o">=</span> <span class="mi">2</span>
 
+<span class="c1">#: The answer to "a group in the mapping form wants ``title=``", which is issue #31 and</span>
+<span class="c1">#: which cw deliberately does **not** give a fourth behaviour-carrying keyword. A mapping</span>
+<span class="c1">#: value already *is* a group; what it has nowhere to put is the group's own</span>
+<span class="c1">#: ``add_subparsers`` keywords. Those belong to :func:`add_commands`, which takes a mapping</span>
+<span class="c1">#: too -- so the answer is to build and add in two calls rather than one. See ADR-0008.</span>
+<span class="n">TWO_CALL_GROUP_RECIPE</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"cw's group keywords belong to cw.add_commands, not to cw.mk_parser or cw.dispatch. "</span>
+    <span class="s2">"A mapping VALUE is already a group -- cw.dispatch({'archive': {'ls': ls}}) -- but a "</span>
+    <span class="s2">"single mapping has nowhere to put the group's own add_subparsers keywords, so build "</span>
+    <span class="s2">"the parser and add the group as two calls:</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    parser = cw.mk_parser(TOP_COMMANDS, prog='xa')</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    cw.add_commands(parser, ARCHIVE_COMMANDS, group_name='archive',</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"                    group_kwargs={'title': 'Postmortem archive'})</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    raise SystemExit(cw.run(parser))</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"Note the two details that catch everyone: the group's row in the PARENT's --help is "</span>
+    <span class="s2">"fed by group_kwargs['title'], never ['help'] (which argparse accepts and renders "</span>
+    <span class="s2">"nowhere); and cw.run RETURNS an exit code where argh's parser.dispatch() raised it, "</span>
+    <span class="s2">"so it must be wrapped in `raise SystemExit(...)` or every usage error exits 0."</span>
+<span class="p">)</span>
+
 <span class="c1">#: cw keywords that are real, but not on *this* call. Without this, ``mk_parser(f,</span>
 <span class="c1">#: egress=...)`` reports that ``argparse.ArgumentParser`` has no such keyword and lists</span>
 <span class="c1">#: argparse's parameters -- true, and the least useful true thing to say. A seam is one</span>
 <span class="c1">#: keyword argument, but not every seam is on every entry point: ``egress`` runs after the</span>
 <span class="c1">#: call, so it belongs to :func:`run` and :func:`dispatch`, and ``decode`` shapes the</span>
 <span class="c1">#: parser, so it belongs to :func:`mk_parser`, :func:`dispatch` and :func:`add_commands`.</span>
+<span class="c1">#: The ``group_*`` entries are not seams at all -- they are :func:`add_commands` keywords</span>
+<span class="c1">#: that a caller reasonably tries on the mapping form first (issue #31).</span>
 <span class="n">SEAMS_ELSEWHERE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"group_name"</span><span class="p">:</span> <span class="n">TWO_CALL_GROUP_RECIPE</span><span class="p">,</span>
+    <span class="s2">"group_kwargs"</span><span class="p">:</span> <span class="n">TWO_CALL_GROUP_RECIPE</span><span class="p">,</span>
+    <span class="c1"># argh's pre-0.30 spellings, which cw.add_commands still accepts.</span>
+    <span class="s2">"namespace"</span><span class="p">:</span> <span class="n">TWO_CALL_GROUP_RECIPE</span><span class="p">,</span>
+    <span class="s2">"namespace_kwargs"</span><span class="p">:</span> <span class="n">TWO_CALL_GROUP_RECIPE</span><span class="p">,</span>
     <span class="s2">"egress"</span><span class="p">:</span> <span class="p">(</span>
         <span class="s2">"cw's egress seam turns a return value into output, which happens when a command "</span>
         <span class="s2">"runs -- so it is a keyword of cw.run and cw.dispatch, not of cw.mk_parser. To "</span>
@@ -232,8 +259,18 @@
     <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"formatter_class"</span><span class="p">,</span> <span class="n">ArghHelpFormatter</span><span class="p">)</span>
     <span class="n">misplaced</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">parser_kwargs</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">SEAMS_ELSEWHERE</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">misplaced</span><span class="p">:</span>
+        <span class="c1"># Several keywords may share one explanation -- group_name and group_kwargs both</span>
+        <span class="c1"># point at TWO_CALL_GROUP_RECIPE -- and printing that paragraph twice is worse</span>
+        <span class="c1"># than printing it once. Name every misplaced keyword, say each thing once.</span>
+        <span class="n">seen</span><span class="p">,</span> <span class="n">reasons</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">misplaced</span><span class="p">:</span>
+            <span class="n">reason</span> <span class="o">=</span> <span class="n">SEAMS_ELSEWHERE</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">reason</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
+                <span class="n">reasons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">SEAMS_ELSEWHERE</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">misplaced</span><span class="p">)</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">misplaced</span><span class="p">)</span><span class="si">}</span><span class="s2"> cannot be passed here. "</span>
+            <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reasons</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="o">**</span><span class="n">parser_kwargs</span><span class="p">)</span>
@@ -502,6 +539,24 @@
     <span class="p">)</span>
 
 
+<span class="c1">#: ``add_subparsers`` keywords, which are what somebody is reaching for when a ``config``</span>
+<span class="c1">#: key at the group level names one of these rather than a command (issue #31's option 1).</span>
+<span class="c1">#: Used only to add a sentence to an error that was already going to be raised.</span>
+<span class="n">GROUP_KWARG_NAMES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"title"</span><span class="p">,</span>
+        <span class="s2">"description"</span><span class="p">,</span>
+        <span class="s2">"prog"</span><span class="p">,</span>
+        <span class="s2">"parser_class"</span><span class="p">,</span>
+        <span class="s2">"action"</span><span class="p">,</span>
+        <span class="s2">"dest"</span><span class="p">,</span>
+        <span class="s2">"required"</span><span class="p">,</span>
+        <span class="s2">"help"</span><span class="p">,</span>
+        <span class="s2">"metavar"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_config_keys</span><span class="p">(</span><span class="n">tree</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">what</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""A ``config`` key naming no command is a startup error, never a silent no-op.</span>
 
@@ -509,18 +564,26 @@
 <span class="sd">    (``hyphenate_groups``) and every config entry keyed by the old name quietly stops</span>
 <span class="sd">    applying. Keys and names go through one naming function, so a mismatch is a bug, and a</span>
 <span class="sd">    bug should be loud.</span>
+
+<span class="sd">    A key that names an ``add_subparsers`` keyword instead gets the extra sentence, because</span>
+<span class="sd">    ``config={'archive': {'title': ...}}`` is the other thing a reader tries when a group in</span>
+<span class="sd">    the mapping form wants a title, and "matches no command" is a true answer to a question</span>
+<span class="sd">    they did not ask.</span>
 <span class="sd">    """</span>
     <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">tree</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
         <span class="n">known</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"(none)"</span>
         <span class="n">plural</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
-        <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">"config key</span><span class="si">{</span><span class="s1">'s'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">plural</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">''</span><span class="si">}</span><span class="s2"> "</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2"> "</span>
             <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'match'</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">plural</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">'matches'</span><span class="si">}</span><span class="s2"> no </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2">. "</span>
             <span class="sa">f</span><span class="s2">"Known </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> names: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s2">. Note that names are hyphenated by the "</span>
             <span class="s2">"convention, so a config must be keyed the way the command line is typed."</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">GROUP_KWARG_NAMES</span><span class="o">.</span><span class="n">issuperset</span><span class="p">(</span><span class="n">unknown</span><span class="p">):</span>
+            <span class="n">message</span> <span class="o">+=</span> <span class="s2">" "</span> <span class="o">+</span> <span class="n">TWO_CALL_GROUP_RECIPE</span>
+        <span class="k">raise</span> <span class="n">GrammarError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_tree</span><span class="p">(</span>
@@ -649,6 +712,24 @@
 <span class="sd">    &gt;&gt;&gt; _ = add_commands(parser, [status], group_name='git_ops')</span>
 <span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
 <span class="sd">    'usage: priv [-h] {git_ops} ...\\n'</span>
+
+<span class="sd">    ``obj`` is anything :func:`cw.dispatch` takes, **a mapping included** -- which is what</span>
+<span class="sd">    makes this the answer to "a group in the mapping form wants ``title=``" (issue #31,</span>
+<span class="sd">    ADR-0008). Seed the parser with :func:`mk_parser` rather than ``ArgumentParser()`` so</span>
+<span class="sd">    the root gets cw's formatter too, and remember that ``cw.run`` *returns* the exit code</span>
+<span class="sd">    rather than raising it:</span>
+
+<span class="sd">    &gt;&gt;&gt; parser = cw.mk_parser({'info': status}, prog='xa')</span>
+<span class="sd">    &gt;&gt;&gt; _ = add_commands(parser, {'log': status}, group_name='archive',</span>
+<span class="sd">    ...                  group_kwargs={'title': 'Postmortem archive'})</span>
+<span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
+<span class="sd">    'usage: xa [-h] {info,archive} ...\\n'</span>
+<span class="sd">    &gt;&gt;&gt; 'Postmortem archive' in parser.format_help()</span>
+<span class="sd">    True</span>
+
+<span class="sd">    The group's row in the **parent's** ``--help`` is fed by ``group_kwargs['title']``, and</span>
+<span class="sd">    only by that. ``help`` is accepted, forwarded to ``add_subparsers`` and rendered</span>
+<span class="sd">    nowhere -- see :func:`_add_group`, which is where that is implemented and explained.</span>
 <span class="sd">    """</span>
     <span class="n">convention</span> <span class="o">=</span> <span class="n">_with_decode</span><span class="p">(</span><span class="n">convention</span><span class="p">,</span> <span class="n">decode</span><span class="p">)</span>
     <span class="n">group_name</span> <span class="o">=</span> <span class="n">group_name</span> <span class="k">if</span> <span class="n">group_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">namespace</span>

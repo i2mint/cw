@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.cli &mdash; cw 0.1.0 documentation</title>
+  <title>cw.cli &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -172,6 +172,23 @@ members.</p>
 <span class="go">'usage: priv [-h] {git_ops} ...\n'</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">obj</span></code> is anything <a class="reference internal" href="../cw.html#cw.dispatch" title="cw.dispatch"><code class="xref py py-func docutils literal notranslate"><span class="pre">cw.dispatch()</span></code></a> takes, <strong>a mapping included</strong> – which is what
+makes this the answer to “a group in the mapping form wants <code class="docutils literal notranslate"><span class="pre">title=</span></code>” (issue #31,
+ADR-0008). Seed the parser with <a class="reference internal" href="#cw.cli.mk_parser" title="cw.cli.mk_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">mk_parser()</span></code></a> rather than <code class="docutils literal notranslate"><span class="pre">ArgumentParser()</span></code> so
+the root gets cw’s formatter too, and remember that <code class="docutils literal notranslate"><span class="pre">cw.run</span></code> <em>returns</em> the exit code
+rather than raising it:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span> <span class="o">=</span> <span class="n">cw</span><span class="o">.</span><span class="n">mk_parser</span><span class="p">({</span><span class="s1">'info'</span><span class="p">:</span> <span class="n">status</span><span class="p">},</span> <span class="n">prog</span><span class="o">=</span><span class="s1">'xa'</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_</span> <span class="o">=</span> <span class="n">add_commands</span><span class="p">(</span><span class="n">parser</span><span class="p">,</span> <span class="p">{</span><span class="s1">'log'</span><span class="p">:</span> <span class="n">status</span><span class="p">},</span> <span class="n">group_name</span><span class="o">=</span><span class="s1">'archive'</span><span class="p">,</span>
+<span class="gp">... </span>                 <span class="n">group_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">'title'</span><span class="p">:</span> <span class="s1">'Postmortem archive'</span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parser</span><span class="o">.</span><span class="n">format_usage</span><span class="p">()</span>
+<span class="go">'usage: xa [-h] {info,archive} ...\n'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s1">'Postmortem archive'</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>The group’s row in the <strong>parent’s</strong> <code class="docutils literal notranslate"><span class="pre">--help</span></code> is fed by <code class="docutils literal notranslate"><span class="pre">group_kwargs['title']</span></code>, and
+only by that. <code class="docutils literal notranslate"><span class="pre">help</span></code> is accepted, forwarded to <code class="docutils literal notranslate"><span class="pre">add_subparsers</span></code> and rendered
+nowhere – see <code class="xref py py-func docutils literal notranslate"><span class="pre">_add_group()</span></code>, which is where that is implemented and explained.</p>
 </dd></dl>
 
 <dl class="py function">

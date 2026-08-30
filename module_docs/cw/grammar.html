@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.grammar &mdash; cw 0.1.0 documentation</title>
+  <title>cw.grammar &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -84,7 +84,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#cw.grammar.argh_decode"><code class="docutils literal notranslate"><span class="pre">argh_decode()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.grammar.cli_name"><code class="docutils literal notranslate"><span class="pre">cli_name()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.grammar.command_name"><code class="docutils literal notranslate"><span class="pre">command_name()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cw.grammar.infer_specs"><code class="docutils literal notranslate"><span class="pre">infer_specs()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.grammar.modern_decode"><code class="docutils literal notranslate"><span class="pre">modern_decode()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cw.grammar.specs_for_function"><code class="docutils literal notranslate"><span class="pre">specs_for_function()</span></code></a></li>
 </ul>
@@ -424,26 +423,6 @@ has no name to derive, and guessing one is how you ship the wrong CLI:</p>
 <span class="w">  </span><span class="c">...</span>
 <span class="gr">TypeError</span>: <span class="n">cannot derive a command name from functools.partial(...): it has no</span>
 <span class="x">__name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cw.grammar.infer_specs">
-<span class="sig-prename descclassname"><span class="pre">cw.grammar.</span></span><span class="sig-name descname"><span class="pre">infer_specs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">convention</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><span class="pre">ArgSpec</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/cw/grammar.html#infer_specs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.grammar.infer_specs" title="Link to this definition"></a></dt>
-<dd><p>Tiers 1 and 2 of the ladder: the signature, then its type hints.</p>
-<p>The two argh code paths this replaces disagree about <code class="docutils literal notranslate"><span class="pre">bool</span></code>, and argh patches the
-disagreement twice, in two branches, with the same three lines. Here the annotation
-result and the signature result meet in one place and the <code class="docutils literal notranslate"><span class="pre">bool</span></code> rule is stated
-once: a hint of <code class="docutils literal notranslate"><span class="pre">bool</span></code> on a parameter with a <code class="docutils literal notranslate"><span class="pre">bool</span></code> default is dropped, because
-<code class="docutils literal notranslate"><span class="pre">type=bool</span></code> and <code class="docutils literal notranslate"><span class="pre">action='store_true'</span></code> cannot both be passed to <code class="docutils literal notranslate"><span class="pre">add_argument</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="o">...</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">infer_specs</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">param_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">flags</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">extra</span><span class="p">)</span>
-<span class="go">path ['path'] {}</span>
-<span class="go">verbose ['-v', '--verbose'] {}</span>
-<span class="go">tags ['-t', '--tags'] {'nargs': '*'}</span>
 </pre></div>
 </div>
 </dd></dl>

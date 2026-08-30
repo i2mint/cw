@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.commands &mdash; cw 0.1.0 documentation</title>
+  <title>cw.commands &mdash; cw 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -154,6 +154,18 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">CommandTreeError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""``obj`` does not describe a command tree, and guessing would ship a wrong CLI."""</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_two_call_group_recipe</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">""":data:`cw.cli.TWO_CALL_GROUP_RECIPE`, imported late.</span>
+
+<span class="sd">    ``cw.cli`` imports this module at module scope, so the text cannot be imported the</span>
+<span class="sd">    other way round at module scope. It is one string in one place either way -- there is</span>
+<span class="sd">    no second copy of the advice to drift.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">TWO_CALL_GROUP_RECIPE</span>
+
+    <span class="k">return</span> <span class="n">TWO_CALL_GROUP_RECIPE</span>
 
 
 <div class="viewcode-block" id="import_object">
@@ -343,12 +355,44 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_looks_like_a_funcs_kwargs_pair</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Is this the ``(funcs, group_kwargs)`` pair that issue #31 weighed and rejected?</span>
+
+<span class="sd">    A reader who wants a group ``title=`` out of the mapping form reaches for</span>
+<span class="sd">    ``{'archive': (ARCHIVE_COMMANDS, {'title': ...})}`` before anything else. cw does not</span>
+<span class="sd">    accept that spelling -- see ADR-0008 -- and without this check the attempt dies inside</span>
+<span class="sd">    :func:`command_name` complaining that a ``dict`` has no ``__name__``, which names</span>
+<span class="sd">    neither what was tried nor what works.</span>
+
+<span class="sd">    The shape is narrow on purpose, so no legitimate group is mistaken for it: a two-member</span>
+<span class="sd">    sequence whose **first** member is not itself a command and whose **second** member is a</span>
+<span class="sd">    mapping. ``{'grp': [f, g]}`` has a callable first member; ``{'grp': [f, {'a': g}]}`` has</span>
+<span class="sd">    a callable first member too. Both fall through to the ordinary path.</span>
+
+<span class="sd">    &gt;&gt;&gt; def f(): ...</span>
+<span class="sd">    &gt;&gt;&gt; _looks_like_a_funcs_kwargs_pair(([f], {'title': 'T'}))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _looks_like_a_funcs_kwargs_pair([f, f]), _looks_like_a_funcs_kwargs_pair({'a': f})</span>
+<span class="sd">    (False, False)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">funcs</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_command</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_from_mapping</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">convention</span><span class="p">,</span> <span class="n">_depth</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandTree</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Each key names its value: a command if the value is callable, a group otherwise."""</span>
     <span class="n">tree</span><span class="p">:</span> <span class="n">CommandTree</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">import_object</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_looks_like_a_funcs_kwargs_pair</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">CommandTreeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"the value of </span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> looks like a (commands, group_kwargs) pair, and cw "</span>
+                <span class="s2">"does not accept one: a mapping value is a group, and nothing more. "</span>
+                <span class="o">+</span> <span class="n">_two_call_group_recipe</span><span class="p">()</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="n">is_command</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
             <span class="n">_put</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">_named</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">_depth</span> <span class="o">&gt;=</span> <span class="n">MAX_GROUP_DEPTH</span><span class="p">:</span>
