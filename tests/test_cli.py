@@ -664,3 +664,118 @@ class TestASeamNamedOnTheWrongCall:
     def test_an_ordinary_typo_still_blames_argparse(self):
         with pytest.raises(TypeError, match="argparse.ArgumentParser accepts"):
             cw.mk_parser(echo, prgo="x")
+
+
+# =======================================================================================
+# cw#31: a group in the mapping form wants `group_kwargs`
+#
+# The decision (ADR-0008) is that cw grows no fourth channel for this: `add_commands`
+# already takes a mapping AND `group_kwargs`, so the answer is two calls. What cw owes a
+# caller is that the three spellings the issue weighed and rejected each say so, rather
+# than failing somewhere that names neither what was tried nor what works.
+#
+# `t/xa` is the live case. Its shape is reproduced at the bottom of this section, because
+# a recipe printed in an error message that nobody executes is a recipe that rots.
+# =======================================================================================
+
+
+def _archive_list():
+    """List archived sessions."""
+
+
+def _archive_log():
+    """Show an archived log."""
+
+
+TOP = {"info": echo}
+ARCHIVE = {"list": _archive_list, "log": _archive_log}
+
+
+class TestTheGroupKwargsChannel:
+    """Every rejected spelling names the accepted one."""
+
+    def test_group_kwargs_as_a_dispatch_keyword_names_the_two_call_form(self):
+        with pytest.raises(TypeError) as error:
+            cw.dispatch({"archive": ARCHIVE}, [], group_kwargs={"title": "T"})
+        message = str(error.value)
+        assert "cw.add_commands" in message
+        assert "group_name='archive'" in message
+        assert "raise SystemExit(cw.run(parser))" in message
+
+    def test_group_name_and_arghs_old_namespace_spellings_say_the_same_thing(self):
+        for keyword in ("group_name", "namespace", "namespace_kwargs"):
+            with pytest.raises(TypeError) as error:
+                cw.mk_parser({"archive": ARCHIVE}, **{keyword: "archive"})
+            assert "cw.add_commands" in str(error.value)
+
+    def test_two_group_keywords_at_once_print_the_recipe_once(self):
+        """They share one explanation; printing that paragraph twice is worse than once."""
+        with pytest.raises(TypeError) as error:
+            cw.mk_parser({"archive": ARCHIVE}, group_name="archive", group_kwargs={})
+        message = str(error.value)
+        assert message.count("cw's group keywords belong to") == 1
+        assert "'group_kwargs'" in message and "'group_name'" in message
+
+    def test_a_funcs_and_kwargs_pair_as_a_mapping_value_is_refused_by_name(self):
+        """Issue #31's option 1. Without the check this died inside `command_name`
+        complaining that a dict has no `__name__`."""
+        with pytest.raises(cw.CommandTreeError) as error:
+            cw.mk_parser({"archive": (ARCHIVE, {"title": "T"})})
+        message = str(error.value)
+        assert "(commands, group_kwargs) pair" in message
+        assert "cw.add_commands" in message
+
+    def test_a_group_title_in_config_is_refused_by_name(self):
+        """Issue #31's option 3. `config` is per-PARAMETER particulars; a group's
+        `add_subparsers` keywords are not particulars of any parameter."""
+        with pytest.raises(GrammarError) as error:
+            cw.mk_parser({"archive": ARCHIVE}, config={"archive": {"title": "T"}})
+        message = str(error.value)
+        assert "matches no command" in message
+        assert "cw.add_commands" in message
+
+    def test_an_ordinary_config_typo_does_not_get_the_group_recipe(self):
+        """The hint fires only when EVERY unknown key names an `add_subparsers` keyword.
+        A misspelt command still gets the short, relevant error."""
+        with pytest.raises(GrammarError) as error:
+            cw.mk_parser({"archive": ARCHIVE}, config={"archive": {"lst": {}}})
+        assert "cw.add_commands" not in str(error.value)
+
+    def test_an_ordinary_group_still_builds(self):
+        """The guard must not catch a real group. `[f, g]` is two callables, not a pair."""
+        parser = cw.mk_parser({"archive": [_archive_list, _archive_log]}, prog="x")
+        assert parser.format_usage() == "usage: x [-h] {archive} ...\n"
+
+    def test_the_recipe_in_the_error_message_actually_works(self):
+        """The `t/xa` shape, executed. The group gets its row in the parent's --help from
+        `title`, the commands land under it, and the exit code survives.
+        """
+        parser = cw.mk_parser(TOP, prog="xa")
+        add_commands(
+            parser,
+            ARCHIVE,
+            group_name="archive",
+            group_kwargs={"title": "Postmortem archive"},
+        )
+        assert parser.format_usage() == "usage: xa [-h] {info,archive} ...\n"
+        assert "Postmortem archive" in parser.format_help()
+        archive = _sub(parser, "archive")
+        assert _sub(archive, "list") is not None and _sub(archive, "log") is not None
+        out, err = io.StringIO(), io.StringIO()
+        assert cw.run(parser, ["info", "hi"], out=out, err=err) == 0
+        assert out.getvalue() == "hi\n"
+        assert cw.run(parser, ["nope"], out=io.StringIO(), err=io.StringIO()) == 2
+
+    def test_group_kwargs_help_is_inert_and_title_is_not(self):
+        """The trap the recipe warns about, pinned. argparse ACCEPTS `help` on
+        `add_subparsers` and renders it nowhere the parent's listing looks -- which is how
+        `t/xa` shipped a group description nobody ever saw (xa#13). cw reproduces argh
+        here deliberately; what changed is that the error message now says so.
+        """
+        with_help = cw.mk_parser({}, prog="x")
+        add_commands(with_help, ARCHIVE, group_name="archive", group_kwargs={"help": "H"})
+        assert "H" not in with_help.format_help()
+
+        with_title = cw.mk_parser({}, prog="x")
+        add_commands(with_title, ARCHIVE, group_name="archive", group_kwargs={"title": "H"})
+        assert "H" in with_title.format_help()

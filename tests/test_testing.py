@@ -24,6 +24,7 @@ P = sys.executable
 #: it is the reason the file can be copied into a repo that will never depend on cw.
 ALLOWED_MODULE_IMPORTS = {
     "argparse",
+    "contextlib",
     "difflib",
     "json",
     "os",
