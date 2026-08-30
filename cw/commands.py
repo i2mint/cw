@@ -64,6 +64,18 @@ class CommandTreeError(TypeError):
     """``obj`` does not describe a command tree, and guessing would ship a wrong CLI."""
 
 
+def _two_call_group_recipe() -> str:
+    """:data:`cw.cli.TWO_CALL_GROUP_RECIPE`, imported late.
+
+    ``cw.cli`` imports this module at module scope, so the text cannot be imported the
+    other way round at module scope. It is one string in one place either way -- there is
+    no second copy of the advice to drift.
+    """
+    from cw.cli import TWO_CALL_GROUP_RECIPE
+
+    return TWO_CALL_GROUP_RECIPE
+
+
 def import_object(ref: str) -> Any:
     """``'pkg.mod:name'`` -> the object, imported now.
 
@@ -245,12 +257,44 @@ def commands_from(obj: Any, /, *, convention=None, _depth: int = 0) -> CommandTr
     )
 
 
+def _looks_like_a_funcs_kwargs_pair(value: Any) -> bool:
+    """Is this the ``(funcs, group_kwargs)`` pair that issue #31 weighed and rejected?
+
+    A reader who wants a group ``title=`` out of the mapping form reaches for
+    ``{'archive': (ARCHIVE_COMMANDS, {'title': ...})}`` before anything else. cw does not
+    accept that spelling -- see ADR-0008 -- and without this check the attempt dies inside
+    :func:`command_name` complaining that a ``dict`` has no ``__name__``, which names
+    neither what was tried nor what works.
+
+    The shape is narrow on purpose, so no legitimate group is mistaken for it: a two-member
+    sequence whose **first** member is not itself a command and whose **second** member is a
+    mapping. ``{'grp': [f, g]}`` has a callable first member; ``{'grp': [f, {'a': g}]}`` has
+    a callable first member too. Both fall through to the ordinary path.
+
+    >>> def f(): ...
+    >>> _looks_like_a_funcs_kwargs_pair(([f], {'title': 'T'}))
+    True
+    >>> _looks_like_a_funcs_kwargs_pair([f, f]), _looks_like_a_funcs_kwargs_pair({'a': f})
+    (False, False)
+    """
+    if not isinstance(value, (tuple, list)) or len(value) != 2:
+        return False
+    funcs, kwargs = value
+    return isinstance(kwargs, Mapping) and not is_command(funcs)
+
+
 def _from_mapping(obj: Mapping, *, convention, _depth: int) -> CommandTree:
     """Each key names its value: a command if the value is callable, a group otherwise."""
     tree: CommandTree = {}
     for key, value in obj.items():
         if isinstance(value, str):
             value = import_object(value)
+        if _looks_like_a_funcs_kwargs_pair(value):
+            raise CommandTreeError(
+                f"the value of {key!r} looks like a (commands, group_kwargs) pair, and cw "
+                "does not accept one: a mapping value is a group, and nothing more. "
+                + _two_call_group_recipe()
+            )
         if is_command(value):
             _put(tree, _named(key, convention=convention), value)
         elif _depth >= MAX_GROUP_DEPTH:

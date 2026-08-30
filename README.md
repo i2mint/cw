@@ -292,9 +292,69 @@ what argh does — but then the *root* parser's own `--help` uses argparse's for
 exactly as under argh. Pass `formatter_class=cw.ArghHelpFormatter` yourself if you want the
 root to match too.
 
-`dispatch({'archive': {...}})` has no channel for `group_kwargs`; a group declared that way
-gets an empty listing row where argh printed its `title`. Use `mk_parser` + `add_commands` +
-`run` when you need one ([#31](https://github.com/i2mint/cw/issues/31)).
+**`add_commands` takes any `obj` `dispatch` takes, a mapping included** — so a group whose
+members you want to name yourself is a mapping, exactly as it would be inside `dispatch`:
+
+```python
+>>> parser = cw.mk_parser([], prog='priv')
+>>> _ = cw.add_commands(parser, {'st': status}, group_name='git_ops',
+...                     group_kwargs={'title': 'Git operations'})
+>>> cw.run(parser, ['git_ops', 'st'])
+0
+```
+
+### Wanting a group `title` from the mapping form
+
+`cw.dispatch({'archive': {...}})` builds the group, but a single mapping has nowhere to put
+the group's own `add_subparsers` keywords. **That is deliberate, not a gap**: `add_commands`
+already takes a mapping *and* `group_kwargs`, so the answer is two calls rather than a
+fourth behaviour-carrying keyword on `dispatch`
+([#31](https://github.com/i2mint/cw/issues/31),
+[ADR-0008](docs/adr/0008-no-fourth-channel-for-group-kwargs.md)). The console-script idiom
+is:
+
+```python
+TOP_COMMANDS = {"list": list_cmd, "info": info_cmd}
+ARCHIVE_COMMANDS = {"list": archive_list_cmd, "log": archive_log_cmd}
+
+
+def mk_parser():
+    parser = cw.mk_parser(TOP_COMMANDS, prog="xa")
+    cw.add_commands(
+        parser,
+        ARCHIVE_COMMANDS,
+        group_name="archive",
+        group_kwargs={"title": "Postmortem archive"},
+    )
+    return parser
+
+
+def main():
+    raise SystemExit(cw.run(mk_parser()))
+```
+
+Two things bite people here, and cw's error messages now name both:
+
+- **`group_kwargs['help']` is silently inert; you want `'title'`.** The group's row in the
+  *parent's* `--help` is fed by `add_parser(help=...)`, which both argh and cw source from
+  `group_kwargs['title']`. `help` is forwarded to `add_subparsers()`, where argparse
+  accepts it and renders it nowhere a reader looks. cw reproduces argh exactly — that is
+  the product — but it is a trap that shipped a group description nobody ever saw in at
+  least one fleet repo.
+- **`cw.run` *returns* an exit code where argh's `parser.dispatch()` raised it.** Splitting
+  the build from the run is precisely when the `raise SystemExit(...)` gets dropped, and a
+  console script that starts exiting `0` on a usage error breaks every CI step that checks
+  `$?`. Nothing else catches it: unit tests pass, and a `--help` diff shows nothing.
+
+Trying it any of the other three ways is an error that names this one:
+
+```pycon
+>>> cw.dispatch({"archive": {"log": status}}, [], group_kwargs={"title": "T"})
+Traceback (most recent call last):
+  ...
+TypeError: 'group_kwargs' cannot be passed here. cw's group keywords belong to
+cw.add_commands, ...
+```
 
 **A mapping value must be the commands, not the factory that returns them.** A callable
 value is always a *command*, because there is no way to tell a zero-argument factory from a
@@ -478,7 +538,7 @@ Python 3.10+.
 
 ## Design notes
 
-Six decisions, with their evidence, in [`docs/adr/`](docs/adr/):
+Eight decisions, with their evidence, in [`docs/adr/`](docs/adr/):
 
 | | |
 |---|---|
@@ -488,6 +548,8 @@ Six decisions, with their evidence, in [`docs/adr/`](docs/adr/):
 | [ADR-0004](docs/adr/0004-grammar-errata.md) | `group_kwargs`, mapping-key naming, MODERN's help column |
 | [ADR-0005](docs/adr/0005-release-and-rollback-policy.md) | Release, pinning and rollback — `cw.ARGH` is frozen once published |
 | [ADR-0006](docs/adr/0006-the-v1-cut-list.md) | What v1 does not ship, and where each cut comes back |
+| [ADR-0007](docs/adr/0007-what-the-adversarial-review-changed.md) | What three adversarial reviews changed, and the blind spots that hid it |
+| [ADR-0008](docs/adr/0008-no-fourth-channel-for-group-kwargs.md) | Why a group's `group_kwargs` gets no channel in the mapping form |
 
 Two properties worth stating because they are easy to lose and hard to get back:
 `cw.mk_parser` returns a **plain** `ArgumentParser`, and **`import cw` pulls stdlib only** —

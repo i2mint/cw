@@ -83,13 +83,40 @@ RESERVED_DEST = "_cw"
 #: reports when it catches one.
 USAGE_ERROR_CODE = 2
 
+#: The answer to "a group in the mapping form wants ``title=``", which is issue #31 and
+#: which cw deliberately does **not** give a fourth behaviour-carrying keyword. A mapping
+#: value already *is* a group; what it has nowhere to put is the group's own
+#: ``add_subparsers`` keywords. Those belong to :func:`add_commands`, which takes a mapping
+#: too -- so the answer is to build and add in two calls rather than one. See ADR-0008.
+TWO_CALL_GROUP_RECIPE = (
+    "cw's group keywords belong to cw.add_commands, not to cw.mk_parser or cw.dispatch. "
+    "A mapping VALUE is already a group -- cw.dispatch({'archive': {'ls': ls}}) -- but a "
+    "single mapping has nowhere to put the group's own add_subparsers keywords, so build "
+    "the parser and add the group as two calls:\n"
+    "    parser = cw.mk_parser(TOP_COMMANDS, prog='xa')\n"
+    "    cw.add_commands(parser, ARCHIVE_COMMANDS, group_name='archive',\n"
+    "                    group_kwargs={'title': 'Postmortem archive'})\n"
+    "    raise SystemExit(cw.run(parser))\n"
+    "Note the two details that catch everyone: the group's row in the PARENT's --help is "
+    "fed by group_kwargs['title'], never ['help'] (which argparse accepts and renders "
+    "nowhere); and cw.run RETURNS an exit code where argh's parser.dispatch() raised it, "
+    "so it must be wrapped in `raise SystemExit(...)` or every usage error exits 0."
+)
+
 #: cw keywords that are real, but not on *this* call. Without this, ``mk_parser(f,
 #: egress=...)`` reports that ``argparse.ArgumentParser`` has no such keyword and lists
 #: argparse's parameters -- true, and the least useful true thing to say. A seam is one
 #: keyword argument, but not every seam is on every entry point: ``egress`` runs after the
 #: call, so it belongs to :func:`run` and :func:`dispatch`, and ``decode`` shapes the
 #: parser, so it belongs to :func:`mk_parser`, :func:`dispatch` and :func:`add_commands`.
+#: The ``group_*`` entries are not seams at all -- they are :func:`add_commands` keywords
+#: that a caller reasonably tries on the mapping form first (issue #31).
 SEAMS_ELSEWHERE = {
+    "group_name": TWO_CALL_GROUP_RECIPE,
+    "group_kwargs": TWO_CALL_GROUP_RECIPE,
+    # argh's pre-0.30 spellings, which cw.add_commands still accepts.
+    "namespace": TWO_CALL_GROUP_RECIPE,
+    "namespace_kwargs": TWO_CALL_GROUP_RECIPE,
     "egress": (
         "cw's egress seam turns a return value into output, which happens when a command "
         "runs -- so it is a keyword of cw.run and cw.dispatch, not of cw.mk_parser. To "
@@ -140,8 +167,18 @@ def _new_parser(convention: Convention, parser_kwargs: dict) -> argparse.Argumen
     parser_kwargs.setdefault("formatter_class", ArghHelpFormatter)
     misplaced = sorted(set(parser_kwargs) & set(SEAMS_ELSEWHERE))
     if misplaced:
+        # Several keywords may share one explanation -- group_name and group_kwargs both
+        # point at TWO_CALL_GROUP_RECIPE -- and printing that paragraph twice is worse
+        # than printing it once. Name every misplaced keyword, say each thing once.
+        seen, reasons = set(), []
+        for name in misplaced:
+            reason = SEAMS_ELSEWHERE[name]
+            if reason not in seen:
+                seen.add(reason)
+                reasons.append(reason)
         raise TypeError(
-            "; ".join(f"{name}: {SEAMS_ELSEWHERE[name]}" for name in misplaced)
+            f"{', '.join(repr(name) for name in misplaced)} cannot be passed here. "
+            + " ".join(reasons)
         )
     try:
         return argparse.ArgumentParser(**parser_kwargs)
@@ -407,6 +444,24 @@ def _add_group(
     )
 
 
+#: ``add_subparsers`` keywords, which are what somebody is reaching for when a ``config``
+#: key at the group level names one of these rather than a command (issue #31's option 1).
+#: Used only to add a sentence to an error that was already going to be raised.
+GROUP_KWARG_NAMES = frozenset(
+    {
+        "title",
+        "description",
+        "prog",
+        "parser_class",
+        "action",
+        "dest",
+        "required",
+        "help",
+        "metavar",
+    }
+)
+
+
 def _check_config_keys(tree: Mapping, config: Mapping, *, what: str) -> None:
     """A ``config`` key naming no command is a startup error, never a silent no-op.
 
@@ -414,18 +469,26 @@ def _check_config_keys(tree: Mapping, config: Mapping, *, what: str) -> None:
     (``hyphenate_groups``) and every config entry keyed by the old name quietly stops
     applying. Keys and names go through one naming function, so a mismatch is a bug, and a
     bug should be loud.
+
+    A key that names an ``add_subparsers`` keyword instead gets the extra sentence, because
+    ``config={'archive': {'title': ...}}`` is the other thing a reader tries when a group in
+    the mapping form wants a title, and "matches no command" is a true answer to a question
+    they did not ask.
     """
     unknown = [key for key in config if key not in tree]
     if unknown:
         known = ", ".join(tree) or "(none)"
         plural = len(unknown) > 1
-        raise GrammarError(
+        message = (
             f"config key{'s' if plural else ''} "
             f"{', '.join(repr(key) for key in unknown)} "
             f"{'match' if plural else 'matches'} no {what}. "
             f"Known {what} names: {known}. Note that names are hyphenated by the "
             "convention, so a config must be keyed the way the command line is typed."
         )
+        if GROUP_KWARG_NAMES.issuperset(unknown):
+            message += " " + TWO_CALL_GROUP_RECIPE
+        raise GrammarError(message)
 
 
 def _add_tree(
@@ -549,6 +612,24 @@ def add_commands(
     >>> _ = add_commands(parser, [status], group_name='git_ops')
     >>> parser.format_usage()
     'usage: priv [-h] {git_ops} ...\\n'
+
+    ``obj`` is anything :func:`cw.dispatch` takes, **a mapping included** -- which is what
+    makes this the answer to "a group in the mapping form wants ``title=``" (issue #31,
+    ADR-0008). Seed the parser with :func:`mk_parser` rather than ``ArgumentParser()`` so
+    the root gets cw's formatter too, and remember that ``cw.run`` *returns* the exit code
+    rather than raising it:
+
+    >>> parser = cw.mk_parser({'info': status}, prog='xa')
+    >>> _ = add_commands(parser, {'log': status}, group_name='archive',
+    ...                  group_kwargs={'title': 'Postmortem archive'})
+    >>> parser.format_usage()
+    'usage: xa [-h] {info,archive} ...\\n'
+    >>> 'Postmortem archive' in parser.format_help()
+    True
+
+    The group's row in the **parent's** ``--help`` is fed by ``group_kwargs['title']``, and
+    only by that. ``help`` is accepted, forwarded to ``add_subparsers`` and rendered
+    nowhere -- see :func:`_add_group`, which is where that is implemented and explained.
     """
     convention = _with_decode(convention, decode)
     group_name = group_name if group_name is not None else namespace

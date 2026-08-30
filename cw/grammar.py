@@ -55,7 +55,6 @@ __all__ = [
     "modern_decode",
     "cli_name",
     "command_name",
-    "infer_specs",
     "specs_for_function",
     "BY_NAME_IF_HAS_DEFAULT",
     "BY_NAME_IF_KWONLY",
@@ -537,7 +536,7 @@ def _hints_of(func: Any, *, resolve: bool) -> Dict[str, Any]:
         return raw
 
 
-def infer_specs(
+def _infer_specs(
     func: Any,
     /,
     *,
@@ -555,7 +554,7 @@ def infer_specs(
 
     >>> def f(path, *, verbose: bool = False, tags: list = None):
     ...     ...
-    >>> for spec in infer_specs(f):
+    >>> for spec in _infer_specs(f):
     ...     print(spec.param_name, spec.flags, spec.extra)
     path ['path'] {}
     verbose ['-v', '--verbose'] {}
@@ -667,7 +666,7 @@ def _guess_from_default(spec: ArgSpec) -> Dict[str, Any]:
     return guessed
 
 
-def finalise_spec(
+def _finalise_spec(
     spec: ArgSpec, /, *, parser_adds_help: bool = True, default_in_help: bool = True
 ) -> ArgSpec:
     """The last three things argh does to every spec, in argh's order.
@@ -680,7 +679,7 @@ def finalise_spec(
     3. ``-h`` is taken away from whoever inferred or declared it, because ``--help``
        owns it. A parameter named ``host`` never gets a short flag.
 
-    >>> finalise_spec(ArgSpec('host', ['-h', '--host'], default='localhost')).flags
+    >>> _finalise_spec(ArgSpec('host', ['-h', '--host'], default='localhost')).flags
     ['--host']
     """
     spec.extra.update(_guess_from_default(spec))
@@ -747,7 +746,9 @@ def specs_for_function(
     config = dict(config or {})
 
     use_hints = convention.hints_when_declared or not (declared or config)
-    specs = infer_specs(func, convention=convention, decode=decode, use_hints=use_hints)
+    specs = _infer_specs(
+        func, convention=convention, decode=decode, use_hints=use_hints
+    )
     by_param = {spec.param_name: spec for spec in specs}
     order = list(by_param)
 
@@ -772,7 +773,7 @@ def specs_for_function(
                 raise _no_such_parameter(func, key, by_param)
 
     return [
-        finalise_spec(
+        _finalise_spec(
             by_param[name],
             parser_adds_help=parser_adds_help,
             default_in_help=convention.default_in_help,

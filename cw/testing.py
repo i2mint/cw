@@ -1,8 +1,8 @@
 """Record a CLI's behaviour before a migration and assert it after.
 
-This file is **standalone** (D4). Its module-level imports are ``argparse``, ``difflib``,
-``json``, ``os``, ``re``, ``shlex``, ``subprocess`` and ``sys`` -- stdlib, all of it, and no
-``cw`` anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose
+This file is **standalone** (D4). Its module-level imports are ``argparse``,
+``contextlib``, ``difflib``, ``json``, ``os``, ``re``, ``shlex``, ``subprocess`` and
+``sys`` -- stdlib, all of it, and no ``cw`` anywhere. That is not tidiness; it is the whole point. The fleet has 22 repos whose
 CLI is being deleted and 35 that are argparse-only and will never depend on ``cw``, and all
 of them want the same thing: *proof that the command line did not change*. Copy this one
 file into such a repo and it works.
@@ -72,6 +72,7 @@ console never enter the picture there either.
 """
 
 import argparse
+import contextlib
 import difflib
 import json
 import os
@@ -403,37 +404,55 @@ def _env_for(env=None) -> dict:
     return resolved
 
 
-class pinned_env:
+@contextlib.contextmanager
+def pinned_env(env=None):
     """Context manager applying :data:`RECORDING_ENV` to the **current** process.
 
     :func:`characterize` hands the pins to a subprocess, where they belong. :func:`parity`
     runs in-process and needs the same pins applied here instead -- ``COLUMNS`` above all,
     since that is what ``argparse`` wraps to.
 
+    Args:
+        env: Extra pins, applied over :data:`RECORDING_ENV`.
+
+    Yields:
+        The mapping that was applied, which is what ``as`` gives you.
+
     >>> with pinned_env():
     ...     os.environ['COLUMNS']
     '100'
+    >>> with pinned_env({'COLUMNS': '80'}) as pins:
+    ...     (os.environ['COLUMNS'], pins['COLUMNS'])
+    ('80', '80')
+
+    The name is lowercase because it reads as a statement rather than as a type, and it is
+    a function rather than a class because there is no object here worth having -- the
+    house rule is functional over OOP, and ``contextlib`` is where the state machine goes.
+    Restoration is in a ``finally``, so an exception inside the block does not leak the
+    pins into the rest of the process:
+
+    >>> before = os.environ.get('COLUMNS')
+    >>> try:
+    ...     with pinned_env():
+    ...         raise RuntimeError('boom')
+    ... except RuntimeError:
+    ...     pass
+    >>> os.environ.get('COLUMNS') == before
+    True
     """
-
-    def __init__(self, env=None):
-        self.env = dict(RECORDING_ENV, **(env or {}))
-        self._saved = {}
-
-    def __enter__(self):
-        for name in list(self.env) + list(UNSET_ENV):
-            self._saved[name] = os.environ.get(name)
-        os.environ.update(self.env)
-        for name in UNSET_ENV:
-            os.environ.pop(name, None)
-        return self
-
-    def __exit__(self, *exc_info):
-        for name, value in self._saved.items():
+    env = dict(RECORDING_ENV, **(env or {}))
+    saved = {name: os.environ.get(name) for name in list(env) + list(UNSET_ENV)}
+    os.environ.update(env)
+    for name in UNSET_ENV:
+        os.environ.pop(name, None)
+    try:
+        yield env
+    finally:
+        for name, value in saved.items():
             if value is None:
                 os.environ.pop(name, None)
             else:
                 os.environ[name] = value
-        return False
 
 
 def _exit_status(exc: SystemExit) -> tuple:
