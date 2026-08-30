@@ -1,0 +1,132 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: lacing [-h] {migrate,convert,list-formats} ...\n",
+      "tier": 1,
+      "usage": "usage: lacing [-h] {migrate,convert,list-formats} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: lacing [-h] {migrate,convert,list-formats} ...\n\nAnnotation store tooling.\n\npositional arguments:\n  {migrate,convert,list-formats}\n    migrate             Upgrade PATH to the current store schema, in place. Row 13: argh reads\n                        `__annotations__` raw, so this annotation is the STRING `'int | None'`,\n                        which is not in its if-chain. The guesser returns nothing, the default is\n                        None so the default-value path yields nothing either, and `to_version`\n                        arrives as a `str`. That is why lacing's own body says \"argh delivers\n                        option values as strings; coerce here\" -- and why the coercion may not be\n                        deleted until MODERN is opted into.\n    convert             Convert an annotation file between formats.\n    list-formats        List the annotation formats lacing understands.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: lacing [-h] {migrate,convert,list-formats} ..."
+    },
+    {
+      "argv": [
+        "migrate",
+        "a.annot"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "migrate('a.annot', to_version=None)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "migrate",
+        "a.annot",
+        "--to-version",
+        "3"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "migrate('a.annot', to_version='3')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "migrate",
+        "a.annot",
+        "-t",
+        "3"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "migrate('a.annot', to_version='3')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "convert",
+        "a.annot",
+        "b.csv"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "convert('a.annot', 'b.csv', fmt='annot')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "convert",
+        "a.annot",
+        "b.csv",
+        "--fmt",
+        "csv"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "convert('a.annot', 'b.csv', fmt='csv')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "list-formats"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "annot\ncsv\njson\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "migrate"
+      ],
+      "returncode": 2,
+      "stderr": "usage: lacing migrate [-h] [-t TO_VERSION] path\nlacing migrate: error: the following arguments are required: path\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: lacing migrate [-h] [-t TO_VERSION] path lacing migrate: error: the following arguments are required: path"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "t/lacing",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "A quoted annotation -- `to_version: 'int | None'` -- is read raw and matches nothing, so the value arrives as a str and `repr` shows the quotes. This is live in ~32 fleet files. Under cw.MODERN it would resolve to int; under cw.ARGH, which is the default and what parity asserts, it must NOT.",
+  "prog": [
+    "lacing"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    13,
+    16
+  ],
+  "shape": "lacing"
+}

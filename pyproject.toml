@@ -27,13 +27,20 @@ resource = [
 completion = [
     "argcomplete>=3",
 ]
-dev = [
+# What CI installs. Deliberately NO argh: `python -m cw.testing parity` -- the definition
+# of v1 -- runs against committed goldens and must prove it needs nothing but cw. The
+# `tests/argh_parity` differential skips itself when argh is absent.
+test = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+]
+# What a developer installs. argh is here and ONLY here: `tests/argh_parity` builds the
+# same parser with argh and with cw and diffs them, and `misc/record_goldens.py` records
+# the parity goldens. cw itself never imports argh (LGPL-3.0-or-later; cw is MIT), and
+# `tests/test_import_is_cheap.py` enforces that.
+dev = [
+    "cw[test]",
     "ruff>=0.1.0",
-    # TEST ONLY, and deliberately not a runtime dependency: `tests/argh_parity` builds
-    # the same parser with argh and with cw and diffs them. cw itself never imports argh
-    # (LGPL-3.0-or-later; cw is MIT), and `tests/test_import_is_cheap.py` enforces that.
     "argh==0.31.3",
 ]
 docs = [

@@ -1,0 +1,232 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]]\n                [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME]\n                [--scale [SCALE]]\n\nRun the theremin.\n\n    Every parameter has a default, so every one becomes an option under\n    BY_NAME_IF_HAS_DEFAULT -- which is the policy argh's dispatch entry points default to\n    and the only one cw offers as ARGH.\n    \n\noptions:\n  -h, --help            show this help message and exit\n  -p [PIPELINE], --pipeline [PIPELINE]\n                        Audio pipeline name (default: 'theremin')\n  -v [VIDEO_FEATURES], --video-features [VIDEO_FEATURES]\n                        Video features function name (default: 'many_video_features')\n  -k [KNOBS], --knobs [KNOBS]\n                        Audio knobs function name (default: 'theremin_knobs')\n  --synth [SYNTH], -s [SYNTH]\n                        Synthesizer function name (default: 'theremin_synth')\n  --log-video-features  Log hand features (default: False)\n  --log-knobs           Log audio features (default: False)\n  -r RECORD_TO_FILE, --record-to-file RECORD_TO_FILE\n                        Filename to save recording (default: -)\n  -n, --no-recording    Disable recording (default: False)\n  -w WINDOW_NAME, --window-name WINDOW_NAME\n                        Window title (default: 'theremin')\n  --scale [SCALE]       Scale for snapping; 'none' disables (default: -)\n",
+      "tier": 3,
+      "usage": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]] [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME] [--scale [SCALE]]"
+    },
+    {
+      "argv": [
+        "-p",
+        "flute"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='flute' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-p"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='list' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--pipeline"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='list' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--pipeline",
+        "flute"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='flute' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-s",
+        "saw"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='saw' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-s"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='list' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--synth",
+        "saw"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='saw' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--scale"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale='list' record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--scale",
+        "minor"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale='minor' record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-a",
+        "minor"
+      ],
+      "returncode": 2,
+      "stderr": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]]\n                [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME]\n                [--scale [SCALE]]\ntheremin: error: unrecognized arguments: -a minor\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]] [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME] [--scale [SCALE]] theremin: error: unrecognized arguments: -a minor"
+    },
+    {
+      "argv": [
+        "-l"
+      ],
+      "returncode": 2,
+      "stderr": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]]\n                [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME]\n                [--scale [SCALE]]\ntheremin: error: unrecognized arguments: -l\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]] [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME] [--scale [SCALE]] theremin: error: unrecognized arguments: -l"
+    },
+    {
+      "argv": [
+        "--log-knobs",
+        "--log-video-features"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=True,True,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-v",
+        "hands"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='hands' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-k",
+        "smooth"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='smooth' synth='theremin_synth' scale=None record_to_file=None window_name='theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-r",
+        "out.wav",
+        "-n"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file='out.wav' window_name='theremin' flags=False,False,True\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "-w",
+        "Theremin"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "pipeline='theremin' video_features='many_video_features' knobs='theremin_knobs' synth='theremin_synth' scale=None record_to_file=None window_name='Theremin' flags=False,False,False\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "--nope"
+      ],
+      "returncode": 2,
+      "stderr": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]]\n                [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME]\n                [--scale [SCALE]]\ntheremin: error: unrecognized arguments: --nope\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: theremin [-h] [-p [PIPELINE]] [-v [VIDEO_FEATURES]] [-k [KNOBS]] [--synth [SYNTH]] [--log-video-features] [--log-knobs] [-r RECORD_TO_FILE] [-n] [-w WINDOW_NAME] [--scale [SCALE]] theremin: error: unrecognized arguments: --nope"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "t/theremin",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "Ten @argh.arg overrides on a single command. The parameters `synth` and `scale` both start with `s`, so NEITHER gets an inferred short flag; the declared ['--synth', '-s'] then appends `-s` for synth only. `--scale` ends with no short at all. That falls out of the append-merge rule and is not special-cased.",
+  "prog": [
+    "theremin"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    3,
+    4,
+    5,
+    8
+  ],
+  "shape": "theremin"
+}

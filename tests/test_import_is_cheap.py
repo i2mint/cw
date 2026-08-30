@@ -46,11 +46,15 @@ def test_no_module_scope_third_party_import_in_cw():
 
     package_dir = pathlib.Path(cw.__file__).parent
     offenders = {}
-    for module_path in sorted(package_dir.glob("*.py")):
+    # rglob, not glob: `cw/tests/` ships inside the package (the parity fixtures and
+    # goldens), so it is subject to the same rule as every other module under `cw/`.
+    for module_path in sorted(package_dir.rglob("*.py")):
         for lineno, line in enumerate(module_path.read_text().splitlines(), start=1):
             if not line.startswith(("import ", "from ")):
                 continue  # indented -> inside a function or class; that is the allowed form
             root = line.split()[1].split(".")[0]
             if root in FORBIDDEN_AT_IMPORT:
-                offenders[f"{module_path.name}:{lineno}"] = line.strip()
+                offenders[f"{module_path.relative_to(package_dir)}:{lineno}"] = (
+                    line.strip()
+                )
     assert not offenders, f"module-scope third-party imports: {offenders}"

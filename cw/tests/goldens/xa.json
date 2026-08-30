@@ -1,0 +1,217 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: xa [-h] {list,spawn,gen-secret,archive} ...\n",
+      "tier": 1,
+      "usage": "usage: xa [-h] {list,spawn,gen-secret,archive} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: xa [-h] {list,spawn,gen-secret,archive} ...\n\nSession multiplexer.\n\npositional arguments:\n  {list,spawn,gen-secret,archive}\n    list                List sessions.\n    spawn               Spawn a session. Row 4's other half: `host` starts with `h`, and `-h`\n                        already belongs to `--help`. argh strips it, so `host` gets no short flag\n                        even though no other parameter collides with it. An implementation that\n                        forgot would not merely add a flag -- argparse would refuse to build the\n                        parser at all (\"conflicting option string: -h\"), so this is asserted by\n                        every case in the shape at once.\n    gen-secret          Generate a shared secret.\n    archive\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: xa [-h] {list,spawn,gen-secret,archive} ..."
+    },
+    {
+      "argv": [
+        "list"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "list_cmd(running=False)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "list",
+        "--running"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "list_cmd(running=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "spawn",
+        "s1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "spawn_cmd('s1', detach=False, host='local')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "spawn",
+        "s1",
+        "--detach"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "spawn_cmd('s1', detach=True, host='local')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "spawn",
+        "s1",
+        "-h"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: xa spawn [-h] [-d] [--host HOST] name\n\nSpawn a session.\n\nRow 4's other half: `host` starts with `h`, and `-h` already belongs to `--help`. argh\nstrips it, so `host` gets no short flag even though no other parameter collides with it.\nAn implementation that forgot would not merely add a flag -- argparse would refuse to\nbuild the parser at all (\"conflicting option string: -h\"), so this is asserted by every\ncase in the shape at once.\n\npositional arguments:\n  name          -\n\noptions:\n  -h, --help    show this help message and exit\n  -d, --detach  False\n  --host HOST   'local'\n",
+      "tier": 3,
+      "usage": "usage: xa spawn [-h] [-d] [--host HOST] name"
+    },
+    {
+      "argv": [
+        "spawn",
+        "s1",
+        "--host",
+        "remote"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "spawn_cmd('s1', detach=False, host='remote')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "gen-secret"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "gen_secret_cmd(length=32)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "gen-secret",
+        "--length",
+        "8"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "gen_secret_cmd(length=8)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "gen_secret"
+      ],
+      "returncode": 2,
+      "stderr": "usage: xa [-h] {list,spawn,gen-secret,archive} ...\nxa: error: argument {list,spawn,gen-secret,archive}: invalid choice: 'gen_secret' (choose from list, spawn, gen-secret, archive)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: xa [-h] {list,spawn,gen-secret,archive} ... xa: error: argument {list,spawn,gen-secret,archive}: invalid choice: 'gen_secret' (choose from list, spawn, gen-secret, archive)"
+    },
+    {
+      "argv": [
+        "archive"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: xa [-h] {list,spawn,gen-secret,archive} ...\n",
+      "tier": 1,
+      "usage": "usage: xa [-h] {list,spawn,gen-secret,archive} ..."
+    },
+    {
+      "argv": [
+        "archive",
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: xa archive [-h] {list,log} ...\n\npositional arguments:\n  {list,log}  Postmortem archive (list, log, forensics).\n    list      List archived sessions.\n    log       Show an archived session's log.\n\noptions:\n  -h, --help  show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: xa archive [-h] {list,log} ..."
+    },
+    {
+      "argv": [
+        "archive",
+        "list"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "archive_list_cmd(pattern='*')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "archive",
+        "list",
+        "--pattern",
+        "x*"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "archive_list_cmd(pattern='x*')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "archive",
+        "log",
+        "s1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "archive_log_cmd('s1')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "archive",
+        "nope"
+      ],
+      "returncode": 2,
+      "stderr": "usage: xa archive [-h] {list,log} ...\nxa archive: error: argument {list,log}: invalid choice: 'nope' (choose from list, log)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: xa archive [-h] {list,log} ... xa archive: error: argument {list,log}: invalid choice: 'nope' (choose from list, log)"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "t/xa",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "A mapping key names the command verbatim-then-hyphenated, so the non-identifier key 'gen-secret' works and needs no __name__ mutation. Two commands are both called `list` in different dicts, which a list of functions cannot express. And the group's `group_kwargs={'help': ...}` displays nothing -- argh reads `title` for that row -- so translating it would be an improvement, and therefore a break.",
+  "prog": [
+    "xa"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    4
+  ],
+  "shape": "xa"
+}

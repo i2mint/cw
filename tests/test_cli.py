@@ -435,14 +435,29 @@ def test_the_argparse_import_perimeter():
     """
     package = pathlib.Path(cw.__file__).parent
     importers = {
-        path.name
-        for path in sorted(package.glob("*.py"))
+        str(path.relative_to(package))
+        for path in sorted(package.rglob("*.py"))
         if re.search(r"^\s*(import argparse|from argparse)", path.read_text(), re.M)
     }
-    assert importers == {"base.py", "cli.py"}, (
-        "expected argparse only in base.py and cli.py "
-        "(compat.py and testing.py join them when they land)"
+    assert importers == {"base.py", "cli.py", "compat.py", "testing.py"}, (
+        "expected argparse only in base.py, cli.py, compat.py and testing.py -- "
+        "grammar, convention, commands, ingress and egress must stay free of it, so "
+        "type inference and call wiring cannot quietly re-fuse with the parser"
     )
+
+
+def test_the_parity_fixtures_take_argparse_as_an_argument_rather_than_importing_it():
+    """`cw/tests/fixtures.py` ships inside the package, so it lives under the same rule.
+
+    It needs both ``argparse`` and ``argh`` to describe how argh would have built each
+    shape, and it takes them as *parameters* -- which is what lets the fixtures ship with
+    cw while the argh they describe stays a developer-only install.
+    """
+    from cw.tests import fixtures
+
+    source = pathlib.Path(fixtures.__file__).read_text()
+    assert not re.search(r"^\s*(import argh|import argparse)", source, re.M)
+    assert "def argh_build" in source or "argh_build=lambda argh, argparse" in source
 
 
 def test_a_group_built_with_another_convention_keeps_it():

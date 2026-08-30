@@ -1,0 +1,259 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\n",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\n\nPrivate fleet tooling.\n\npositional arguments:\n  {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}\n    parse-pth-paths     Parse a .pth file into the package paths it names.\n    align               Report ecosystem drift, and optionally act on it.\n    render-pth          Render the manifest from its committed source of truth.\n    packages-from-all-setup-cfgs\n                        List the packages a directory of projects declares.\n    git_ops\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ..."
+    },
+    {
+      "argv": [
+        "parse-pth-paths"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "parse_pth_paths('.')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "parse-pth-paths",
+        "/somewhere"
+      ],
+      "returncode": 2,
+      "stderr": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\npriv: error: unrecognized arguments: /somewhere\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ... priv: error: unrecognized arguments: /somewhere"
+    },
+    {
+      "argv": [
+        "parse-pth-paths",
+        "--path",
+        "/somewhere"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "parse_pth_paths('/somewhere')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "parse_pth_paths"
+      ],
+      "returncode": 2,
+      "stderr": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\npriv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'parse_pth_paths' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ... priv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'parse_pth_paths' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)"
+    },
+    {
+      "argv": [
+        "align"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "align(repair=False)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "align",
+        "--repair"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "align(repair=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "render-pth"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "render_pth('my_packages.pth')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "render-pth",
+        "--out",
+        "x.pth"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "render_pth('x.pth')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "packages-from-all-setup-cfgs"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "packages_from_config('.', 'setup.cfg')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "packages-from-all-setup-cfgs",
+        "--pkg-dir",
+        "/p"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "packages_from_config('/p', 'setup.cfg')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "packages-from-all-setup-cfgs",
+        "--config-type",
+        "setup.cfg"
+      ],
+      "returncode": 2,
+      "stderr": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\npriv: error: unrecognized arguments: --config-type setup.cfg\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ... priv: error: unrecognized arguments: --config-type setup.cfg"
+    },
+    {
+      "argv": [
+        "git_ops"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\n",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ..."
+    },
+    {
+      "argv": [
+        "git-ops"
+      ],
+      "returncode": 2,
+      "stderr": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\npriv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'git-ops' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ... priv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'git-ops' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)"
+    },
+    {
+      "argv": [
+        "git_ops",
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: priv git_ops [-h] {git-branch-report,git-land} ...\n\npositional arguments:\n  {git-branch-report,git-land}\n    git-branch-report   Report branch drift across the fleet.\n    git-land            Land a branch: review, PR, CI gate, squash-merge.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: priv git_ops [-h] {git-branch-report,git-land} ..."
+    },
+    {
+      "argv": [
+        "git_ops",
+        "git-branch-report"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "git_branch_report(stale_days=30)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "git_ops",
+        "git-branch-report",
+        "--stale-days",
+        "7"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "git_branch_report(stale_days=7)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "git_ops",
+        "git-land",
+        "build-v1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "git_land('build-v1', squash=True)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "git_ops",
+        "git-land",
+        "build-v1",
+        "--squash"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "git_land('build-v1', squash=False)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "nope"
+      ],
+      "returncode": 2,
+      "stderr": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ...\npriv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'nope' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: priv [-h] {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops} ... priv: error: argument {parse-pth-paths,align,render-pth,packages-from-all-setup-cfgs,git_ops}: invalid choice: 'nope' (choose from parse-pth-paths, align, render-pth, packages-from-all-setup-cfgs, git_ops)"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "t/priv",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "A mapping whose keys name the commands, hyphenated (`parse_pth_paths` -> `parse-pth-paths`); a group whose name stays VERBATIM (`git_ops`, which is in priv's own README and is emitted as a user-facing suggestion); and a functools.partial whose bound keyword is hidden with cw.HIDE rather than re-exposed as a flag.",
+  "prog": [
+    "priv"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    2,
+    11
+  ],
+  "shape": "priv"
+}

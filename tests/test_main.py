@@ -55,11 +55,30 @@ def test_help_prints_the_help_cw_would_print():
     assert code == 0 and out.startswith("usage: write_lines")
 
 
-def test_parity_says_so_until_cw_testing_lands():
-    code, _, err = run(["parity"])
-    assert code in (0, 1)
-    if code == 1:
-        assert "cw.testing" in err
+def test_parity_runs_the_real_gate(capsys):
+    """`cw.testing` has landed, so this is now the gate itself, reached the other way.
+
+    `capsys` rather than `run`'s buffers: cw redirects argparse's output, not a command
+    body's, so `parity`'s report goes where the process's own `print` goes. That is the
+    documented behaviour of `out=`, not an accident of this test.
+    """
+    assert run(["parity"])[0] == 0
+    assert capsys.readouterr().out.strip().endswith(": identical")
+
+
+def test_parity_says_so_if_cw_testing_is_missing(monkeypatch):
+    """The honest failure, still asserted -- an installed cw could be missing its goldens.
+
+    A `None` in `sys.modules` is the documented way to make an import of that name raise
+    `ImportError`. The attribute has to go too: once a submodule has been imported, `from
+    cw import testing` reads it off the package object and never consults `sys.modules` at
+    all -- so patching only the one leaves the import succeeding and the simulation false.
+    """
+    monkeypatch.setitem(sys.modules, "cw.testing", None)
+    monkeypatch.delattr(cw, "testing", raising=False)
+    code, out, err = run(["parity"])
+    assert code == 1 and out == ""
+    assert "cw.testing is not available" in err
 
 
 def test_parity_delegates_to_cw_testing_when_it_exists(monkeypatch):

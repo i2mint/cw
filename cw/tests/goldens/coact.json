@@ -1,0 +1,244 @@
+{
+  "cases": [
+    {
+      "argv": [],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ...\n",
+      "tier": 1,
+      "usage": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ..."
+    },
+    {
+      "argv": [
+        "--help"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ...\n\nAgent project scaffolding.\n\npositional arguments:\n  {inventory,scaffold,publish,estimate,emit,back}\n    inventory           List what a project already has.\n    scaffold            Wire agent files into a project.\n    publish             Publish tool refs, a skill directory, or both.\n    estimate            Estimate the cost of running some agents. Row 10: VAR_POSITIONAL becomes a\n                        positional with nargs='*' and needs no declaration at all. The ingress re-\n                        expands it, so the function really does receive three arguments.\n    emit                Emit a report. Row 7: a `list` DEFAULT infers nargs='*' with no annotation\n                        involved. (A `tuple` default does too; a `tuple` ANNOTATION infers\n                        nothing, which is why row 7 says \"default\".)\n    back                Step a project back. Row 9: `choices` makes argh take `type` from\n                        `choices[0]`, so `--depth 2` arrives as an int here and the choices are\n                        checked against the coerced value.\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "tier": 3,
+      "usage": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ..."
+    },
+    {
+      "argv": [
+        "inventory"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "inventory('.')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "inventory",
+        "."
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "inventory('.')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "inventory",
+        "/elsewhere"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "inventory('/elsewhere')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "inventory",
+        "a",
+        "b"
+      ],
+      "returncode": 2,
+      "stderr": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ...\ncoact: error: unrecognized arguments: b\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: coact [-h] {inventory,scaffold,publish,estimate,emit,back} ... coact: error: unrecognized arguments: b"
+    },
+    {
+      "argv": [
+        "scaffold"
+      ],
+      "returncode": 2,
+      "stderr": "usage: coact scaffold [-h] agents [agents ...]\ncoact scaffold: error: the following arguments are required: agents\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: coact scaffold [-h] agents [agents ...] coact scaffold: error: the following arguments are required: agents"
+    },
+    {
+      "argv": [
+        "scaffold",
+        "one.md"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "scaffold(['one.md'])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "scaffold",
+        "one.md",
+        "two.md"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "scaffold(['one.md', 'two.md'])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "publish",
+        "mod:func",
+        "skills/"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "publish(['mod:func', 'skills/'])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "estimate"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "estimate()\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "estimate",
+        "a"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "estimate('a',)\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "estimate",
+        "a",
+        "b",
+        "c"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "estimate('a', 'b', 'c')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "emit"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "emit(tags=[])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "emit",
+        "--tags"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "emit(tags=[])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "emit",
+        "--tags",
+        "x",
+        "y"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "emit(tags=['x', 'y'])\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "back",
+        "1"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "back('1', mode='undo')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "back",
+        "1",
+        "--mode",
+        "redo"
+      ],
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "back('1', mode='redo')\n",
+      "tier": 1,
+      "usage": ""
+    },
+    {
+      "argv": [
+        "back",
+        "1",
+        "--mode",
+        "sideways"
+      ],
+      "returncode": 2,
+      "stderr": "usage: coact back [-h] [-m {undo,redo}] step\ncoact back: error: argument -m/--mode: invalid choice: 'sideways' (choose from undo, redo)\n",
+      "stdout": "",
+      "tier": 1,
+      "usage": "usage: coact back [-h] [-m {undo,redo}] step coact back: error: argument -m/--mode: invalid choice: 'sideways' (choose from undo, redo)"
+    }
+  ],
+  "cw_golden": 1,
+  "env": {
+    "COLUMNS": "100",
+    "NO_COLOR": "1",
+    "PYTHONHASHSEED": "0",
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1",
+    "TERM": "dumb"
+  },
+  "models": "t/coact",
+  "newlines": "lf",
+  "note": "Recorded in-process from real argh against cw/tests/fixtures.py. argh is not a dependency of cw; see misc/record_goldens.py.",
+  "pins": "The three nargs shapes coact declares -- nargs='?' with a default, and two nargs='+' -- plus a VAR_POSITIONAL that needs no declaration, a list DEFAULT that infers nargs='*' with no annotation, and a `choices` that supplies `type`.",
+  "prog": [
+    "coact"
+  ],
+  "recorded_with": {
+    "python": "3.12.12",
+    "tool": "argh",
+    "version": "0.31.3"
+  },
+  "rows": [
+    1,
+    7,
+    9,
+    10
+  ],
+  "shape": "coact"
+}
