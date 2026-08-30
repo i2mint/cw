@@ -27,9 +27,21 @@ Two properties are load-bearing rather than incidental:
   (``pip install 'cw[resource]'``). ``tests/test_import_is_cheap.py`` asserts this in a
   fresh subprocess, which is the only place the claim can honestly be checked.
 
->>> import cw
->>> cw.CommandError('no such pipeline', code=2).code
-2
+>>> import cw, io
+>>> def greet(name, *, loudly=False):
+...     '''Say hello to someone.'''
+...     return f'HELLO {name}' if loudly else f'hello {name}'
+>>> out = io.StringIO()
+>>> cw.dispatch(greet, ['world', '--loudly'], out=out)
+0
+>>> out.getvalue()
+'HELLO world\\n'
+
+The same command as a function, for a test that does not want a CLI at all:
+
+>>> cw.dispatch(greet, ['world'], standalone=False)
+'hello world'
+
 >>> cw.resolve_to_function('builtins.len') is len
 True
 """
@@ -43,6 +55,15 @@ from cw.base import (
     HIDE,
     MISSING,
 )
+from cw.cli import (
+    add_commands,
+    dispatch,
+    enable_completion,
+    mk_parser,
+    run,
+    set_default_command,
+)
+from cw.commands import commands_from
 from cw.convention import (
     ARGH,
     BY_NAME_IF_HAS_DEFAULT,
@@ -50,9 +71,17 @@ from cw.convention import (
     MODERN,
     Convention,
 )
+from cw.egress import (
+    argh_egress,
+    confirm,
+    iterable_egress,
+    json_egress,
+    write_lines,
+)
 from cw.grammar import (
     GrammarError,
     argh_decode,
+    cli_name,
     command_name,
     modern_decode,
 )
@@ -75,11 +104,27 @@ __all__ = [
     "Egress",
     "HIDE",
     "MISSING",
+    # -- cli: building a parser, and running one ----------------------------------------
+    "add_commands",
+    "dispatch",
+    "enable_completion",
+    "mk_parser",
+    "run",
+    "set_default_command",
+    # -- commands: an object becomes a {name: callable} tree -----------------------------
+    "commands_from",
     # -- grammar: a signature becomes command-line arguments ----------------------------
     "GrammarError",
     "argh_decode",
+    "cli_name",
     "command_name",
     "modern_decode",
+    # -- egress: a return value becomes lines and an exit code ---------------------------
+    "argh_egress",
+    "confirm",
+    "iterable_egress",
+    "json_egress",
+    "write_lines",
     # -- convention: what the defaults ARE ----------------------------------------------
     "ARGH",
     "BY_NAME_IF_HAS_DEFAULT",
