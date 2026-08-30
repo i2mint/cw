@@ -9,6 +9,7 @@ import ast
 import io
 import json
 import os
+import pathlib
 import subprocess
 import sys
 import textwrap
@@ -401,6 +402,134 @@ class TestPinnedEnv:
             assert os.environ["_ARGCOMPLETE"] == "1"
         finally:
             os.environ.pop("_ARGCOMPLETE", None)
+
+
+class TestPinnedStdin:
+    """A recording must describe the CLI, not the console that recorded it.
+
+    A CLI with an interactive path -- grub drops into a REPL when the query is omitted,
+    `cw.confirm` asks a question -- reads stdin. If the recorded child inherits the
+    recorder's stdin, the *same case* records two different facts: at a terminal the child
+    blocks on a prompt nobody will answer and the case is recorded as a timeout, while
+    under CI or pytest it sees an immediate EOF and records the real behaviour. Then a
+    golden recorded in CI fails when a developer replays it locally, for a reason that has
+    nothing to do with the CLI.
+    """
+
+    READS_STDIN = (
+        'import sys\n'
+        'try:\n'
+        '    line = input("prompt> ")\n'
+        'except EOFError:\n'
+        '    line = "<EOF>"\n'
+        'print("read:", line)\n'
+    )
+
+    @pytest.fixture
+    def reads_stdin(self, tmp_path):
+        path = tmp_path / "reads_stdin.py"
+        path.write_text(self.READS_STDIN, encoding="utf-8")
+        return [sys.executable, str(path)]
+
+    def test_a_command_that_reads_stdin_records_eof_not_a_timeout(self, reads_stdin):
+        golden = testing.characterize(reads_stdin, [[]], timeout=10)
+        case = golden["cases"][0]
+        assert case["returncode"] == 0
+        assert "<EOF>" in case["stdout"]
+
+    def test_the_recording_does_not_depend_on_the_recorder_s_own_stdin(
+        self, reads_stdin, tmp_path
+    ):
+        """Record the same case twice, under two different stdins, and compare."""
+        driver = tmp_path / "driver.py"
+        driver.write_text(
+            "import json, sys\n"
+            f"sys.path.insert(0, {str(pathlib.Path(testing.__file__).parent.parent)!r})\n"
+            "from cw import testing\n"
+            f"golden = testing.characterize({reads_stdin!r}, [[]], timeout=10)\n"
+            "print(json.dumps(golden['cases'][0]))\n",
+            encoding="utf-8",
+        )
+
+        def record_with(stdin):
+            done = subprocess.run(
+                [sys.executable, str(driver)],
+                stdin=stdin,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            assert done.returncode == 0, done.stderr
+            return json.loads(done.stdout)
+
+        # An open pipe nobody writes to is what a terminal looks like to the child.
+        read_fd, write_fd = os.pipe()
+        try:
+            from_terminal = record_with(read_fd)
+        finally:
+            os.close(read_fd)
+            os.close(write_fd)
+        with open(os.devnull, "rb") as devnull:
+            from_devnull = record_with(devnull)
+
+        assert from_terminal == from_devnull
+        assert from_terminal["returncode"] == 0
+
+
+class TestWindowsConsoleScriptShim:
+    """A golden recorded on a Mac must assert on a Windows runner -- as promised.
+
+    `argparse` takes its `prog` from `basename(sys.argv[0])`, and a console script is
+    installed as `opsward.exe` on Windows. Without scrubbing, the same CLI at the same
+    commit reports `usage: opsward ...` on a Mac and `usage: opsward.EXE ...` on the
+    runner, and every case that prints a usage line or an error prefix differs -- 22 of
+    31 in the case that found this.
+
+    The simulation is exact rather than mocked: the same toy CLI is written under two
+    names, one carrying the Windows extension, and the golden recorded from the plain one
+    is replayed against the `.exe` one.
+
+    Both are run as `[sys.executable, path]` rather than as executables in their own
+    right. A first version wrote a shebang and `chmod +x`, which is exactly the sort of
+    POSIX assumption this class exists to catch -- it failed on the Windows runner with
+    `OSError: [WinError 193] %1 is not a valid Win32 application`. It also made the test
+    weaker than it looks: with the interpreter in front, the console script is *not* the
+    command's first word, so this now covers the harder shape too.
+    """
+
+    DERIVES_PROG = (
+        "import argparse\n"
+        "parser = argparse.ArgumentParser(description='A toy.')\n"
+        "parser.add_argument('name')\n"
+        "parser.parse_args()\n"
+    )
+
+    @pytest.fixture
+    def two_names(self, tmp_path):
+        """The same CLI as `toy` and as `toy.EXE`, both letting argparse derive prog."""
+        plain = tmp_path / "toy"
+        plain.write_text(self.DERIVES_PROG, encoding="utf-8")
+        windows = tmp_path / "toy.EXE"
+        windows.write_text(self.DERIVES_PROG, encoding="utf-8")
+        return (
+            [sys.executable, str(plain)],
+            [sys.executable, str(windows)],
+        )
+
+    def test_the_exe_suffix_does_not_make_a_recording_os_specific(self, two_names):
+        plain, windows = two_names
+        golden = testing.characterize(plain, [["--help"], []], timeout=30)
+        assert "toy.EXE" not in json.dumps(golden)
+        # Replaying the plain-name golden against the .exe shim must be clean.
+        testing.assert_replay(golden, prog=windows, strict_help=True)
+
+    def test_only_the_program_s_own_exe_is_scrubbed(self):
+        assert testing.scrub_exe_suffix("run setup.exe", "/bin/toy") == "run setup.exe"
+        assert testing.scrub_exe_suffix("toy.exe ran", "/bin/toy") == "toy ran"
+
+    def test_the_program_need_not_be_the_command_s_first_word(self):
+        command = ["/usr/bin/python", "/tmp/toy.exe"]
+        assert testing.scrub_exe_suffix("usage: toy.EXE [-h]", command) == "usage: toy [-h]"
 
 
 class TestExitStatus:
