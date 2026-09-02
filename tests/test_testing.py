@@ -418,10 +418,10 @@ class TestPinnedStdin:
     """
 
     READS_STDIN = (
-        'import sys\n'
-        'try:\n'
+        "import sys\n"
+        "try:\n"
         '    line = input("prompt> ")\n'
-        'except EOFError:\n'
+        "except EOFError:\n"
         '    line = "<EOF>"\n'
         'print("read:", line)\n'
     )
@@ -530,7 +530,10 @@ class TestWindowsConsoleScriptShim:
 
     def test_the_program_need_not_be_the_command_s_first_word(self):
         command = ["/usr/bin/python", "/tmp/toy.exe"]
-        assert testing.scrub_exe_suffix("usage: toy.EXE [-h]", command) == "usage: toy [-h]"
+        assert (
+            testing.scrub_exe_suffix("usage: toy.EXE [-h]", command)
+            == "usage: toy [-h]"
+        )
 
 
 class TestExitStatus:
