@@ -11,6 +11,7 @@ import enum
 import functools
 import inspect
 import pathlib
+import collections.abc
 import typing
 
 import pytest
@@ -332,6 +333,82 @@ def test_modern_decode_reads_an_enum_by_name_then_value():
     assert decoded["type"]("b") is Colour.BLUE
     with pytest.raises(ValueError):
         decoded["type"]("green")
+
+
+# --------------------------------------------------------------------------------------
+# Abstract sequence interfaces
+#
+# argh recognises `list` and nothing else, so `names: Sequence[str]` silently became one
+# positional taking one token — the parser built, the command ran, and the second argument
+# came back as an "unrecognized argument". That penalises exactly the annotation style
+# that prefers `collections.abc` interfaces over concrete containers.
+
+
+@pytest.mark.parametrize(
+    "hint",
+    [
+        typing.Sequence[str],
+        typing.Iterable[str],
+        collections.abc.Sequence[str],
+        collections.abc.Iterable[str],
+        collections.abc.Collection[str],
+        tuple[str, ...],
+        set[str],
+        frozenset[str],
+    ],
+)
+def test_modern_decode_reads_abstract_sequences_as_several_values(hint):
+    assert modern_decode(PARAM, hint) == {"nargs": "*", "type": str}
+
+
+@pytest.mark.parametrize(
+    "hint",
+    [typing.Sequence, collections.abc.Iterable, tuple, set, frozenset],
+)
+def test_modern_decode_reads_bare_sequences_too(hint):
+    """`x: Sequence` says the same thing as `x: Sequence[str]` about arity."""
+    assert modern_decode(PARAM, hint) == {"nargs": "*"}
+
+
+@pytest.mark.parametrize("hint", [str, bytes])
+def test_modern_decode_does_NOT_read_str_or_bytes_as_a_sequence(hint):
+    """The trap. Both are registered `Sequence`s, so an `issubclass` test would
+    read every string parameter as variadic — and every existing CLI would break
+    in a way whose error message points at the wrong thing.
+
+    Matching on `typing.get_origin` avoids it by construction: `get_origin(str)`
+    is None.
+    """
+    assert "nargs" not in modern_decode(PARAM, hint)
+
+
+def test_modern_decode_gives_a_homogeneous_fixed_tuple_a_fixed_nargs():
+    """The one case where the annotation carries a count."""
+    assert modern_decode(PARAM, tuple[int, int]) == {"nargs": 2, "type": int}
+
+
+def test_modern_decode_declines_a_heterogeneous_tuple():
+    """`add_argument` has a single `type`, and there is no honest one to pick —
+    so no inference at all beats a wrong converter."""
+    assert modern_decode(PARAM, tuple[int, str]) == {}
+
+
+def test_modern_decode_unwraps_an_optional_sequence():
+    assert modern_decode(PARAM, typing.Optional[typing.Sequence[int]]) == {
+        "nargs": "*",
+        "type": int,
+    }
+
+
+def test_argh_decode_is_UNCHANGED_by_any_of_this():
+    """`argh_decode` is argh's if-chain, if-branch for if-branch. Widening it
+    would break the compatibility contract that is its whole purpose — the new
+    behaviour lives in `modern_decode`, which is the seam for exactly this."""
+    assert argh_decode(PARAM, typing.Sequence[str]) == {}
+    assert argh_decode(PARAM, collections.abc.Iterable[str]) == {}
+    assert argh_decode(PARAM, tuple[int, int]) == {}
+    # and what it DID cover still works
+    assert argh_decode(PARAM, list[int]) == {"nargs": "*", "type": int}
 
 
 def test_modern_decode_maps_pure_paths_to_path():
