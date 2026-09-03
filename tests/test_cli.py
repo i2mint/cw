@@ -773,9 +773,13 @@ class TestTheGroupKwargsChannel:
         here deliberately; what changed is that the error message now says so.
         """
         with_help = cw.mk_parser({}, prog="x")
-        add_commands(with_help, ARCHIVE, group_name="archive", group_kwargs={"help": "H"})
+        add_commands(
+            with_help, ARCHIVE, group_name="archive", group_kwargs={"help": "H"}
+        )
         assert "H" not in with_help.format_help()
 
         with_title = cw.mk_parser({}, prog="x")
-        add_commands(with_title, ARCHIVE, group_name="archive", group_kwargs={"title": "H"})
+        add_commands(
+            with_title, ARCHIVE, group_name="archive", group_kwargs={"title": "H"}
+        )
         assert "H" in with_title.format_help()

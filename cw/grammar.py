@@ -39,6 +39,7 @@ shared one; and every help string is ``'%(default)s'``, which
 :class:`cw.base.ArghHelpFormatter` renders as ``repr(default)``.
 """
 
+import collections.abc
 import dataclasses
 import enum
 import inspect
@@ -100,6 +101,46 @@ except ImportError:  # pragma: no cover
     pass
 
 _NONE_TYPE = type(None)
+
+#: Origins :func:`modern_decode` reads as "several values", beyond ``list``.
+#:
+#: ``argh`` recognises ``list`` and nothing else, so ``names: Sequence[str]``
+#: silently becomes one positional taking one token. That penalises exactly the
+#: annotation style that prefers ``collections.abc`` interfaces over concrete
+#: containers — and the failure is quiet: the parser builds, the command runs,
+#: and the second argument is an "unrecognized argument".
+#:
+#: ``str`` and ``bytes`` are *not* reachable here and must never become so. Both
+#: are registered ``Sequence``\ s, so an ``issubclass`` test would read every
+#: ``name: str`` as variadic. Matching on ``typing.get_origin`` avoids that by
+#: construction: ``get_origin(str)`` is ``None``.
+_SEQUENCE_ORIGINS: tuple = (
+    list,
+    set,
+    frozenset,
+    tuple,
+    collections.abc.Sequence,
+    collections.abc.MutableSequence,
+    collections.abc.Iterable,
+    collections.abc.Collection,
+    collections.abc.Set,
+    collections.abc.MutableSet,
+)
+
+#: Bare, unsubscripted spellings of the same idea: ``x: Sequence`` rather than
+#: ``x: Sequence[str]``. ``list`` is absent because :func:`argh_decode` already
+#: covers it, and this table must not change what argh-compatible mode does.
+_BARE_SEQUENCES: tuple = (
+    set,
+    frozenset,
+    tuple,
+    collections.abc.Sequence,
+    collections.abc.MutableSequence,
+    collections.abc.Iterable,
+    collections.abc.Collection,
+    collections.abc.Set,
+    collections.abc.MutableSet,
+)
 
 
 class GrammarError(ValueError):
@@ -382,6 +423,14 @@ def modern_decode(param: inspect.Parameter, hint: Any) -> Mapping[str, Any]:
 
     >>> decoded['metavar']
     '{RED}'
+
+    Abstract sequence interfaces mean what they say, which argh-compatible mode
+    cannot do — argh recognises ``list`` and nothing else:
+
+    >>> modern_decode(p, typing.Sequence[str]) == {'nargs': '*', 'type': str}
+    True
+    >>> argh_decode(p, typing.Sequence[str])
+    {}
     """
     hint = _unwrap_optional(hint)
     if isinstance(hint, type) and issubclass(hint, enum.Enum):
@@ -396,7 +445,65 @@ def modern_decode(param: inspect.Parameter, hint: Any) -> Mapping[str, Any]:
         }
     if isinstance(hint, type) and issubclass(hint, pathlib.PurePath):
         return {"type": pathlib.Path}
+    sequence = _decode_sequence(hint)
+    if sequence is not None:
+        return sequence
     return argh_decode(param, hint)
+
+
+def _decode_sequence(hint: Any) -> Optional[Dict[str, Any]]:
+    """``Sequence[str]`` and friends -> ``nargs``, or ``None`` to fall through.
+
+    ``argh_decode`` covers ``list`` because argh does; this covers the abstract
+    interfaces and the other concrete containers, because a signature written
+    ``names: Sequence[str]`` means the same thing to a reader and currently
+    means something else to the parser.
+
+    A **homogeneous fixed-length tuple** becomes a fixed ``nargs``, which is the
+    one case where the annotation carries a count:
+
+        >>> _decode_sequence(tuple[int, int]) == {'nargs': 2, 'type': int}
+        True
+
+    A heterogeneous one falls through to no inference, because ``add_argument``
+    has a single ``type`` and there is no honest one to choose:
+
+        >>> _decode_sequence(tuple[int, str]) is None
+        True
+
+    The abstract interfaces, subscripted and bare:
+
+        >>> _decode_sequence(typing.Sequence[str]) == {'nargs': '*', 'type': str}
+        True
+        >>> _decode_sequence(collections.abc.Iterable) == {'nargs': '*'}
+        True
+
+    And the trap this must not fall into — ``str`` and ``bytes`` are registered
+    ``Sequence``\ s, so a subclass test would read every string parameter as
+    variadic:
+
+        >>> _decode_sequence(str) is None
+        True
+        >>> _decode_sequence(bytes) is None
+        True
+    """
+    if hint in _BARE_SEQUENCES:
+        return {"nargs": ZERO_OR_MORE}
+    origin = typing.get_origin(hint)
+    if origin is None or origin not in _SEQUENCE_ORIGINS:
+        return None
+    args = typing.get_args(hint)
+    if origin is tuple and args and Ellipsis not in args:
+        # A fixed-length tuple states its own count, but only a homogeneous one
+        # has a `type` argparse could apply to every position.
+        if len(set(args)) != 1 or args[0] not in BASIC_TYPES:
+            return None
+        return {"nargs": len(args), "type": args[0]}
+    guessed: Dict[str, Any] = {"nargs": ZERO_OR_MORE}
+    item = next((a for a in args if a is not Ellipsis), None)
+    if item in BASIC_TYPES:
+        guessed["type"] = item
+    return guessed
 
 
 def _unwrap_optional(hint: Any) -> Any:
