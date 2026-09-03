@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.grammar &mdash; cw 0.1.1 documentation</title>
+  <title>cw.grammar &mdash; cw 0.1.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../../_static/documentation_options.js?v=92734c54"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -128,6 +128,7 @@
 <span class="sd">:class:`cw.base.ArghHelpFormatter` renders as ``repr(default)``.</span>
 <span class="sd">"""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">collections.abc</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">enum</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
@@ -189,6 +190,46 @@
     <span class="k">pass</span>
 
 <span class="n">_NONE_TYPE</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+<span class="c1">#: Origins :func:`modern_decode` reads as "several values", beyond ``list``.</span>
+<span class="c1">#:</span>
+<span class="c1">#: ``argh`` recognises ``list`` and nothing else, so ``names: Sequence[str]``</span>
+<span class="c1">#: silently becomes one positional taking one token. That penalises exactly the</span>
+<span class="c1">#: annotation style that prefers ``collections.abc`` interfaces over concrete</span>
+<span class="c1">#: containers — and the failure is quiet: the parser builds, the command runs,</span>
+<span class="c1">#: and the second argument is an "unrecognized argument".</span>
+<span class="c1">#:</span>
+<span class="c1">#: ``str`` and ``bytes`` are *not* reachable here and must never become so. Both</span>
+<span class="c1">#: are registered ``Sequence``\ s, so an ``issubclass`` test would read every</span>
+<span class="c1">#: ``name: str`` as variadic. Matching on ``typing.get_origin`` avoids that by</span>
+<span class="c1">#: construction: ``get_origin(str)`` is ``None``.</span>
+<span class="n">_SEQUENCE_ORIGINS</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nb">list</span><span class="p">,</span>
+    <span class="nb">set</span><span class="p">,</span>
+    <span class="nb">frozenset</span><span class="p">,</span>
+    <span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Set</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Bare, unsubscripted spellings of the same idea: ``x: Sequence`` rather than</span>
+<span class="c1">#: ``x: Sequence[str]``. ``list`` is absent because :func:`argh_decode` already</span>
+<span class="c1">#: covers it, and this table must not change what argh-compatible mode does.</span>
+<span class="n">_BARE_SEQUENCES</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="nb">set</span><span class="p">,</span>
+    <span class="nb">frozenset</span><span class="p">,</span>
+    <span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSequence</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Iterable</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Collection</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Set</span><span class="p">,</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">MutableSet</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="GrammarError">
@@ -494,6 +535,14 @@
 
 <span class="sd">    &gt;&gt;&gt; decoded['metavar']</span>
 <span class="sd">    '{RED}'</span>
+
+<span class="sd">    Abstract sequence interfaces mean what they say, which argh-compatible mode</span>
+<span class="sd">    cannot do — argh recognises ``list`` and nothing else:</span>
+
+<span class="sd">    &gt;&gt;&gt; modern_decode(p, typing.Sequence[str]) == {'nargs': '*', 'type': str}</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; argh_decode(p, typing.Sequence[str])</span>
+<span class="sd">    {}</span>
 <span class="sd">    """</span>
     <span class="n">hint</span> <span class="o">=</span> <span class="n">_unwrap_optional</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
@@ -508,8 +557,66 @@
         <span class="p">}</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">hint</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">}</span>
+    <span class="n">sequence</span> <span class="o">=</span> <span class="n">_decode_sequence</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sequence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">sequence</span>
     <span class="k">return</span> <span class="n">argh_decode</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode_sequence</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``Sequence[str]`` and friends -&gt; ``nargs``, or ``None`` to fall through.</span>
+
+<span class="sd">    ``argh_decode`` covers ``list`` because argh does; this covers the abstract</span>
+<span class="sd">    interfaces and the other concrete containers, because a signature written</span>
+<span class="sd">    ``names: Sequence[str]`` means the same thing to a reader and currently</span>
+<span class="sd">    means something else to the parser.</span>
+
+<span class="sd">    A **homogeneous fixed-length tuple** becomes a fixed ``nargs``, which is the</span>
+<span class="sd">    one case where the annotation carries a count:</span>
+
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(tuple[int, int]) == {'nargs': 2, 'type': int}</span>
+<span class="sd">        True</span>
+
+<span class="sd">    A heterogeneous one falls through to no inference, because ``add_argument``</span>
+<span class="sd">    has a single ``type`` and there is no honest one to choose:</span>
+
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(tuple[int, str]) is None</span>
+<span class="sd">        True</span>
+
+<span class="sd">    The abstract interfaces, subscripted and bare:</span>
+
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(typing.Sequence[str]) == {'nargs': '*', 'type': str}</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(collections.abc.Iterable) == {'nargs': '*'}</span>
+<span class="sd">        True</span>
+
+<span class="sd">    And the trap this must not fall into — ``str`` and ``bytes`` are registered</span>
+<span class="sd">    ``Sequence``\ s, so a subclass test would read every string parameter as</span>
+<span class="sd">    variadic:</span>
+
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(str) is None</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; _decode_sequence(bytes) is None</span>
+<span class="sd">        True</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">hint</span> <span class="ow">in</span> <span class="n">_BARE_SEQUENCES</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"nargs"</span><span class="p">:</span> <span class="n">ZERO_OR_MORE</span><span class="p">}</span>
+    <span class="n">origin</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_origin</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">origin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_SEQUENCE_ORIGINS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">typing</span><span class="o">.</span><span class="n">get_args</span><span class="p">(</span><span class="n">hint</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="nb">tuple</span> <span class="ow">and</span> <span class="n">args</span> <span class="ow">and</span> <span class="bp">Ellipsis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="c1"># A fixed-length tuple states its own count, but only a homogeneous one</span>
+        <span class="c1"># has a `type` argparse could apply to every position.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">args</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"nargs"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="s2">"type"</span><span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="n">guessed</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"nargs"</span><span class="p">:</span> <span class="n">ZERO_OR_MORE</span><span class="p">}</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">Ellipsis</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BASIC_TYPES</span><span class="p">:</span>
+        <span class="n">guessed</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">=</span> <span class="n">item</span>
+    <span class="k">return</span> <span class="n">guessed</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_unwrap_optional</span><span class="p">(</span><span class="n">hint</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>

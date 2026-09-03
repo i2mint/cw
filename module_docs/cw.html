@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw &mdash; cw 0.1.1 documentation</title>
+  <title>cw &mdash; cw 0.1.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -15,7 +15,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=a58bc63e"></script>
+      <script src="../_static/documentation_options.js?v=92734c54"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -853,6 +853,14 @@ quietly becomes <code class="docutils literal notranslate"><span class="pre">nar
 the converter would reject:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">decoded</span><span class="p">[</span><span class="s1">'metavar'</span><span class="p">]</span>
 <span class="go">'{RED}'</span>
+</pre></div>
+</div>
+<p>Abstract sequence interfaces mean what they say, which argh-compatible mode
+cannot do — argh recognises <code class="docutils literal notranslate"><span class="pre">list</span></code> and nothing else:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">modern_decode</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">==</span> <span class="p">{</span><span class="s1">'nargs'</span><span class="p">:</span> <span class="s1">'*'</span><span class="p">,</span> <span class="s1">'type'</span><span class="p">:</span> <span class="nb">str</span><span class="p">}</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">argh_decode</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span>
+<span class="go">{}</span>
 </pre></div>
 </div>
 </dd></dl>
