@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cw.ingress &mdash; cw 0.1.2 documentation</title>
+  <title>cw.ingress &mdash; cw 0.1.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=92734c54"></script>
+      <script src="../../_static/documentation_options.js?v=360bc84d"></script>
       <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../../_static/toggleprompt.js?v=d7ede5d2"></script>
@@ -114,6 +114,45 @@
 <span class="sd">``--destination`` on the command line. And ``dry_run`` reaches ``**options`` only because</span>
 <span class="sd">something put it in the mapping; under :data:`cw.ARGH` the parser never adds an argument</span>
 <span class="sd">for ``**options`` at all, so in a real dispatch that key is simply never there.</span>
+
+<span class="sd">Why this module exists at all: the anti-example</span>
+<span class="sd">-----------------------------------------------</span>
+
+<span class="sd">The fleet's own code carried this for years, in an example script that acquires METAR</span>
+<span class="sd">weather observations. It is reproduced verbatim because it is the clearest statement of</span>
+<span class="sd">the problem ingress solves::</span>
+
+<span class="sd">    if __name__ == '__main__':</span>
+<span class="sd">        try:</span>
+<span class="sd">            import argh</span>
+
+<span class="sd">            _acquire_metar_data = acquire_metar_data</span>
+
+<span class="sd">            def acquire_metar_data(airport_ids=DFLT_AIRPORT_IDS,</span>
+<span class="sd">                                   hours_before_now=DFLT_HOURS_BEFORE_NOW):</span>
+<span class="sd">                airport_ids = airport_ids.split(',')</span>
+<span class="sd">                hours_before_now = int(hours_before_now)</span>
+<span class="sd">                return _acquire_metar_data(airport_ids, hours_before_now)</span>
+
+<span class="sd">            argh.dispatch_command(_acquire_metar_data)</span>
+
+<span class="sd">        except ImportError:</span>
+<span class="sd">            print("You don't have argh: Pity (you should really ")</span>
+
+<span class="sd">            acquire_metar_data()</span>
+
+<span class="sd">Read it slowly. The author knew perfectly well that a command line hands you strings and</span>
+<span class="sd">that the underlying function wants a list and an int, so they wrote the coercion by hand,</span>
+<span class="sd">in a shadowing wrapper, immediately above the dispatch call -- and then dispatched</span>
+<span class="sd">``_acquire_metar_data``, the *original*, uncoerced function. The wrapper is never called.</span>
+<span class="sd">The coercion never runs. Nothing raises; the CLI just quietly passes ``'KJFK,KBOS'`` where</span>
+<span class="sd">a list was meant. (The fallback branch is broken too: it calls the rebound name with no</span>
+<span class="sd">arguments, and its message is a sentence that stops mid-word.)</span>
+
+<span class="sd">That is what hand-written, call-site ingress costs. The lesson cw takes from it is that</span>
+<span class="sd">string-to-object conversion is a *seam of the framework*, declared once next to the</span>
+<span class="sd">parameter it converts (``decode=``, or ``type=`` in a per-parameter config), never a block</span>
+<span class="sd">of glue that a reader has to diff against the dispatch call to see is dead.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
