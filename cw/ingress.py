@@ -25,6 +25,45 @@ called, while :mod:`cw.grammar` decides, separately, whether it is spelt ``dest`
 ``--destination`` on the command line. And ``dry_run`` reaches ``**options`` only because
 something put it in the mapping; under :data:`cw.ARGH` the parser never adds an argument
 for ``**options`` at all, so in a real dispatch that key is simply never there.
+
+Why this module exists at all: the anti-example
+-----------------------------------------------
+
+The fleet's own code carried this for years, in an example script that acquires METAR
+weather observations. It is reproduced verbatim because it is the clearest statement of
+the problem ingress solves::
+
+    if __name__ == '__main__':
+        try:
+            import argh
+
+            _acquire_metar_data = acquire_metar_data
+
+            def acquire_metar_data(airport_ids=DFLT_AIRPORT_IDS,
+                                   hours_before_now=DFLT_HOURS_BEFORE_NOW):
+                airport_ids = airport_ids.split(',')
+                hours_before_now = int(hours_before_now)
+                return _acquire_metar_data(airport_ids, hours_before_now)
+
+            argh.dispatch_command(_acquire_metar_data)
+
+        except ImportError:
+            print("You don't have argh: Pity (you should really ")
+
+            acquire_metar_data()
+
+Read it slowly. The author knew perfectly well that a command line hands you strings and
+that the underlying function wants a list and an int, so they wrote the coercion by hand,
+in a shadowing wrapper, immediately above the dispatch call -- and then dispatched
+``_acquire_metar_data``, the *original*, uncoerced function. The wrapper is never called.
+The coercion never runs. Nothing raises; the CLI just quietly passes ``'KJFK,KBOS'`` where
+a list was meant. (The fallback branch is broken too: it calls the rebound name with no
+arguments, and its message is a sentence that stops mid-word.)
+
+That is what hand-written, call-site ingress costs. The lesson cw takes from it is that
+string-to-object conversion is a *seam of the framework*, declared once next to the
+parameter it converts (``decode=``, or ``type=`` in a per-parameter config), never a block
+of glue that a reader has to diff against the dispatch call to see is dead.
 """
 
 import inspect
