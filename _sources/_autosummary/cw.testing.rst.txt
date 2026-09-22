@@ -1,0 +1,34 @@
+cw.testing
+==========
+
+.. automodule:: cw.testing
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      GOLDEN_VERSION
+      RECORDING_ENV
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      assert_replay
+      capture
+      characterize
+      compare_case
+      diff_help
+      load_golden
+      local_path_hits
+      main
+      normalise_text
+      normalise_usage
+      parity
+      pinned_env
+      read_cases
+      replay
+      scrub_addresses
+      scrub_exe_suffix
+   

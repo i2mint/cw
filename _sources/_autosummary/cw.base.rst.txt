@@ -1,0 +1,30 @@
+cw.base
+=======
+
+.. automodule:: cw.base
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      MISSING
+      HIDE
+      Decode
+      Egress
+      DFLT_ERROR_CODE
+      DFLT_HELP
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ArghHelpFormatter
+      Codec
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      CommandError
+   

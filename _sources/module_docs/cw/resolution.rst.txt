@@ -1,4 +1,0 @@
-cw.resolution
-=============
-.. automodule:: cw.resolution
-   :members:

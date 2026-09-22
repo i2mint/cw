@@ -1,0 +1,29 @@
+cw.cli
+======
+
+.. automodule:: cw.cli
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      RESERVED_DEST
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      mk_parser
+      run
+      dispatch
+      add_commands
+      set_default_command
+      enable_completion
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      BoundKeywordWarning
+   

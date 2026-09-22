@@ -1,4 +1,0 @@
-cw.commands
-===========
-.. automodule:: cw.commands
-   :members:

@@ -1,4 +1,0 @@
-cw.testing
-==========
-.. automodule:: cw.testing
-   :members:

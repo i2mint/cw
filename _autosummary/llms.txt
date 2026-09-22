@@ -1,0 +1,22 @@
+# cw
+
+> Command line Wizard - turn your Python functions into a CLI
+
+
+## Pages in this subsection
+
+- [cw](cw.html.md): Tools to wire a string-only environment to a Python function call.
+- [cw.base](cw.base.html.md): The small vocabulary cw’s other modules share: sentinels, errors, and help rendering.
+- [cw.cli](cw.cli.html.md): The argparse surface: building a parser, and running one.
+- [cw.commands](cw.commands.html.md): Turning an object into the &#96;{name: callable}&#96; tree a parser is built from.
+- [cw.compat](cw.compat.html.md): Transitional argh shim: a one-line import change retires a repo.
+- [cw.convention](cw.convention.html.md): What cw’s defaults ARE, as one frozen value per context.
+- [cw.egress](cw.egress.html.md): Result to stdout: how a function’s return value becomes lines and an exit code.
+- [cw.grammar](cw.grammar.html.md): How a Python signature becomes command-line arguments.
+- [cw.ingress](cw.ingress.html.md): Namespace to call: the lines that honour &#96;/&#96;, &#96;&#42;args&#96;, &#96;&#42;&#96; and &#96;&#42;&#42;kwargs&#96;.
+- [cw.resolution](cw.resolution.html.md): Function resolution utilities for CLI parameterization.
+- [cw.testing](cw.testing.html.md): Record a CLI’s behaviour before a migration and assert it after.
+
+## Optional
+
+- [Top-level llms.txt](../llms.txt): Complete documentation index.

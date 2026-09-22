@@ -1,0 +1,67 @@
+﻿cw
+==
+
+.. automodule:: cw
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      add_commands
+      dispatch
+      enable_completion
+      mk_parser
+      run
+      set_default_command
+      commands_from
+      argh_decode
+      cli_name
+      command_name
+      modern_decode
+      argh_egress
+      confirm
+      iterable_egress
+      json_egress
+      write_lines
+      parse_ast_spec
+      parse_json_spec
+      parse_spec_with_dot_path
+      resolve_func_from_dot_path
+      resolve_to_function
+      resource_inputs
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ArghHelpFormatter
+      Codec
+      Convention
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      CommandError
+      BoundKeywordWarning
+      CommandTreeError
+      GrammarError
+      IngressError
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   base
+   cli
+   commands
+   compat
+   convention
+   egress
+   grammar
+   ingress
+   resolution
+   testing

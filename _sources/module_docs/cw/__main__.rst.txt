@@ -1,4 +1,0 @@
-cw.__main__
-===========
-.. automodule:: cw.__main__
-   :members:

@@ -1,0 +1,17 @@
+cw.egress
+=========
+
+.. automodule:: cw.egress
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      argh_egress
+      iterable_egress
+      json_egress
+      write_lines
+      confirm
+      guard_no_coroutine
+   

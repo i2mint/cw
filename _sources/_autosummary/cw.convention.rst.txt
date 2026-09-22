@@ -1,0 +1,19 @@
+cw.convention
+=============
+
+.. automodule:: cw.convention
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      ARGH
+      MODERN
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Convention
+   

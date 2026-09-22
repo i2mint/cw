@@ -1,0 +1,18 @@
+cw.resolution
+=============
+
+.. automodule:: cw.resolution
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      parse_ast_spec
+      parse_json_spec
+      parse_spec_with_dot_path
+      resolve_func_from_dot_path
+      resolve_object
+      resolve_to_function
+      resource_inputs
+   

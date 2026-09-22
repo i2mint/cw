@@ -1,4 +1,0 @@
-cw.tests.fixtures
-=================
-.. automodule:: cw.tests.fixtures
-   :members:

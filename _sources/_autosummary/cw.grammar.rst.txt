@@ -1,0 +1,37 @@
+cw.grammar
+==========
+
+.. automodule:: cw.grammar
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      ZERO_OR_MORE
+      OPTIONAL
+      BY_NAME_IF_HAS_DEFAULT
+      BY_NAME_IF_KWONLY
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      argh_decode
+      modern_decode
+      cli_name
+      command_name
+      specs_for_function
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ArgSpec
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      GrammarError
+   

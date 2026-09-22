@@ -1,4 +1,0 @@
-cw.base
-=======
-.. automodule:: cw.base
-   :members:

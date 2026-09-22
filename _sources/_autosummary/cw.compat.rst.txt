@@ -1,0 +1,38 @@
+cw.compat
+=========
+
+.. automodule:: cw.compat
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      CommandError
+      completion
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      add_commands
+      arg
+      confirm
+      dispatch
+      dispatch_command
+      dispatch_commands
+      set_default_command
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ArghParser
+      NameMappingPolicy
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+   
+      CommandError
+   

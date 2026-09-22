@@ -1,4 +1,0 @@
-cw.ingress
-==========
-.. automodule:: cw.ingress
-   :members:
