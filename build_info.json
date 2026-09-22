@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-09-22T13:08:45Z",
+  "built_at": "2026-09-22T14:53:35Z",
   "package": {
     "name": "cw",
-    "version": "0.1.4",
+    "version": "0.1.5",
     "display_name": "cw",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "e719ccedac7544ffe32fb03dfdf7e92ee02900e2",
-    "short_commit": "e719cce",
+    "commit": "8f121429bf05583c3234fd9eab55c338275441b4",
+    "short_commit": "8f12142",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/e719ccedac7544ffe32fb03dfdf7e92ee02900e2",
+    "commit_url": "https://github.com/i2mint/cw/commit/8f121429bf05583c3234fd9eab55c338275441b4",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "e719ccedac7544ffe32fb03dfdf7e92ee02900e2",
+    "sha": "8f121429bf05583c3234fd9eab55c338275441b4",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "35731373399",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/35731373399",
+    "run_id": "35743296363",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/35743296363",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,11 +60,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.1.4",
+    "latest": "0.1.5",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout e719ccedac7544ffe32fb03dfdf7e92ee02900e2\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 8f121429bf05583c3234fd9eab55c338275441b4\npip install \"epythet==0.2.12\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
