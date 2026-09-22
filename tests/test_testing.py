@@ -13,6 +13,7 @@ import pathlib
 import subprocess
 import sys
 import textwrap
+import warnings
 
 import pytest
 
@@ -851,3 +852,94 @@ class TestTheCommandStringIsSplitPerPlatform:
             "-m",
             "cw",
         ]
+
+
+# =======================================================================================
+# A golden that carries the recording machine's home directory -- i2mint/cw#38
+# =======================================================================================
+
+HOME = os.path.expanduser("~")
+
+#: A toy CLI whose `--help` renders a default computed from `$HOME`. That is the shape
+#: four real repos hit in one migration wave: `argparse` prints the default, the default
+#: was built from the recording user's home directory, and the golden went to a public
+#: repo carrying it.
+LEAKY_CLI = [
+    P,
+    "-c",
+    "import argparse;"
+    "p=argparse.ArgumentParser("
+    "prog='x', formatter_class=argparse.ArgumentDefaultsHelpFormatter);"
+    f"p.add_argument('--rootdir', default={HOME + '/.config/x'!r}, help='root');"
+    "p.parse_args()",
+]
+
+#: The same toy CLI with nothing local in it.
+CLEAN_CLI = [P, "-c", "import argparse;argparse.ArgumentParser(prog='x').parse_args()"]
+
+
+class TestLocalPathHits:
+    """The predicate, on its own: which local-path markers does this text carry?"""
+
+    def test_clean_text_has_no_hits(self):
+        assert testing.local_path_hits("usage: x [-h]\n") == []
+
+    def test_the_posix_home_roots_are_found(self):
+        assert testing.local_path_hits("/home/ada/.config/x", home=None) == ["/home/"]
+        assert testing.local_path_hits("/Users/ada/.config/x", home=None) == ["/Users/"]
+
+    def test_the_windows_home_root_is_found(self):
+        assert testing.local_path_hits(r"C:\Users\ada\AppData", home=None) == [
+            "C:\\Users"
+        ]
+
+    def test_a_given_home_is_the_one_looked_for(self):
+        assert testing.local_path_hits("/opt/ada/.config/x", home="/opt/ada") == [
+            "/opt/ada"
+        ]
+        assert testing.local_path_hits("/srv/build/x", home="/opt/ada") == []
+
+    def test_the_home_is_reported_before_the_generic_roots(self):
+        """Most specific first: the recorder's own path is the actionable one."""
+        assert testing.local_path_hits("/home/ada/.config/x", home="/home/ada") == [
+            "/home/ada",
+            "/home/",
+        ]
+
+    def test_the_default_home_is_the_running_users(self):
+        assert HOME in testing.local_path_hits(f"default: {HOME}/.config/x")
+
+    def test_empty_text_is_not_a_hit(self):
+        assert testing.local_path_hits("") == []
+
+
+class TestCharacterizeWarnsAboutLocalPaths:
+    """`characterize`'s own docstring says to commit the result, so the record pass is
+    where a maintainer can still be told. A `--help` body is tier 3 and never asserted, so
+    nothing downstream will ever notice this on its own."""
+
+    def test_it_warns_when_a_recorded_body_carries_a_home_directory(self):
+        with pytest.warns(UserWarning, match="home directory"):
+            testing.characterize(LEAKY_CLI, [["--help"]])
+
+    def test_the_warning_names_the_offending_case(self):
+        with pytest.warns(UserWarning, match=r"--help"):
+            testing.characterize(LEAKY_CLI, [["--help"]])
+
+    def test_it_does_not_warn_when_the_bodies_are_clean(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            testing.characterize(CLEAN_CLI, [["--help"]])
+
+    def test_the_warning_is_switchable_off(self):
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            testing.characterize(LEAKY_CLI, [["--help"]], warn_on_local_paths=False)
+
+    def test_the_recording_itself_is_unchanged(self):
+        """The warning is a warning: it must not rewrite what was recorded, or a golden
+        would stop matching the CLI it describes."""
+        golden = testing.characterize(
+            LEAKY_CLI, [["--help"]], warn_on_local_paths=False
+        )
+        assert HOME in golden["cases"][0]["stdout"]

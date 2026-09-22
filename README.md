@@ -517,6 +517,15 @@ value.
 'HELLO'
 ```
 
+Both spellings of a reference work — the dot path above, and the `'pkg.mod:name'` colon
+form the rest of cw uses (`python -m cw`, `mk_parser`'s `obj:`, `commands_from`):
+
+```python
+>>> import os.path
+>>> resolve_to_function('os.path:join') is os.path.join
+True
+```
+
 `parse_json_spec`, `parse_ast_spec` and `parse_spec_with_dot_path` are the three spec
 grammars; `resource_inputs` wraps a function so that named parameters are resolved on the
 way in. It is the one place cw touches a third-party package, and it is an optional extra:

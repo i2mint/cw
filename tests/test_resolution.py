@@ -335,3 +335,50 @@ class TestResolveObject:
             resolve_object(
                 "b", object_map=self.MAP, expected_type=int, error_message="nope"
             )
+
+
+class TestTheColonRefSpelling:
+    """``'pkg.mod:name'`` is the house spelling (``cw.commands.import_object``,
+    ``cw.cli.mk_parser``'s ``obj:`` doc, ``python -m cw``), so the package's most
+    generically named resolver must accept it too -- i2mint/cw#40.
+    """
+
+    def test_resolve_to_function_accepts_a_colon_ref(self):
+        import os.path
+
+        assert cw.resolve_to_function("os.path:join") is os.path.join
+
+    def test_a_colon_ref_may_walk_attributes_after_the_colon(self):
+        decode = cw.resolve_to_function("json:JSONDecoder.decode")
+        assert decode.__qualname__ == "JSONDecoder.decode"
+
+    def test_the_dot_path_spelling_still_resolves_identically(self):
+        assert cw.resolve_to_function("builtins.len") is builtins.len
+        assert cw.resolve_to_function("os.path.join") is __import__("os.path").path.join
+
+    def test_a_second_colon_is_still_rejected(self):
+        with pytest.raises(ValueError):
+            cw.resolve_to_function("a:b:c")
+
+    def test_an_unimportable_colon_ref_still_raises_value_error(self):
+        """The failure *shape* is what dependents catch, so widening the grammar must not
+        change the exception type of a bad reference."""
+        with pytest.raises(ValueError):
+            cw.resolve_to_function("cw:no_such_attribute")
+
+    def test_a_non_callable_colon_ref_is_a_value_error(self):
+        with pytest.raises(ValueError, match="not callable"):
+            cw.resolve_to_function("cw.commands:REF_SEPARATOR")
+
+    def test_the_dot_path_resolver_takes_the_colon_form_too(self):
+        from cw.resolution import resolve_func_from_dot_path
+
+        assert resolve_func_from_dot_path("json:JSONDecoder.decode").__qualname__ == (
+            "JSONDecoder.decode"
+        )
+
+    def test_the_default_parser_passes_a_colon_ref_through_unchanged(self):
+        from cw.resolution import parse_spec_with_dot_path
+
+        assert parse_spec_with_dot_path("os.path:join") == ("os.path:join", {})
+        assert parse_ast_spec("os.path:join") == ("os.path:join", {})

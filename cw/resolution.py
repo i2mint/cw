@@ -74,8 +74,17 @@ from functools import partial
 from typing import Tuple, TypeVar, Union
 from collections.abc import Callable, Mapping
 
+# cw.commands owns the ``'pkg.mod:name'`` spelling and is stdlib-only, so importing it
+# here costs nothing and keeps one implementation of the reference grammar. The graph
+# stays acyclic: cw.commands -> cw.grammar -> cw.base, none of which import this module.
+from cw.commands import REF_SEPARATOR, import_object
+
 FuncSpec = TypeVar("FuncSpec")
 FuncKey = TypeVar("FuncKey", bound=str)
+
+#: What :func:`parse_spec_with_dot_path` accepts: a dot path, optionally split by one
+#: :data:`~cw.commands.REF_SEPARATOR` into a module path and an attribute path.
+_DOT_OR_COLON_REF = re.compile(rf"^[\w.]+(?:{re.escape(REF_SEPARATOR)}[\w.]+)?$")
 
 
 def _get_builtin(name: str):
@@ -88,8 +97,14 @@ def _get_builtin(name: str):
 def resolve_func_from_dot_path(dot_path: str) -> Callable:
     """Resolve a function from a dot-separated import path.
 
+    Both spellings of a reference are accepted: the dot path this function is named
+    after, and the ``'pkg.mod:name'`` colon form the rest of cw documents (see
+    :func:`cw.commands.import_object`). The colon form is the unambiguous one -- it
+    says where the module ends and the attribute path begins.
+
     Args:
-        dot_path: String like 'os.path.join', 'builtins.len', or 'str.upper'
+        dot_path: String like 'os.path.join', 'builtins.len', 'str.upper', or the
+            colon form 'os.path:join' / 'json:JSONDecoder.decode'
 
     Returns:
         The resolved callable function
@@ -110,7 +125,24 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
         >>> upper_func = resolve_func_from_dot_path('str.upper')
         >>> upper_func('hello')
         'HELLO'
+
+        The colon form resolves to the very same object:
+
+        >>> resolve_func_from_dot_path('os.path:join') is os.path.join
+        True
+        >>> resolve_func_from_dot_path('json:JSONDecoder.decode')   # doctest: +ELLIPSIS
+        <function JSONDecoder.decode at ...>
     """
+    if REF_SEPARATOR in dot_path:
+        # The house spelling. One implementation of it, in cw.commands.
+        try:
+            func = import_object(dot_path)
+        except (ImportError, AttributeError) as e:
+            raise ValueError(f"Cannot resolve '{dot_path}': {e}")
+        if not callable(func):
+            raise ValueError(f"'{dot_path}' is not callable")
+        return func
+
     if "." not in dot_path:
         # Handle built-ins and single names
         try:
@@ -158,8 +190,9 @@ def resolve_func_from_dot_path(dot_path: str) -> Callable:
 def parse_spec_with_dot_path(func_spec: str) -> tuple[str, dict]:
     """Default parser for simple dot-path function specifications.
 
-    Validates that func_spec contains only word characters and dots,
-    then returns it as-is with empty kwargs.
+    Validates that func_spec is a dot path (``'pkg.mod.name'``) or a colon reference
+    (``'pkg.mod:name'``) -- word characters and dots, with at most one colon -- then
+    returns it as-is with empty kwargs.
 
     Args:
         func_spec: Function specification string
@@ -176,13 +209,18 @@ def parse_spec_with_dot_path(func_spec: str) -> tuple[str, dict]:
 
         >>> parse_spec_with_dot_path('len')
         ('len', {})
+
+        >>> parse_spec_with_dot_path('os.path:join')
+        ('os.path:join', {})
     """
     if not isinstance(func_spec, str):
         raise TypeError(f"func_spec must be a string, got {type(func_spec)}")
 
-    if not re.match(r"^[\w.]+$", func_spec):
+    if not _DOT_OR_COLON_REF.match(func_spec):
         raise ValueError(
-            f"func_spec must contain only word characters and dots: '{func_spec}'"
+            f"func_spec must be a dot path ('pkg.mod.name') or a colon reference "
+            f"('pkg.mod:name') -- word characters and dots, with at most one colon: "
+            f"'{func_spec}'"
         )
 
     return func_spec, {}
@@ -367,6 +405,11 @@ def resolve_to_function(
         >>> ast_func = resolve_to_function('str.upper()', parse_ast_spec)
         >>> ast_func('hello')
         'HELLO'
+
+        >>> # Colon reference -- the spelling the rest of cw documents
+        >>> import os.path
+        >>> resolve_to_function('os.path:join') is os.path.join
+        True
     """
     # Resolve Mapping get_func into a function
     if isinstance(get_func, Mapping):

@@ -61,7 +61,13 @@ line, because ``shlex`` is POSIX-only and a Windows user must never need it. The
 a console script is installed as on Windows is scrubbed out of recorded text by
 :func:`scrub_exe_suffix`, because ``argparse`` takes its ``prog`` from
 ``basename(sys.argv[0])`` and would otherwise report ``usage: opsward.EXE`` on the runner
-and ``usage: opsward`` everywhere else. And :func:`parity` spawns no subprocess at all --
+and ``usage: opsward`` everywhere else. What *cannot* be scrubbed automatically -- because
+only the caller knows what belongs in its place -- is an absolute path under the recording
+user's home directory, which ``argparse`` renders into ``--help`` whenever a default was
+computed from ``$HOME``; :func:`characterize` warns about it at record time instead, via
+:func:`local_path_hits`, since a golden is meant to be committed.
+
+And :func:`parity` spawns no subprocess at all --
 it runs in-process against shipped fixtures -- so the console-script shim and the cp1252
 console never enter the picture there either.
 
@@ -90,6 +96,7 @@ __all__ = [
     "compare_case",
     "diff_help",
     "load_golden",
+    "local_path_hits",
     "main",
     "normalise_text",
     "normalise_usage",
@@ -257,6 +264,12 @@ def normalise_usage(text: str) -> str:
 #: A CPython object repr's memory address: ``<list_iterator object at 0x1017642e0>``.
 _ADDRESS = re.compile(r"0x[0-9a-fA-F]{4,16}")
 
+#: The home-directory roots :func:`local_path_hits` looks for, on top of the recording
+#: user's own home. They catch the path of a *different* user -- a shared runner, a
+#: container built as ``root``, a ``sudo``'d recording -- which is just as wrong in a
+#: committed golden and which the recorder's own ``$HOME`` would miss.
+HOME_ROOTS = ("/Users/", "/home/", "C:\\Users")
+
 
 def scrub_addresses(text: str) -> str:
     """Replace object-repr memory addresses with a placeholder.
@@ -324,6 +337,46 @@ def scrub_exe_suffix(text: str, program) -> str:
             flags=re.IGNORECASE,
         )
     return text
+
+
+def local_path_hits(text: str, *, home="~") -> list:
+    """Which markers of the recording machine's filesystem does ``text`` carry?
+
+    The third field with :func:`scrub_addresses`'s problem. ``argparse`` renders parameter
+    defaults into ``--help``, defaults are routinely computed from ``$HOME``, and a golden
+    is documented to be **committed** -- so a recorded body routinely carries an absolute
+    path under the recording user's home directory, into a public repo. Unlike an address
+    it cannot simply be scrubbed: what to put in its place is the caller's decision, not
+    this module's. So this reports, and :func:`characterize` warns.
+
+    Args:
+        text: A recorded ``stdout`` or ``stderr`` body.
+        home: The home directory to look for, ``~`` expanded. Defaults to the running
+            user's; pass ``None`` to look only for the generic :data:`HOME_ROOTS`.
+
+    Returns:
+        The offending substrings, most specific first, without duplicates. Empty when the
+        text is clean -- so it reads as a predicate too.
+
+    >>> local_path_hits('usage: x [-h]', home=None)
+    []
+    >>> local_path_hits('  --rootdir ROOTDIR   (default: /home/ada/.config/x)', home=None)
+    ['/home/']
+    >>> local_path_hits(r'default: C:\\Users\\ada\\AppData', home=None)
+    ['C:\\\\Users']
+    >>> local_path_hits('default: /opt/ada/.config/x', home='/opt/ada')
+    ['/opt/ada']
+    """
+    if not text:
+        return []
+    home = os.path.expanduser(home) if home else home
+    # A home of "/" or "" would match every path ever printed, which is noise, not a hit.
+    candidates = ([home] if home and home.strip("/\\") else []) + list(HOME_ROOTS)
+    hits = []
+    for candidate in candidates:
+        if candidate in text and candidate not in hits:
+            hits.append(candidate)
+    return hits
 
 
 def _usage_of(stdout: str, stderr: str) -> str:
@@ -664,6 +717,7 @@ def characterize(
     cwd=None,
     timeout=DFLT_TIMEOUT,
     note=None,
+    warn_on_local_paths=True,
 ) -> dict:
     """Record a real console script's behaviour against ``cases``, as a golden.
 
@@ -677,6 +731,10 @@ def characterize(
         cwd: Working directory for the subprocess.
         timeout: Seconds one case may take.
         note: Free text stored in the golden -- the commit you recorded at, say.
+        warn_on_local_paths: Warn when a recorded body carries a path from this machine
+            (see :func:`local_path_hits`). Nothing is rewritten either way -- the warning
+            exists because the golden is about to be committed and this is the last moment
+            anybody looks at it.
 
     Returns:
         The golden, as a plain dict. JSON-serialisable, with sorted keys when written, so
@@ -702,9 +760,48 @@ def characterize(
         "note": note,
         "cases": [_record(run_one, _as_argv(case)) for case in cases],
     }
+    if warn_on_local_paths:
+        _warn_about_local_paths(golden["cases"])
     if out_path is not None:
         write_golden(golden, out_path)
     return golden
+
+
+def _warn_about_local_paths(cases) -> None:
+    """Warn about every recorded case whose body carries a path from this machine.
+
+    Record time, not compare time. A ``--help`` body is tier 3, so it is a snapshot and is
+    never asserted: :func:`replay` reports ``identical`` on every machine no matter whose
+    home directory the golden froze. The only reader who can still act on it is the one
+    running :func:`characterize`, before ``git add``.
+    """
+    import warnings  # local: the only caller, and D4 counts module-scope imports
+
+    def hits_in(case):
+        """Every marker either stream of one case carries, without duplicates."""
+        found = local_path_hits(case.get("stdout") or "")
+        found += [
+            hit for hit in local_path_hits(case.get("stderr") or "") if hit not in found
+        ]
+        return found
+
+    offenders = [
+        (case.get("argv", []), hits) for case in cases if (hits := hits_in(case))
+    ]
+    if not offenders:
+        return
+    detail = "; ".join(
+        f"{argv!r} recorded {', '.join(hits)}" for argv, hits in offenders
+    )
+    warnings.warn(
+        f"cw.testing.characterize recorded a home directory path in {len(offenders)} "
+        f"case(s): {detail}. A golden is meant to be committed, so this freezes the "
+        f"recording machine's filesystem into the repo and is wrong everywhere else. "
+        f"Give the option a machine-independent default, drop the case from the corpus, "
+        f"or pass warn_on_local_paths=False if the path is genuinely intended.",
+        UserWarning,
+        stacklevel=3,
+    )
 
 
 def _provenance() -> dict:
