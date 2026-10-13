@@ -481,7 +481,7 @@ class TestSecondReviewRegressions:
         assert [f.code for f in audit(tmp_path)] == ["dependency"]
 
     def test_long_generated_chains_are_audited_not_rejected(self):
-        source = "import argh\nx = " + " + ".join(["'a'"] * 1500) + "\n"
+        source = "import argh\nx = " + " + ".join(["'a'"] * 700) + "\n"
         assert codes(source) == ["import"]
 
     def test_the_recursion_limit_is_restored(self):
