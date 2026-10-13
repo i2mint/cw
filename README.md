@@ -533,7 +533,7 @@ source (stdlib only, `argh` need not be installed) and reports `path:line: code:
 `cw.CommandError`, so its raise sites escape `cw.run` as tracebacks), live `argh.dispatch*` /
 `ArghParser` calls (including under `if __name__ == "__main__"`), `argh` declared in
 `pyproject.toml` / `setup.cfg` / `setup.py` / `requirements*.txt`, and a bare `cw.dispatch(...)`
-statement that drops the exit code. A line can opt out with `# cw-audit: ignore`. In a consumer's
+statement that drops the exit code. A file it cannot parse is reported as `unparsable` (it fails the gate: an audit cannot vouch for what it did not read — exclude the directory instead). A line can opt out with a `# cw-audit: ignore` comment. In a consumer's
 test suite:
 
 ```python

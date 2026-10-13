@@ -94,10 +94,14 @@ def audit(path, *, exclude=None):
     skip (comma-separated); a line can opt out with a `# cw-audit: ignore` comment.
     """
     from cw import audit as _audit
+    from cw.base import CommandError
 
-    findings = _audit.audit(
-        path, exclude_dirs=_audit.DEFAULT_EXCLUDE_DIRS | _names(exclude)
-    )
+    try:
+        findings = _audit.audit(
+            path, exclude_dirs=_audit.DEFAULT_EXCLUDE_DIRS | _names(exclude)
+        )
+    except FileNotFoundError as exc:
+        raise CommandError(str(exc)) from exc
     print(_audit.format_findings(findings))
     raise SystemExit(1 if findings else 0)
 
