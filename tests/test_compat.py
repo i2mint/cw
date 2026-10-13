@@ -542,3 +542,8 @@ class TestTheImportFormsThatDoNotSurviveTheSwap:
         assert compat.NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT
         assert callable(compat.confirm)
         assert cw.ArghHelpFormatter is not None
+
+
+def test_unknown_policy_raises():
+    with pytest.raises(ValueError, match="Unknown name_mapping_policy"):
+        compat.dispatch_command(lambda a, b=1: 0, ["--help"], name_mapping_policy="nope")

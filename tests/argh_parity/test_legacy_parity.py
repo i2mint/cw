@@ -151,7 +151,3 @@ def test_argh_own_enum_is_read_by_name(signature):
         argh.add_commands(theirs, [func], name_mapping_policy=policy)
         assert render_help(_sub(parser)) == render_help(_sub(theirs))
 
-
-def test_unknown_policy_raises():
-    with pytest.raises(ValueError, match="Unknown name_mapping_policy"):
-        compat.dispatch_command(lambda a, b=1: 0, ["--help"], name_mapping_policy="nope")
