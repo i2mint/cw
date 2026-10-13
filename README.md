@@ -473,6 +473,7 @@ Note that the compat shim's `add_commands` (and `ArghParser.add_commands`) maps 
 
 ```python
 import dataclasses, cw
+
 kwonly = dataclasses.replace(cw.ARGH, naming=cw.BY_NAME_IF_KWONLY)
 cw.dispatch(funcs, convention=kwonly)
 ```
