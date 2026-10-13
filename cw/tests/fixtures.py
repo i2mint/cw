@@ -139,7 +139,7 @@ def declare(argh, func, decls):
     Only the dev-only recorder calls this; it takes ``argh`` as an argument for the same
     reason the rest of this module does.
     """
-    from argh.constants import ATTR_ARGS
+    from argh.constants import ATTR_ARGS  # cw-audit: ignore
 
     if hasattr(func, ATTR_ARGS):
         delattr(func, ATTR_ARGS)

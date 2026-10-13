@@ -54,7 +54,8 @@ is worse than the :class:`AttributeError` it existed to prevent.
 checklist: ``from argh import CommandError``. A module that imported the *name* rather than
 the module still imports argh after the one-line change, and cw will not catch an exception
 class it has never heard of, so ``CommandError: boom`` / exit 1 becomes an unhandled
-traceback. Grep for it.
+traceback. ``python -m cw audit <path>`` finds it (and every other residual argh import,
+live ``argh.dispatch*``, and ``argh`` dependency); run it in CI after a migration.
 
 >>> import io
 >>> from cw import compat as argh

@@ -78,7 +78,7 @@ test = [
 dev = [
     "cw[test]",
     "ruff>=0.1.0",
-    "argh==0.31.3",
+    "argh==0.31.3",  # cw-audit: ignore
 ]
 docs = [
     "sphinx>=6.0",

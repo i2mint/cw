@@ -4,11 +4,12 @@
 serves them is :func:`cw.dispatch` on a mapping. If cw could not build its own CLI
 comfortably, that would be worth knowing before 66 fleet console scripts find out.
 
-Three commands::
+Four commands::
 
     python -m cw specs  'pkg.mod:func'     # the command-line arguments cw would build
     python -m cw help   'pkg.mod:func'     # the --help cw would print for it
     python -m cw parity                    # the one-command migration test
+    python -m cw audit  PATH               # is any argh left in this migrated tree?
 
 ``specs`` is the one that earns its place day to day: it answers "what flags does this
 function actually get, and why did that one not get a short flag" without building, running
@@ -21,7 +22,7 @@ from cw.commands import import_object
 from cw.convention import ARGH, ARGH_LEGACY, MODERN
 from cw.grammar import specs_for_function
 
-__all__ = ["specs", "help_for", "parity", "COMMANDS"]
+__all__ = ["specs", "help_for", "parity", "audit", "COMMANDS"]
 
 #: The conventions ``--convention`` accepts, by the name you type.
 CONVENTIONS = {"argh": ARGH, "argh-legacy": ARGH_LEGACY, "modern": MODERN}
@@ -79,8 +80,34 @@ def parity(goldens_dir=None):
     raise SystemExit(testing.parity(goldens_dir))
 
 
+def _names(csv):
+    """``'a,b'`` -> ``{'a', 'b'}``; None -> empty."""
+    return {name.strip() for name in (csv or "").split(",") if name.strip()}
+
+
+def audit(path, *, exclude=None):
+    """Report any argh left in a migrated source tree; exit 1 if there is some.
+
+    Checks for imports of argh (CommandError taken from argh, specially), argh dispatch
+    calls still reachable, argh declared as a dependency, and a cw.dispatch whose exit code
+    is discarded. Put it in a repo's CI after a migration. PATH is a directory or a file. EXCLUDE adds directory names to
+    skip (comma-separated); a line can opt out with a `# cw-audit: ignore` comment.
+    """
+    from cw import audit as _audit
+    from cw.base import CommandError
+
+    try:
+        findings = _audit.audit(
+            path, exclude_dirs=_audit.DEFAULT_EXCLUDE_DIRS | _names(exclude)
+        )
+    except FileNotFoundError as exc:
+        raise CommandError(str(exc)) from exc
+    print(_audit.format_findings(findings))
+    raise SystemExit(1 if findings else 0)
+
+
 #: ``python -m cw``'s command tree. A plain mapping, exactly like a fleet repo's.
-COMMANDS = {"specs": specs, "help": help_for, "parity": parity}
+COMMANDS = {"specs": specs, "help": help_for, "parity": parity, "audit": audit}
 
 
 def main(argv=None) -> int:

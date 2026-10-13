@@ -521,10 +521,26 @@ python -m cw specs 'mypkg.cli:main'    # what flags would this function get, and
 python -m cw help  'mypkg.cli:main'    # the --help cw would print for it
 python -m cw specs 'mypkg.cli:main' -c argh-legacy   # as ArghParser().add_commands would read it (also: argh, modern)
 python -m cw parity                    # cw's own migration gate, 8 shapes / 137 cases
+python -m cw audit .                   # is any argh left in this migrated tree? (exit 1 if so)
 ```
 
 `specs` is the one that earns its place day to day — it answers *"why did that parameter not
 get a short flag?"* without building, running or importing anybody's `__main__`.
+
+`audit` is the gate for the part of a migration no `--help` golden can see. It reads the
+source (stdlib only, `argh` need not be installed) and reports `path:line: code: message` for
+`import argh` / `from argh import ...`, `from argh import CommandError` (a different class from
+`cw.CommandError`, so its raise sites escape `cw.run` as tracebacks), live `argh.dispatch*` /
+`ArghParser` calls (including under `if __name__ == "__main__"`), `argh` declared in
+`pyproject.toml` / `setup.cfg` / `setup.py` / `requirements*.txt`, and a bare `cw.dispatch(...)`
+statement that drops the exit code. A file it cannot parse is reported as `unparsable` (it fails the gate: an audit cannot vouch for what it did not read — exclude the directory instead). A line can opt out with a `# cw-audit: ignore` comment. In a consumer's
+test suite:
+
+```python
+def test_no_residual_argh():
+    from cw.audit import assert_no_argh
+    assert_no_argh(Path(__file__).parents[1])   # raises AssertionError listing each finding
+```
 
 ## Resolving a function from a string
 
