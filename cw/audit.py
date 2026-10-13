@@ -62,7 +62,9 @@ import ast
 import codecs
 import re
 import sys
+import threading
 import tokenize
+import functools
 from contextlib import contextmanager
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
@@ -391,6 +393,43 @@ def _deep_recursion(limit: int = _ANALYSIS_RECURSION_LIMIT):
         sys.setrecursionlimit(previous)
 
 
+#: Stack for the analysis thread. Python's recursion limit is only a count: the C stack it
+#: eats differs per platform (Windows' 1 MB main-thread stack dies long before 6000
+#: nested frames), so deep trees are analysed on a thread with room for them.
+_ANALYSIS_STACK_BYTES = 256 * 1024 * 1024
+
+
+def _on_big_stack(func):
+    """``func`` as a function that runs on a big-stack thread with a raised recursion limit."""
+
+    @functools.wraps(func)
+    def run(*args, **kwargs):
+        outcome: dict = {}
+
+        def target():
+            with _deep_recursion():
+                try:
+                    outcome["value"] = func(*args, **kwargs)
+                except BaseException as exc:  # re-raised in the caller's thread
+                    outcome["error"] = exc
+
+        previous = threading.stack_size()
+        try:
+            threading.stack_size(_ANALYSIS_STACK_BYTES)
+            thread = threading.Thread(target=target)
+            thread.start()
+        except (ValueError, RuntimeError):  # no such stack here: analyse in place
+            return func(*args, **kwargs)
+        finally:
+            threading.stack_size(previous)
+        thread.join()
+        if "error" in outcome:
+            raise outcome["error"]
+        return outcome["value"]
+
+    return run
+
+
 def _decode_text(data: bytes) -> str:
     """Text of a metadata file: UTF-8 (BOM allowed) or UTF-16 (PowerShell's redirect)."""
     if data.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
@@ -424,6 +463,13 @@ def _pragma_lines(text: str) -> set[int]:
         }
 
 
+@_on_big_stack
+def _visit_source(text: str) -> _Visitor:
+    visitor = _Visitor()
+    visitor.visit(ast.parse(text))
+    return visitor
+
+
 def audit_source(source: str | bytes, *, path: str = "<string>") -> list[Finding]:
     """Findings for one Python source (text or bytes), sorted by line.
 
@@ -448,10 +494,7 @@ def audit_source(source: str | bytes, *, path: str = "<string>") -> list[Finding
     """
     text = _decode(source) if isinstance(source, bytes) else source
     try:
-        with _deep_recursion():
-            tree = ast.parse(text)
-            visitor = _Visitor()
-            visitor.visit(tree)
+        visitor = _visit_source(text)
     except SyntaxError as exc:
         return [
             Finding(path, exc.lineno or 1, "unparsable", f"cannot parse: {exc.msg}")
@@ -590,6 +633,7 @@ def audit_dependencies(
     return findings
 
 
+@_on_big_stack
 def _setup_py_dependencies(source: str, *, path: str) -> list[Finding]:
     """``argh`` in dependency keywords / dict entries of a ``setup.py``, found with ``ast``.
 
