@@ -625,8 +625,8 @@ def test_kwonly_without_default_diverges_between_namings():
     """Pin the shape issue #39 names: ``f(*, who)`` under both namings.
 
     ``ARGH`` reproduces argh's explicit ``BY_NAME_IF_HAS_DEFAULT`` (``who`` is a bare
-    positional); ``BY_NAME_IF_KWONLY`` reproduces argh's no-policy legacy mode (``who`` is a
-    required option). A repo migrating off ``ArghParser().add_commands`` needs the latter.
+    positional); ``BY_NAME_IF_KWONLY`` makes ``who`` a required option, which is also what argh's
+    no-policy legacy mode does for this shape (``ARGH_LEGACY``, below).
     """
     from cw import mk_parser
 
@@ -639,3 +639,43 @@ def test_kwonly_without_default_diverges_between_namings():
     assert usage(ARGH) == "usage: greet [-h] [-p PUNCT] who\n"
     kwonly = dataclasses.replace(ARGH, naming="by_name_if_kwonly")
     assert usage(kwonly) == "usage: greet [-h] -w WHO [-p PUNCT]\n"
+
+
+def test_arghlegacy_decides_per_function():
+    """argh's no-policy mode (i2mint/cw#46): a defaulted positional makes the function
+    ``BY_NAME_IF_HAS_DEFAULT``; otherwise it is ``BY_NAME_IF_KWONLY``."""
+    from cw import ARGH_LEGACY, mk_parser
+
+    def usage(func):
+        return mk_parser(func, convention=ARGH_LEGACY, prog="p").format_usage()
+
+    def kwonly(*, who: str, punct: str = "!"):
+        """K."""
+
+    def plain(x, y=1):
+        """P."""
+
+    def positional_only(x, y):
+        """Q."""
+
+    def mixed(x, y=1, *, k):
+        """M: argh raises here; cw reads it as BY_NAME_IF_HAS_DEFAULT."""
+
+    assert usage(kwonly) == "usage: p [-h] -w WHO [-p PUNCT]\n"
+    assert usage(plain) == "usage: p [-h] [-y Y] x\n"
+    assert usage(positional_only) == "usage: p [-h] x y\n"
+    assert usage(mixed) == "usage: p [-h] [-y Y] x k\n"
+
+
+def test_compat_add_commands_without_a_policy_is_legacy():
+    import argparse
+
+    from cw import compat
+
+    def greet(*, who: str):
+        """G."""
+
+    parser = argparse.ArgumentParser(prog="p")
+    compat.add_commands(parser, [greet])
+    sub = parser._subparsers._group_actions[0].choices["greet"]
+    assert sub.format_usage() == "usage: p greet [-h] -w WHO\n"

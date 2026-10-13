@@ -165,14 +165,17 @@ def _deprecated(func):
     return wrapper
 
 
-def _convention_for(name_mapping_policy) -> Any:
+def _convention_for(name_mapping_policy, *, default=None) -> Any:
     """The :data:`cw.Convention` an argh ``name_mapping_policy`` asks for.
 
-    ``None`` means argh's dispatch default, which is cw's default too -- that asymmetry
-    (argh's ``dispatch_*`` defaults the policy while ``add_commands`` does not) is exactly
-    what cw removes by having one default everywhere.
+    ``None`` means "no policy given", and argh answers that differently by entry point:
+    ``dispatch_*`` default the policy to ``BY_NAME_IF_HAS_DEFAULT`` (cw's default, so
+    ``default`` stays :data:`cw.ARGH`), while ``add_commands`` / ``set_default_command``
+    run argh's *legacy* mode, which is :data:`cw.ARGH_LEGACY`; they pass it as ``default``.
 
     >>> _convention_for(None) is cw.ARGH
+    True
+    >>> _convention_for(None, default=cw.ARGH_LEGACY) is cw.ARGH_LEGACY
     True
     >>> _convention_for(NameMappingPolicy.BY_NAME_IF_KWONLY).naming
     'by_name_if_kwonly'
@@ -180,7 +183,7 @@ def _convention_for(name_mapping_policy) -> Any:
     import dataclasses
 
     if name_mapping_policy is None:
-        return cw.ARGH
+        return default if default is not None else cw.ARGH
     naming = getattr(name_mapping_policy, "value", name_mapping_policy)
     return dataclasses.replace(cw.ARGH, naming=naming)
 
@@ -350,7 +353,7 @@ def add_commands(
         namespace=namespace,
         group_kwargs=group_kwargs,
         namespace_kwargs=namespace_kwargs,
-        convention=_convention_for(name_mapping_policy),
+        convention=_convention_for(name_mapping_policy, default=cw.ARGH_LEGACY),
     )
 
 
@@ -360,7 +363,10 @@ def set_default_command(
 ) -> None:
     """argh's ``set_default_command``: make ``function`` the parser's only command."""
     _cw_set_default_command(
-        parser, function, convention=_convention_for(name_mapping_policy), **kwargs
+        parser,
+        function,
+        convention=_convention_for(name_mapping_policy, default=cw.ARGH_LEGACY),
+        **kwargs,
     )
 
 

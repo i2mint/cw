@@ -83,12 +83,21 @@ OPTIONAL = "?"
 #: ``argh.dispatch_commands`` uses -- not argh's no-policy mode (``ArghParser().add_commands``
 #: with no ``name_mapping_policy``). The two differ for a keyword-only parameter with no
 #: default: this policy makes it a positional, the no-policy mode makes it a required
-#: option. For code that used the no-policy mode, ``BY_NAME_IF_KWONLY`` is the match.
+#: option. For code that used the no-policy mode, ``BY_NAME_LEGACY`` is the match.
 BY_NAME_IF_HAS_DEFAULT = "by_name_if_has_default"
 
 #: A parameter is named on the command line iff it is keyword-only. Position and
 #: optionality become independent, which is what most people expect.
 BY_NAME_IF_KWONLY = "by_name_if_kwonly"
+
+#: argh's *no-policy* mode (``ArghParser().add_commands(funcs)`` with no
+#: ``name_mapping_policy``), which is neither of the above but decides **per function**:
+#: a function with a defaulted positional parameter is read as ``BY_NAME_IF_HAS_DEFAULT``;
+#: any other function (required positionals and/or keyword-only parameters) as
+#: ``BY_NAME_IF_KWONLY``. (argh *raises* for a function that has both a defaulted
+#: positional and a keyword-only parameter; cw does not, and reads it as
+#: ``BY_NAME_IF_HAS_DEFAULT``, which is what argh's own error message says to set.)
+BY_NAME_LEGACY = "by_name_legacy"
 
 #: The types argh's annotation guesser recognises as scalars. Nothing more, because argh
 #: has nothing more.
@@ -649,6 +658,32 @@ def _hints_of(func: Any, *, resolve: bool) -> Dict[str, Any]:
         return raw
 
 
+def _names_by_default(naming: str, signature: inspect.Signature) -> bool:
+    """Whether a positional-or-keyword parameter with a default is named (an option).
+
+    >>> import inspect
+    >>> sig = lambda f: inspect.signature(f)
+    >>> _names_by_default(BY_NAME_IF_HAS_DEFAULT, sig(lambda x, y=1: 0))
+    True
+    >>> _names_by_default(BY_NAME_IF_KWONLY, sig(lambda x, y=1: 0))
+    False
+    >>> _names_by_default(BY_NAME_LEGACY, sig(lambda x, y=1: 0))
+    True
+    >>> _names_by_default(BY_NAME_LEGACY, sig(lambda x, *, y: 0))
+    False
+    """
+    if naming == BY_NAME_LEGACY:
+        positional = (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        )
+        return any(
+            p.kind in positional and p.default is not p.empty
+            for p in signature.parameters.values()
+        )
+    return naming == BY_NAME_IF_HAS_DEFAULT
+
+
 def _infer_specs(
     func: Any,
     /,
@@ -678,7 +713,7 @@ def _infer_specs(
     signature = inspect.signature(func)
     collisions = _short_flag_collisions(signature)
     hints = _hints_of(func, resolve=convention.resolve_hints) if use_hints else {}
-    by_name = convention.naming == BY_NAME_IF_HAS_DEFAULT
+    by_name = _names_by_default(convention.naming, signature)
     specs: List[ArgSpec] = []
 
     for param in signature.parameters.values():

@@ -69,6 +69,7 @@ from cw.egress import argh_egress, iterable_egress
 from cw.grammar import (
     BY_NAME_IF_HAS_DEFAULT,
     BY_NAME_IF_KWONLY,
+    BY_NAME_LEGACY,
     argh_decode,
     modern_decode,
 )
@@ -76,9 +77,11 @@ from cw.grammar import (
 __all__ = [
     "Convention",
     "ARGH",
+    "ARGH_LEGACY",
     "MODERN",
     "BY_NAME_IF_HAS_DEFAULT",
     "BY_NAME_IF_KWONLY",
+    "BY_NAME_LEGACY",
 ]
 
 
@@ -95,9 +98,10 @@ class Convention:
     True
     """
 
-    #: ``BY_NAME_IF_HAS_DEFAULT`` (argh's legacy rule: a default makes it an option) or
+    #: ``BY_NAME_IF_HAS_DEFAULT`` (argh's explicit rule: a default makes it an option),
     #: ``BY_NAME_IF_KWONLY`` (keyword-only makes it an option; a default only makes a
-    #: positional optional).
+    #: positional optional) or ``BY_NAME_LEGACY`` (argh's no-policy mode: one of the two
+    #: above, picked per function).
     naming: str = BY_NAME_IF_HAS_DEFAULT
     #: Infer ``-x`` from a parameter's first character -- suppressed when two parameters
     #: share one, and always lost to ``--help`` for ``h``.
@@ -124,9 +128,14 @@ class Convention:
 
 #: cw's default in every entry point: argh 0.31.3's grammar, footguns included.
 #: Specifically argh's *explicit* ``BY_NAME_IF_HAS_DEFAULT`` (``argh.dispatch_commands``),
-#: not its no-policy legacy mode (``ArghParser().add_commands``): for a keyword-only
-#: parameter with no default, use ``dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)``.
+#: not its no-policy legacy mode (``ArghParser().add_commands``), which is
+#: :data:`ARGH_LEGACY`.
 ARGH = Convention()
+
+#: argh's *no-policy* mode, i.e. what ``ArghParser().add_commands(funcs)`` builds:
+#: :data:`ARGH` except that ``naming`` is ``BY_NAME_LEGACY``. :mod:`cw.compat` uses it
+#: when an ``add_commands`` / ``set_default_command`` call names no policy.
+ARGH_LEGACY = dataclasses.replace(ARGH, naming=BY_NAME_LEGACY)
 
 #: The same machinery with the improvements switched on. ``naming`` follows parameter
 #: kind rather than the presence of a default, annotations are actually resolved and
