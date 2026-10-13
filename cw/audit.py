@@ -59,8 +59,11 @@ or gate on it in a consumer's own test suite::
 """
 
 import ast
+import codecs
 import re
+import sys
 import tokenize
+from contextlib import contextmanager
 from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from io import BytesIO, StringIO
@@ -125,27 +128,36 @@ _ARGH_SUBMODULES = frozenset(
     }
 )
 
-#: Keys whose quoted values are requirements (pyproject, setup.cfg, setup.py).
+#: Keys (dashes and underscores equal) whose values are requirements.
 _DEPENDENCY_KEYS = frozenset(
     {
         "dependencies",
         "requires",
+        "requirements",
         "install_requires",
         "setup_requires",
         "tests_require",
         "extras_require",
-        "optional-dependencies",
-        "dev-dependencies",
+        "optional_dependencies",
+        "dev_dependencies",
+        "extra_dependencies",
+        "override_dependencies",
+        "constraint_dependencies",
+        "dependency_groups",
     }
 )
 
 #: ``argh`` as a requirement: with extras, then a specifier, marker or url, or nothing.
-_SPEC = r"argh(?![-_.\w])\s*(?:\[[^\]]*\])?\s*(?:[<>=!~;@].*)?"
+_SPEC = r"argh(?![-_.\w])\s*(?:\[[^\]]*\])?\s*(?:[<>=!~;@(].*)?"
+#: An ``#egg=argh`` fragment (optionally ``-<version>``, optionally followed by ``&...``).
+_EGG = r".*[#&]egg=argh(?:-\d[\w.]*)?(?:&.*)?"
 #: Quoted (pyproject, setup.py) anywhere on a line; bare (setup.cfg, requirements) as the line.
 _QUOTED_REQUIREMENT = re.compile(rf"""["']\s*{_SPEC}["']""", re.I)
-_BARE_REQUIREMENT = re.compile(rf"^(?:{_SPEC}|.*[#&]egg=argh)$", re.I)
+_BARE_REQUIREMENT = re.compile(rf"^(?:{_SPEC}|{_EGG})$", re.I)
+#: ``{ argh = "^1" }`` -- a Poetry inline table.
+_INLINE_ARGH = re.compile(r"[{,]\s*argh\s*=", re.I)
 _REQUIREMENT_FILES = ("pyproject.toml", "setup.cfg", "setup.py")
-_KEY = re.compile(r"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*=(?!=)\s*(.*)$")
+_KEY = re.compile(r"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*[=:](?![=/])\s*(.*)$")
 _HEADER = re.compile(r"""^\[+\s*([^\]"'\s][^\]]*)\]+\s*(?:#.*)?$""")
 
 CODES = {
@@ -156,6 +168,11 @@ CODES = {
     "discarded-exit": "cw.dispatch exit code discarded",
     "unparsable": "a file could not be read or parsed, so it was not checked",
 }
+
+_DEPENDENCY_WHY = (
+    "argh is declared as a dependency (LGPL-3.0-or-later); drop it once nothing "
+    "imports it."
+)
 
 _COMMAND_ERROR_WHY = (
     "argh.CommandError is not cw.CommandError, so a raise of it escapes cw.run as a "
@@ -245,12 +262,12 @@ class _Visitor(ast.NodeVisitor):
 
     # -- argh attribute use --------------------------------------------------------
     def visit_Attribute(self, node: ast.Attribute) -> None:
-        if (
-            node.attr == "CommandError"
-            and isinstance(node.value, ast.Name)
-            and node.value.id in self.argh_modules
-        ):
-            self._add(node, "command-error", _COMMAND_ERROR_WHY)
+        if node.attr == "CommandError":
+            root = node.value
+            while isinstance(root, ast.Attribute):  # argh.exceptions.CommandError
+                root = root.value
+            if isinstance(root, ast.Name) and root.id in self.argh_modules:
+                self._add(node, "command-error", _COMMAND_ERROR_WHY)
         self.generic_visit(node)
 
     def visit_Name(self, node: ast.Name) -> None:
@@ -352,6 +369,28 @@ def _is_main_guard(test: ast.expr) -> bool:
     return has_name and has_main
 
 
+#: Recursion allowance while analysing one file: a chain of ~500 ``a + b + ...`` terms is
+#: ordinary generated code but already past the default limit of 1000 frames.
+_ANALYSIS_RECURSION_LIMIT = 6000
+
+
+@contextmanager
+def _deep_recursion(limit: int = _ANALYSIS_RECURSION_LIMIT):
+    previous = sys.getrecursionlimit()
+    sys.setrecursionlimit(max(previous, limit))
+    try:
+        yield
+    finally:
+        sys.setrecursionlimit(previous)
+
+
+def _decode_text(data: bytes) -> str:
+    """Text of a metadata file: UTF-8 (BOM allowed) or UTF-16 (PowerShell's redirect)."""
+    if data.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+        return data.decode("utf-16", errors="replace")
+    return data.decode("utf-8-sig", errors="replace")
+
+
 def _decode(data: bytes) -> str:
     """Source text of ``data`` per PEP 263 (BOM and ``coding:`` cookie), never raising."""
     try:
@@ -402,9 +441,10 @@ def audit_source(source: str | bytes, *, path: str = "<string>") -> list[Finding
     """
     text = _decode(source) if isinstance(source, bytes) else source
     try:
-        tree = ast.parse(text)
-        visitor = _Visitor()
-        visitor.visit(tree)
+        with _deep_recursion():
+            tree = ast.parse(text)
+            visitor = _Visitor()
+            visitor.visit(tree)
     except SyntaxError as exc:
         return [
             Finding(path, exc.lineno or 1, "unparsable", f"cannot parse: {exc.msg}")
@@ -434,50 +474,63 @@ def _normalise(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
+def _key_parts(name: str) -> list[str]:
+    """``'Optional-Dependencies.cli'`` -> ``['optional_dependencies', 'cli']``."""
+    return [part.replace("-", "_") for part in name.lower().split(".")]
+
+
+def _in_dependency_table(header: str) -> bool:
+    """Does a table header (``[tool.poetry.group.dev.dependencies]``) hold requirements?"""
+    return any(part in _DEPENDENCY_KEYS for part in _key_parts(header))
+
+
 def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
     """``(lineno, candidate)`` for each line that may declare a requirement.
 
-    A line qualifies when it sits in a table whose header names dependencies or
-    requirements (``[project.optional-dependencies]``, ``[tool.poetry.dependencies]``,
+    A line qualifies when it sits in a table whose header has a dependency segment
+    (``[project.optional-dependencies]``, ``[tool.poetry.dependencies]``,
     ``[options.extras_require]``), or under a dependency key (``dependencies =``,
     ``install_requires =``, ``requires =``) -- or always, for a requirements file. That
     scoping is what keeps ``name = "argh"``, ``keywords = ["argh"]`` and tool settings such
     as ``known-third-party = ["argh"]`` from reading as dependencies. The candidate has any
-    ``key =`` prefix removed, except a ``argh = ...`` key itself (Poetry's spelling).
+    ``key =`` prefix removed, except an ``argh = ...`` key itself (Poetry's spelling).
     """
     header = ""
-    array_key = None  # the key of the multi-line value we are inside, if any
+    owner = None  # the key whose (possibly multi-line) value this line belongs to
     for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
+        if _PRAGMA.search(raw):
+            continue
+        if always:  # a requirements file: every line is a requirement
+            line = re.sub(r"\s*(\\|--hash.*|\s#.*)$", "", line)
+            yield lineno, line
+            continue
         match = _HEADER.match(line)
         if match and not _KEY.match(line):
-            header, array_key = match.group(1).lower(), None
+            header, owner = match.group(1), None
             continue
         key = _KEY.match(line)
         value = line
         if key:
-            name, value = key.group(1).lower(), key.group(2)
-            array_key = name if "]" not in value else None
-            owner = name
-            if _normalise(name) == "argh" and _in_dependency_table(header):
-                if _PRAGMA.search(raw):
-                    continue
+            parts = _key_parts(key.group(1))
+            value, owner = key.group(2), parts
+            if parts[-1] == "argh" and (
+                _in_dependency_table(header)
+                or any(p in _DEPENDENCY_KEYS for p in parts)
+            ):
                 yield lineno, "argh"  # Poetry: ``argh = "^0.26"``
                 continue
         elif line.startswith("]"):
-            array_key = None
+            owner = None
             continue
-        else:
-            owner = array_key
-        scoped = always or owner in _DEPENDENCY_KEYS or _in_dependency_table(header)
-        if scoped and not _PRAGMA.search(raw):
-            yield lineno, re.sub(r"\s+#.*$", "", value)
-
-
-def _in_dependency_table(header: str) -> bool:
-    return "dependenc" in header or "require" in header
+        scoped = _in_dependency_table(header) or any(
+            part in _DEPENDENCY_KEYS for part in owner or ()
+        )
+        if scoped:
+            candidate = re.sub(r"\s+#.*$", "", value)
+            yield lineno, "argh" if _INLINE_ARGH.search(candidate) else candidate
 
 
 def audit_dependencies(
@@ -504,16 +557,65 @@ def audit_dependencies(
     findings = []
     for lineno, candidate in _requirement_lines(text, always=always):
         if _QUOTED_REQUIREMENT.search(candidate) or _BARE_REQUIREMENT.match(candidate):
-            findings.append(
-                Finding(
-                    path,
-                    lineno,
-                    "dependency",
-                    "argh is declared as a dependency (LGPL-3.0-or-later); drop it "
-                    "once nothing imports it.",
-                )
-            )
+            findings.append(Finding(path, lineno, "dependency", _DEPENDENCY_WHY))
     return findings
+
+
+def _call_name(func: ast.expr) -> str | None:
+    if isinstance(func, ast.Name):
+        return func.id
+    return func.attr if isinstance(func, ast.Attribute) else None
+
+
+def _setup_py_dependencies(source: str, *, path: str) -> list[Finding]:
+    """``argh`` in the dependency keywords of a ``setup(...)`` call, found with ``ast``.
+
+    A line scan cannot tell ``install_requires=`` from the keyword before it on the same
+    line, nor follow ``install_requires=REQUIREMENTS``; the tree can (one assignment deep).
+    """
+    try:
+        with _deep_recursion():
+            tree = ast.parse(source)
+            assigned = {
+                target.id: node.value
+                for node in tree.body
+                if isinstance(node, ast.Assign)
+                for target in node.targets
+                if isinstance(target, ast.Name)
+            }
+
+            def constants(node: ast.AST, seen: set[str]) -> Iterator[ast.Constant]:
+                for sub in ast.walk(node):
+                    if isinstance(sub, ast.Constant) and isinstance(sub.value, str):
+                        yield sub
+                    elif isinstance(sub, ast.Name) and sub.id in assigned:
+                        if sub.id not in seen:
+                            seen.add(sub.id)
+                            yield from constants(assigned[sub.id], seen)
+
+            pragmas = _pragma_lines(source)
+            found = {}
+            for call in ast.walk(tree):
+                if not (
+                    isinstance(call, ast.Call) and _call_name(call.func) == "setup"
+                ):
+                    continue
+                for keyword in call.keywords:
+                    if not keyword.arg:
+                        continue
+                    if keyword.arg.replace("-", "_") not in _DEPENDENCY_KEYS:
+                        continue
+                    for const in constants(keyword.value, set()):
+                        if (
+                            _BARE_REQUIREMENT.match(const.value.strip())
+                            and const.lineno not in pragmas
+                        ):
+                            found[const.lineno] = Finding(
+                                path, const.lineno, "dependency", _DEPENDENCY_WHY
+                            )
+            return list(found.values())
+    except (SyntaxError, ValueError, RecursionError, MemoryError):
+        return []  # audit_source already reports the file as unparsable
 
 
 # --------------------------------------------------------------------------------------
@@ -521,16 +623,34 @@ def audit_dependencies(
 
 
 def _walk(
-    root: Path, exclude_dirs: frozenset[str], top: frozenset[str], *, depth: int = 0
+    root: Path,
+    exclude_dirs: frozenset[str],
+    top: frozenset[str],
+    problems: list[Finding],
+    *,
+    base: Path,
+    depth: int = 0,
 ) -> Iterator[Path]:
-    """Files under ``root``, skipping excluded dirs, virtualenvs and symlinked dirs."""
+    """Files under ``root``, skipping excluded dirs, virtualenvs and symlinks that lead nowhere.
+
+    A directory that cannot be listed is appended to ``problems``, not raised: the audit
+    must say what it could not read rather than die on it.
+    """
     if root.is_file():
         yield root
         return
-    for path in sorted(root.iterdir()):
-        if path.is_symlink() and path.is_dir():
-            continue  # a link can loop back up, or leave the tree
-        if path.is_dir():
+    try:
+        children = sorted(root.iterdir())
+    except OSError as exc:
+        problems.append(_unreadable(root, base, exc))
+        return
+    for path in children:
+        try:
+            if path.is_symlink() and (path.is_dir() or not path.exists()):
+                continue  # a link can loop back up, leave the tree, or dangle
+            if not path.is_dir():
+                yield path
+                continue
             name = path.name
             skip = (
                 name in exclude_dirs
@@ -538,10 +658,18 @@ def _walk(
                 or name.endswith(".egg-info")
                 or (path / "pyvenv.cfg").exists()
             )
-            if not skip:
-                yield from _walk(path, exclude_dirs, top, depth=depth + 1)
-        else:
-            yield path
+        except OSError as exc:
+            problems.append(_unreadable(path, base, exc))
+            continue
+        if not skip:
+            yield from _walk(
+                path, exclude_dirs, top, problems, base=base, depth=depth + 1
+            )
+
+
+def _unreadable(path: Path, base: Path, exc: OSError) -> Finding:
+    shown = str(path.relative_to(base)) if path != base else str(path)
+    return Finding(shown, 1, "unparsable", f"cannot read: {exc.strerror or exc}")
 
 
 def _is_requirements_file(path: Path) -> bool:
@@ -588,7 +716,13 @@ def audit(
         raise FileNotFoundError(f"no such file or directory: {root}")
     base = root if root.is_dir() else root.parent
     findings: list[Finding] = []
-    walk = _walk(root, frozenset(exclude_dirs), frozenset(exclude_top_dirs))
+    walk = _walk(
+        root,
+        frozenset(exclude_dirs),
+        frozenset(exclude_top_dirs),
+        findings,
+        base=base,
+    )
     for file in walk:
         relative = file.relative_to(base)
         shown = str(relative)
@@ -608,12 +742,12 @@ def audit(
             if _is_test_file(relative):  # a test may drop the code
                 found = [f for f in found if f.code != "discarded-exit"]
             findings.extend(found)
-        if is_metadata:
+        if file.name == "setup.py":
+            findings.extend(_setup_py_dependencies(_decode(data), path=shown))
+        elif is_metadata:
             findings.extend(
                 audit_dependencies(
-                    _decode(data)
-                    if file.suffix == ".py"
-                    else data.decode("utf-8-sig", "replace"),
+                    _decode_text(data),
                     path=shown,
                     always=_is_requirements_file(file),
                 )

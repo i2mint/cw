@@ -404,3 +404,105 @@ class TestReviewRegressions:
         )
         assert result.returncode == 1
         assert "Traceback" not in result.stderr and "no such file" in result.stderr
+
+
+class TestSecondReviewRegressions:
+    """The rewrite of the dependency scan must not lose what the first version caught."""
+
+    @pytest.mark.parametrize(
+        "source",
+        [
+            'setup(name="x", install_requires=["argh"])',
+            'setup(\n    name="x", install_requires=["argh"],\n)',
+            'REQUIREMENTS = ["argh>=0.26"]\nsetup(install_requires=REQUIREMENTS)',
+            'import setuptools\nsetuptools.setup(extras_require={"cli": ["argh"]})',
+            'setup(**{"install_requires": ["argh"]})'.replace("**{", "x={"),
+        ],
+    )
+    def test_setup_py_is_read_with_ast(self, tmp_path, source):
+        (tmp_path / "setup.py").write_text(source + "\n")
+        found = audit(tmp_path)
+        # the last parametrization is not a dependency keyword: it must stay clean
+        expected = [] if source.startswith("setup(x=") else ["dependency"]
+        assert [f.code for f in found] == expected
+
+    def test_setup_py_long_description_is_not_a_dependency(self, tmp_path):
+        (tmp_path / "setup.py").write_text(
+            "setup(name='argh', long_description='argh', install_requires=['x'])\n"
+        )
+        assert audit(tmp_path) == []
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            '[project]\ndependencies = ["requests[socks]>=2",\n    "argh>=0.26",\n]',
+            "[options]\ninstall_requires = i2[resource]\n    argh",
+            "[options]\ninstall_requires:\n    argh",
+            "[options.extras_require]\ncli: argh>=0.26",
+            "[options]\ninstall-requires = argh",
+            '[project]\ndependencies = ["argh (>=0.26)"]',
+            '[tool.hatch.envs.default]\nextra-dependencies = ["argh"]',
+            '[tool.uv]\noverride-dependencies = ["argh==0.31"]',
+            '[project]\noptional-dependencies.cli = ["argh"]',
+            '[tool.poetry]\ndependencies.argh = "^0.26"',
+            '[tool.poetry]\ndependencies = { argh = "^0.26", x = "1" }',
+        ],
+    )
+    def test_more_dependency_spellings(self, text):
+        assert [f.code for f in audit_dependencies(text)] == ["dependency"]
+
+    def test_a_table_merely_containing_the_word_dependency_is_not_one(self):
+        text = '[tool.dependency-check]\nignore = ["argh"]\n[tool.requirements-lint]\nx = ["argh"]'
+        assert audit_dependencies(text) == []
+
+    @pytest.mark.parametrize(
+        "line",
+        [
+            "argh (>=0.26)",
+            "argh==0.26 \\",
+            "argh==0.26 --hash=sha256:abc",
+            "git+https://example.com/x.git#egg=argh-0.26",
+            "git+https://example.com/x.git#egg=argh&subdirectory=src",
+        ],
+    )
+    def test_more_requirements_file_lines(self, line):
+        assert [f.code for f in audit_dependencies(line, always=True)] == ["dependency"]
+
+    def test_a_utf16_requirements_file_is_read(self, tmp_path):
+        (tmp_path / "requirements.txt").write_bytes("pytest\nargh\n".encode("utf-16"))
+        assert [f.code for f in audit(tmp_path)] == ["dependency"]
+
+    def test_long_generated_chains_are_audited_not_rejected(self):
+        source = "import argh\nx = " + " + ".join(["'a'"] * 1500) + "\n"
+        assert codes(source) == ["import"]
+
+    def test_the_recursion_limit_is_restored(self):
+        before = sys.getrecursionlimit()
+        audit_source("x = 1\n")
+        assert sys.getrecursionlimit() == before
+
+    def test_an_unreadable_directory_is_a_finding_not_a_crash(
+        self, tmp_path, monkeypatch
+    ):
+        (tmp_path / "locked").mkdir()
+        (tmp_path / "ok.py").write_text("import argh\n")
+        real = Path.iterdir
+
+        def iterdir(self):
+            if self.name == "locked":
+                raise PermissionError(13, "Permission denied")
+            return real(self)
+
+        monkeypatch.setattr(Path, "iterdir", iterdir)
+        assert {(f.path, f.code) for f in audit(tmp_path)} == {
+            ("ok.py", "import"),
+            ("locked", "unparsable"),
+        }
+
+    def test_a_dangling_symlink_is_skipped(self, tmp_path):
+        (tmp_path / "gone.py").symlink_to(tmp_path / "missing.py")
+        assert audit(tmp_path) == []
+
+    def test_command_error_through_an_attribute_chain(self):
+        source = "import argh\nraise argh.exceptions.CommandError('x')"
+        assert "command-error" in codes(source)
