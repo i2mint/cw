@@ -123,6 +123,9 @@ class Convention:
 
 
 #: cw's default in every entry point: argh 0.31.3's grammar, footguns included.
+#: Specifically argh's *explicit* ``BY_NAME_IF_HAS_DEFAULT`` (``argh.dispatch_commands``),
+#: not its no-policy legacy mode (``ArghParser().add_commands``): for a keyword-only
+#: parameter with no default, use ``dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)``.
 ARGH = Convention()
 
 #: The same machinery with the improvements switched on. ``naming`` follows parameter

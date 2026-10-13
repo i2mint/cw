@@ -78,6 +78,12 @@ OPTIONAL = "?"
 
 #: A parameter is named on the command line iff it has a default value (argh's legacy
 #: policy, and the one every fleet script was written against).
+#:
+#: This reproduces argh's *explicit* ``BY_NAME_IF_HAS_DEFAULT`` -- what
+#: ``argh.dispatch_commands`` uses -- not argh's no-policy mode (``ArghParser().add_commands``
+#: with no ``name_mapping_policy``). The two differ for a keyword-only parameter with no
+#: default: this policy makes it a positional, the no-policy mode makes it a required
+#: option. For code that used the no-policy mode, ``BY_NAME_IF_KWONLY`` is the match.
 BY_NAME_IF_HAS_DEFAULT = "by_name_if_has_default"
 
 #: A parameter is named on the command line iff it is keyword-only. Position and
@@ -479,7 +485,7 @@ def _decode_sequence(hint: Any) -> Optional[Dict[str, Any]]:
         True
 
     And the trap this must not fall into — ``str`` and ``bytes`` are registered
-    ``Sequence``\ s, so a subclass test would read every string parameter as
+    ``Sequence`` types, so a subclass test would read every string parameter as
     variadic:
 
         >>> _decode_sequence(str) is None

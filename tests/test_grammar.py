@@ -619,3 +619,23 @@ def test_an_unresolvable_annotation_falls_back_to_reading_it_raw():
     def f(*, thing: "NoSuchTypeAnywhere" = "x"): ...
 
     assert kwargs_of(f, convention=MODERN)["thing"]["type"] is str
+
+
+def test_kwonly_without_default_diverges_between_namings():
+    """Pin the shape issue #39 names: ``f(*, who)`` under both namings.
+
+    ``ARGH`` reproduces argh's explicit ``BY_NAME_IF_HAS_DEFAULT`` (``who`` is a bare
+    positional); ``BY_NAME_IF_KWONLY`` reproduces argh's no-policy legacy mode (``who`` is a
+    required option). A repo migrating off ``ArghParser().add_commands`` needs the latter.
+    """
+    from cw import mk_parser
+
+    def greet(*, who: str, punct: str = "!"):
+        """Greet WHO."""
+
+    def usage(convention):
+        return mk_parser(greet, convention=convention, prog="greet").format_usage()
+
+    assert usage(ARGH) == "usage: greet [-h] [-p PUNCT] who\n"
+    kwonly = dataclasses.replace(ARGH, naming="by_name_if_kwonly")
+    assert usage(kwonly) == "usage: greet [-h] -w WHO [-p PUNCT]\n"

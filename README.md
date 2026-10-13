@@ -458,6 +458,19 @@ argh`; it cannot rewrite a name or a submodule somebody imported directly.
 Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
 startup failure rather than a silent change.
 
+**Check which argh entry point the repo used before choosing a convention.** `cw.ARGH` reproduces argh's *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default). `ArghParser()` + `add_commands()` with no `name_mapping_policy` is argh's *legacy* mode (policy `None`), which is not the same grammar. They diverge on one shape, a **keyword-only parameter with no default**:
+
+```python
+def greet(*, who: str, punct: str = "!"): ...
+```
+
+| what the repo wrote | usage |
+|---|---|
+| `argh.dispatch_commands(funcs)`, or `cw.ARGH` | `greet [-h] [-p PUNCT] who` |
+| `ArghParser().add_commands(funcs)` (legacy), or `naming=cw.BY_NAME_IF_KWONLY` | `greet [-h] -w WHO [-p PUNCT]` |
+
+So a repo in the second row that migrates to plain `cw.dispatch` silently gets a different command line (every required keyword-only argument becomes a bare positional). If any command has a keyword-only parameter with no default and the repo used the legacy mode, pass `naming=cw.BY_NAME_IF_KWONLY`. Diff `--help` either way (`cw.testing` below does exactly that).
+
 **Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes
 `cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`'s
 `__name__`-mutation trick for renaming a command becomes a mapping key.
