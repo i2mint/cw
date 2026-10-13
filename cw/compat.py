@@ -199,13 +199,43 @@ def _convention_for(name_mapping_policy, *, default=None) -> Any:
     True
     >>> _convention_for(NameMappingPolicy.BY_NAME_IF_KWONLY).naming
     'by_name_if_kwonly'
+
+    argh's own enum (whose values are sentences) is read by member *name*, so a repo that
+    kept an ``argh.assembling`` import for the enum gets the policy it asked for:
+
+    >>> import types
+    >>> theirs = types.SimpleNamespace(name='BY_NAME_IF_HAS_DEFAULT', value='specify ...')
+    >>> _convention_for(theirs).naming
+    'by_name_if_has_default'
+
+    Anything else is an error, not a silent fall-through to keyword-only:
+
+    >>> _convention_for('by name if you like')
+    Traceback (most recent call last):
+      ...
+    ValueError: Unknown name_mapping_policy 'by name if you like'; expected a NameMappingPolicy member or one of ('by_name_if_has_default', 'by_name_if_kwonly', 'by_name_legacy')
     """
     import dataclasses
 
     if name_mapping_policy is None:
         return default if default is not None else cw.ARGH
-    naming = getattr(name_mapping_policy, "value", name_mapping_policy)
+    naming = _naming_of(name_mapping_policy)
     return dataclasses.replace(cw.ARGH, naming=naming)
+
+
+def _naming_of(name_mapping_policy) -> str:
+    """The cw ``naming`` string for a policy: our enum, argh's enum (by name), or a naming string."""
+    from cw.grammar import _NAMINGS
+
+    if isinstance(name_mapping_policy, str) and name_mapping_policy in _NAMINGS:
+        return str(getattr(name_mapping_policy, "value", name_mapping_policy))
+    member = getattr(name_mapping_policy, "name", None)
+    if isinstance(member, str) and member in NameMappingPolicy.__members__:
+        return NameMappingPolicy[member].value
+    raise ValueError(
+        f"Unknown name_mapping_policy {name_mapping_policy!r}; expected a "
+        f"NameMappingPolicy member or one of {_NAMINGS}"
+    )
 
 
 def _split_kwargs(kwargs: Mapping) -> tuple:
@@ -298,8 +328,8 @@ def dispatch_commands(
 ) -> Optional[str]:
     """argh's ``dispatch_commands``: build a parser for ``functions`` and run it.
 
-    The fleet's most-used argh name (34 call sites). Unlike argh's, a usage error still
-    exits 2 rather than 0. ``old_name_mapping_policy=False`` selects
+    The fleet's most-used argh name (34 call sites). A usage error exits 2,
+    as in argh. ``old_name_mapping_policy=False`` selects
     ``BY_NAME_IF_KWONLY``, as in argh; an explicit ``name_mapping_policy`` overrides it.
 
     >>> import io
