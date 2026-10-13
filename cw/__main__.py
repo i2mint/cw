@@ -18,13 +18,13 @@ or importing anybody's ``__main__``.
 import sys
 
 from cw.commands import import_object
-from cw.convention import ARGH, MODERN
+from cw.convention import ARGH, ARGH_LEGACY, MODERN
 from cw.grammar import specs_for_function
 
 __all__ = ["specs", "help_for", "parity", "COMMANDS"]
 
 #: The conventions ``--convention`` accepts, by the name you type.
-CONVENTIONS = {"argh": ARGH, "modern": MODERN}
+CONVENTIONS = {"argh": ARGH, "argh-legacy": ARGH_LEGACY, "modern": MODERN}
 
 
 def _convention_named(name: str):

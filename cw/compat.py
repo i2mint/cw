@@ -165,6 +165,26 @@ def _deprecated(func):
     return wrapper
 
 
+def _dispatch_convention(name_mapping_policy, old_name_mapping_policy) -> Any:
+    """The convention of ``dispatch_command(s)``: an explicit policy wins, else the old/new flag.
+
+    argh 0.31 reads ``old_name_mapping_policy=False`` as ``BY_NAME_IF_KWONLY`` and ``True``
+    (its default) as ``BY_NAME_IF_HAS_DEFAULT``, cw's default.
+
+    >>> _dispatch_convention(None, True) is cw.ARGH
+    True
+    >>> _dispatch_convention(None, False).naming
+    'by_name_if_kwonly'
+    >>> _dispatch_convention(NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT, False) is cw.ARGH
+    False
+    >>> _dispatch_convention(NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT, False).naming
+    'by_name_if_has_default'
+    """
+    if name_mapping_policy is None and not old_name_mapping_policy:
+        name_mapping_policy = NameMappingPolicy.BY_NAME_IF_KWONLY
+    return _convention_for(name_mapping_policy)
+
+
 def _convention_for(name_mapping_policy, *, default=None) -> Any:
     """The :data:`cw.Convention` an argh ``name_mapping_policy`` asks for.
 
@@ -273,11 +293,14 @@ def dispatch(parser: argparse.ArgumentParser, argv=None, **kwargs) -> Optional[s
 
 
 @_deprecated
-def dispatch_commands(functions, argv=None, **kwargs) -> Optional[str]:
+def dispatch_commands(
+    functions, argv=None, *, old_name_mapping_policy=True, **kwargs
+) -> Optional[str]:
     """argh's ``dispatch_commands``: build a parser for ``functions`` and run it.
 
     The fleet's most-used argh name (34 call sites). Unlike argh's, a usage error still
-    exits 2 rather than 0.
+    exits 2 rather than 0. ``old_name_mapping_policy=False`` selects
+    ``BY_NAME_IF_KWONLY``, as in argh; an explicit ``name_mapping_policy`` overrides it.
 
     >>> import io
     >>> from cw import compat as argh
@@ -290,7 +313,9 @@ def dispatch_commands(functions, argv=None, **kwargs) -> Optional[str]:
     policy = parser_kwargs.pop("name_mapping_policy", None)
     return _run_with_streams(
         lambda: _cw_mk_parser(
-            functions, convention=_convention_for(policy), **parser_kwargs
+            functions,
+            convention=_dispatch_convention(policy, old_name_mapping_policy),
+            **parser_kwargs,
         ),
         argv,
         argh_kwargs,
@@ -301,15 +326,17 @@ def dispatch_commands(functions, argv=None, **kwargs) -> Optional[str]:
 def dispatch_command(function, argv=None, *, old_name_mapping_policy=True, **kwargs):
     """argh's ``dispatch_command``: one function, no command word.
 
-    ``old_name_mapping_policy`` is accepted and ignored, as it is in argh when it is
-    ``True`` -- which is the only value any fleet call site passes, and is cw's default
-    everywhere.
+    ``old_name_mapping_policy=False`` selects ``BY_NAME_IF_KWONLY``, as in argh (``True``
+    is argh's and cw's default, ``BY_NAME_IF_HAS_DEFAULT``); an explicit
+    ``name_mapping_policy`` overrides it.
     """
     argh_kwargs, parser_kwargs = _split_kwargs(kwargs)
     policy = parser_kwargs.pop("name_mapping_policy", None)
     return _run_with_streams(
         lambda: _cw_mk_parser(
-            function, convention=_convention_for(policy), **parser_kwargs
+            function,
+            convention=_dispatch_convention(policy, old_name_mapping_policy),
+            **parser_kwargs,
         ),
         argv,
         argh_kwargs,

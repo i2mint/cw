@@ -329,6 +329,41 @@ class TestNameMappingPolicy:
         assert "[-b BETA]" in by_default
         assert "[beta]" in by_kwonly
 
+    def test_old_name_mapping_policy_false_selects_by_name_if_kwonly(self):
+        """argh 0.31: ``False`` is BY_NAME_IF_KWONLY, ``True`` BY_NAME_IF_HAS_DEFAULT (cw#48)."""
+
+        def f(alpha, beta=1):
+            """Two parameters."""
+
+        for dispatch, arg in ((compat.dispatch_command, f), (compat.dispatch_commands, [f])):
+            argv = ["--help"] if dispatch is compat.dispatch_command else ["f", "--help"]
+            old = dispatch(arg, argv, output_file=None, old_name_mapping_policy=True)
+            new = dispatch(arg, argv, output_file=None, old_name_mapping_policy=False)
+            assert "[-b BETA]" in old and "[beta]" in new
+
+    def test_old_name_mapping_policy_false_runs_a_keyword_only_option(self):
+        def g(x, *, k):
+            """Takes a required option."""
+            return f"{x}{k}"
+
+        out = compat.dispatch_command(
+            g, ["a", "-k", "b"], output_file=None, old_name_mapping_policy=False
+        )
+        assert out == "ab\n"
+
+    def test_an_explicit_policy_beats_old_name_mapping_policy(self):
+        def f(alpha, beta=1):
+            """Two parameters."""
+
+        out = compat.dispatch_command(
+            f,
+            ["--help"],
+            output_file=None,
+            old_name_mapping_policy=False,
+            name_mapping_policy=compat.NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT,
+        )
+        assert "[-b BETA]" in out
+
     def test_add_commands_takes_it_too(self):
         parser = argparse.ArgumentParser(prog="x")
         compat.add_commands(

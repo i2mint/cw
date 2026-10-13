@@ -46,7 +46,7 @@ def test_an_unknown_convention_is_one_line_and_a_non_zero_exit():
     assert code == 1 and out == ""
     assert (
         err
-        == "CommandError: no convention named 'nope'. Choose one of: argh, modern.\n"
+        == "CommandError: no convention named 'nope'. Choose one of: argh, argh-legacy, modern.\n"
     )
 
 
@@ -112,3 +112,15 @@ def test_it_actually_runs_as_a_module():
 
 def test_main_returns_an_exit_code():
     assert main(["specs", "cw.egress:write_lines"]) == 0
+
+
+def test_argh_legacy_is_a_convention_python_m_cw_can_select(tmp_path, monkeypatch):
+    (tmp_path / "legacy_demo.py").write_text("def g(x, *, k):\n    return x\n")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    _, under_argh, _ = run(["specs", "legacy_demo:g"])
+    code, under_legacy, err = run(["specs", "legacy_demo:g", "-c", "argh-legacy"])
+    assert code == 0 and err == ""
+    assert under_legacy != under_argh  # k is a required option only under the legacy grammar
+    assert "-k" in under_legacy
+    code, helped, _ = run(["help", "legacy_demo:g", "--convention", "argh-legacy"])
+    assert code == 0 and "-k" in helped
