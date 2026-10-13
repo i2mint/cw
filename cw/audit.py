@@ -144,7 +144,14 @@ _DEPENDENCY_KEYS = frozenset(
         "override_dependencies",
         "constraint_dependencies",
         "dependency_groups",
+        "pypi_dependencies",
+        "requires_extra",
     }
+)
+
+#: Tables whose *keys* are names of extras / groups, not of packages (``argh = ["cw"]``).
+_GROUP_TABLES = frozenset(
+    {"optional_dependencies", "extras_require", "requires_extra", "dependency_groups"}
 )
 
 #: ``argh`` as a requirement: with extras, then a specifier, marker or url, or nothing.
@@ -399,7 +406,7 @@ def _decode(data: bytes) -> str:
         encoding = "utf-8"
     try:
         return data.decode(encoding)
-    except (UnicodeDecodeError, LookupError):
+    except (UnicodeError, LookupError):
         return data.decode("utf-8-sig", errors="replace")
 
 
@@ -476,7 +483,20 @@ def _normalise(name: str) -> str:
 
 def _key_parts(name: str) -> list[str]:
     """``'Optional-Dependencies.cli'`` -> ``['optional_dependencies', 'cli']``."""
-    return [part.replace("-", "_") for part in name.lower().split(".")]
+    return [part.strip().replace("-", "_") for part in name.lower().split(".")]
+
+
+def _strip_comment(value: str) -> str:
+    """``value`` without a trailing ``# comment`` (a ``#`` inside quotes is kept)."""
+    quote = None
+    for i, char in enumerate(value):
+        if quote:
+            quote = None if char == quote else quote
+        elif char in "\"'":
+            quote = char
+        elif char == "#" and (i == 0 or value[i - 1] in " \t,[]\"'"):
+            return value[:i].rstrip()
+    return value.rstrip()
 
 
 def _in_dependency_table(header: str) -> bool:
@@ -510,16 +530,25 @@ def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
         match = _HEADER.match(line)
         if match and not _KEY.match(line):
             header, owner = match.group(1), None
+            # ``[tool.poetry.dependencies.argh]``: the table is the package.
+            names = _key_parts(header)
+            if names[-1] == "argh" and any(p in _DEPENDENCY_KEYS for p in names[:-1]):
+                if names[-2] not in _GROUP_TABLES:
+                    yield lineno, "argh"
             continue
         key = _KEY.match(line)
         value = line
         if key:
             parts = _key_parts(key.group(1))
             value, owner = key.group(2), parts
-            if parts[-1] == "argh" and (
+            is_package_key = parts[-1] == "argh" and (
                 _in_dependency_table(header)
-                or any(p in _DEPENDENCY_KEYS for p in parts)
-            ):
+                or any(p in _DEPENDENCY_KEYS for p in parts[:-1])
+            )
+            in_group_table = _key_parts(header)[-1] in _GROUP_TABLES or (
+                len(parts) > 1 and parts[-2] in _GROUP_TABLES
+            )
+            if is_package_key and not in_group_table:
                 yield lineno, "argh"  # Poetry: ``argh = "^0.26"``
                 continue
         elif line.startswith("]"):
@@ -529,7 +558,7 @@ def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
             part in _DEPENDENCY_KEYS for part in owner or ()
         )
         if scoped:
-            candidate = re.sub(r"\s+#.*$", "", value)
+            candidate = _strip_comment(value)
             yield lineno, "argh" if _INLINE_ARGH.search(candidate) else candidate
 
 
@@ -561,58 +590,69 @@ def audit_dependencies(
     return findings
 
 
-def _call_name(func: ast.expr) -> str | None:
-    if isinstance(func, ast.Name):
-        return func.id
-    return func.attr if isinstance(func, ast.Attribute) else None
-
-
 def _setup_py_dependencies(source: str, *, path: str) -> list[Finding]:
-    """``argh`` in the dependency keywords of a ``setup(...)`` call, found with ``ast``.
+    """``argh`` in dependency keywords / dict entries of a ``setup.py``, found with ``ast``.
 
     A line scan cannot tell ``install_requires=`` from the keyword before it on the same
-    line, nor follow ``install_requires=REQUIREMENTS``; the tree can (one assignment deep).
+    line, nor follow ``install_requires=REQUIREMENTS``; the tree can (one assignment deep,
+    anywhere in the file). The key may be a keyword of *any* call (``setup(...)``,
+    ``my_setup(**kw)``, ``dict(...)``) or a string key of a dict literal -- legacy templates
+    build ``setup_kwargs = dict(install_requires=[...])`` and splat it.
     """
     try:
         with _deep_recursion():
             tree = ast.parse(source)
-            assigned = {
-                target.id: node.value
-                for node in tree.body
-                if isinstance(node, ast.Assign)
-                for target in node.targets
-                if isinstance(target, ast.Name)
-            }
+            assigned: dict[str, ast.expr] = {}
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name):
+                            assigned.setdefault(target.id, node.value)
+                elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                    if isinstance(node.target, ast.Name):
+                        assigned.setdefault(node.target.id, node.value)
 
             def constants(node: ast.AST, seen: set[str]) -> Iterator[ast.Constant]:
-                for sub in ast.walk(node):
-                    if isinstance(sub, ast.Constant) and isinstance(sub.value, str):
-                        yield sub
-                    elif isinstance(sub, ast.Name) and sub.id in assigned:
-                        if sub.id not in seen:
-                            seen.add(sub.id)
-                            yield from constants(assigned[sub.id], seen)
+                if isinstance(node, ast.Constant):
+                    if isinstance(node.value, str):
+                        yield node
+                elif isinstance(node, ast.Name):
+                    if node.id in assigned and node.id not in seen:
+                        seen.add(node.id)
+                        yield from constants(assigned[node.id], seen)
+                elif isinstance(node, ast.Dict):  # the keys name extras, not packages
+                    for value in node.values:
+                        yield from constants(value, seen)
+                else:
+                    for child in ast.iter_child_nodes(node):
+                        yield from constants(child, seen)
 
+            def is_dependency_key(name: object) -> bool:
+                return (
+                    isinstance(name, str) and name.replace("-", "_") in _DEPENDENCY_KEYS
+                )
+
+            values: list[ast.expr] = []
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Call):
+                    values += [
+                        k.value for k in node.keywords if is_dependency_key(k.arg)
+                    ]
+                elif isinstance(node, ast.Dict):
+                    values += [
+                        v
+                        for k, v in zip(node.keys, node.values, strict=True)
+                        if isinstance(k, ast.Constant) and is_dependency_key(k.value)
+                    ]
             pragmas = _pragma_lines(source)
             found = {}
-            for call in ast.walk(tree):
-                if not (
-                    isinstance(call, ast.Call) and _call_name(call.func) == "setup"
-                ):
-                    continue
-                for keyword in call.keywords:
-                    if not keyword.arg:
-                        continue
-                    if keyword.arg.replace("-", "_") not in _DEPENDENCY_KEYS:
-                        continue
-                    for const in constants(keyword.value, set()):
-                        if (
-                            _BARE_REQUIREMENT.match(const.value.strip())
-                            and const.lineno not in pragmas
-                        ):
-                            found[const.lineno] = Finding(
-                                path, const.lineno, "dependency", _DEPENDENCY_WHY
-                            )
+            for value in values:
+                for const in constants(value, set()):
+                    text = const.value.strip()
+                    if _BARE_REQUIREMENT.match(text) and const.lineno not in pragmas:
+                        found[const.lineno] = Finding(
+                            path, const.lineno, "dependency", _DEPENDENCY_WHY
+                        )
             return list(found.values())
     except (SyntaxError, ValueError, RecursionError, MemoryError):
         return []  # audit_source already reports the file as unparsable

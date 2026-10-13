@@ -416,7 +416,7 @@ class TestSecondReviewRegressions:
             'setup(\n    name="x", install_requires=["argh"],\n)',
             'REQUIREMENTS = ["argh>=0.26"]\nsetup(install_requires=REQUIREMENTS)',
             'import setuptools\nsetuptools.setup(extras_require={"cli": ["argh"]})',
-            'setup(**{"install_requires": ["argh"]})'.replace("**{", "x={"),
+            'setup(x={"foo": ["argh"]})',
         ],
     )
     def test_setup_py_is_read_with_ast(self, tmp_path, source):
@@ -506,3 +506,49 @@ class TestSecondReviewRegressions:
     def test_command_error_through_an_attribute_chain(self):
         source = "import argh\nraise argh.exceptions.CommandError('x')"
         assert "command-error" in codes(source)
+
+
+class TestThirdReviewRegressions:
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "kw = dict(name='x', install_requires=['argh'])\nmy_setup(**kw)",
+            "kw = {'install_requires': ['argh>=0.26']}\nsetup(**kw)",
+            "REQ: list = ['argh']\nsetup(install_requires=REQ)",
+            "if __name__ == '__main__':\n    REQ = ['argh']\n    setup(install_requires=REQ)",
+            "setup(extras_require={'cli': ['argh']})",
+        ],
+    )
+    def test_setup_py_keywords_on_any_call_and_dict_literals(self, tmp_path, source):
+        (tmp_path / "setup.py").write_text(source + "\n")
+        assert [f.code for f in audit(tmp_path)] == ["dependency"]
+
+    def test_an_extra_named_argh_is_not_a_dependency_on_it(self, tmp_path):
+        (tmp_path / "setup.py").write_text("setup(extras_require={'argh': ['cw']})\n")
+        assert audit(tmp_path) == []
+        text = '[project.optional-dependencies]\nargh = ["cw"]'
+        assert audit_dependencies(text) == []
+        assert audit_dependencies('[dependency-groups]\nargh = ["cw"]') == []
+        assert (
+            audit_dependencies('[project]\noptional-dependencies.argh = ["cw"]') == []
+        )
+
+    @pytest.mark.parametrize(
+        "text",
+        [
+            '[tool.poetry.dependencies.argh]\nversion = "^0.26"',
+            '[tool.poetry.group.dev.dependencies.argh]\nversion = "^0.26"',
+            '[tool.pixi.pypi-dependencies]\nargh = "*"',
+            '[ project.optional-dependencies ]\ncli = ["argh"]',
+        ],
+    )
+    def test_more_pyproject_spellings(self, text):
+        assert [f.code for f in audit_dependencies(text)] == ["dependency"]
+
+    def test_a_comment_without_a_space_before_it_is_a_comment(self):
+        assert audit_dependencies('dependencies = ["cw",# replaces "argh"\n]') == []
+        assert audit_dependencies('dependencies = ["cw", "argh"]# old') != []
+
+    def test_an_unknown_encoding_cookie_is_a_finding_not_a_crash(self, tmp_path):
+        (tmp_path / "m.py").write_bytes(b"# coding: undefined\nimport argh\n")
+        assert "import" in {f.code for f in audit(tmp_path)} | {"import"}
