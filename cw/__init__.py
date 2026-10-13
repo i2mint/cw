@@ -67,8 +67,10 @@ from cw.cli import (
 from cw.commands import CommandTreeError, commands_from
 from cw.convention import (
     ARGH,
+    ARGH_LEGACY,
     BY_NAME_IF_HAS_DEFAULT,
     BY_NAME_IF_KWONLY,
+    BY_NAME_LEGACY,
     MODERN,
     Convention,
 )
@@ -131,8 +133,10 @@ __all__ = [
     "write_lines",
     # -- convention: what the defaults ARE ----------------------------------------------
     "ARGH",
+    "ARGH_LEGACY",
     "BY_NAME_IF_HAS_DEFAULT",
     "BY_NAME_IF_KWONLY",
+    "BY_NAME_LEGACY",
     "MODERN",
     "Convention",
     # -- resolution: string specification -> callable -----------------------------------
