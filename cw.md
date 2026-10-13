@@ -1,4 +1,4 @@
-> built 2026-09-22 14:53 UTC from 8f12142 (master) · cw 0.1.5. Details: build_info.json
+> built 2026-10-13 05:16 UTC from 3c3bffe (master) · cw 0.1.6. Details: build_info.json
 
 # index.html.md
 
@@ -461,6 +461,27 @@ dependencies = ["cw>=0.1,<0.2"]
 
 Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
 startup failure rather than a silent change.
+
+**Check which argh entry point the repo used before choosing a convention.** `cw.ARGH` reproduces argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default). `ArghParser()` + `add_commands()` with no `name_mapping_policy` is argh’s *legacy* mode (policy `None`), which is not the same grammar. They diverge on one shape, a **keyword-only parameter with no default** (legacy mode decides per function, so only functions containing that shape differ):
+
+```python
+def greet(*, who: str, punct: str = "!"): ...
+```
+
+| what the repo wrote                                                 | usage                          |
+|---------------------------------------------------------------------|--------------------------------|
+| `argh.dispatch_commands(funcs)`, or `cw.ARGH`                       | `greet [-h] [-p PUNCT] who`    |
+| `ArghParser().add_commands(funcs)` (legacy), or `BY_NAME_IF_KWONLY` | `greet [-h] -w WHO [-p PUNCT]` |
+
+Note that the compat shim’s `add_commands` (and `ArghParser.add_commands`) maps “no policy” to `cw.ARGH`, so **Step 1 already changes `greet` to the first row** for a repo that used legacy mode ([#46](https://github.com/i2mint/cw/issues/46) tracks that). If any command has a keyword-only parameter with no default and the repo used the legacy mode, choose the convention explicitly:
+
+```python
+import dataclasses, cw
+kwonly = dataclasses.replace(cw.ARGH, naming=cw.BY_NAME_IF_KWONLY)
+cw.dispatch(funcs, convention=kwonly)
+```
+
+Caveat: this applies to *every* command in the call. argh’s legacy mode picks the policy per function and falls back to `BY_NAME_IF_HAS_DEFAULT` for a function with no keyword-only parameter, so `def plain(x, y=1)` stays `plain [-h] [-y Y] x` there but becomes `plain [-h] x [y]` under `BY_NAME_IF_KWONLY`. Diff `--help` for every command either way (`cw.testing` below does exactly that).
 
 **Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes
 `cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`’s
@@ -1732,6 +1753,9 @@ whatever you give it straight through, to the top parser and to every subparser.
 ### cw.convention.ARGH *= Convention(naming='by_name_if_has_default', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>)*
 
 argh 0.31.3’s grammar, footguns included.
+Specifically argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` (`argh.dispatch_commands`),
+not its no-policy legacy mode (`ArghParser().add_commands`): for a keyword-only
+parameter with no default, use `dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)`.
 
 * **Type:**
   cw’s default in every entry point
@@ -2306,6 +2330,12 @@ Four rules, none of which is `dict.update`, and each of which is observable:
 
 A parameter is named on the command line iff it has a default value (argh’s legacy
 policy, and the one every fleet script was written against).
+
+This reproduces argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` – what
+`argh.dispatch_commands` uses – not argh’s no-policy mode (`ArghParser().add_commands`
+with no `name_mapping_policy`). The two differ for a keyword-only parameter with no
+default: this policy makes it a positional, the no-policy mode makes it a required
+option. For code that used the no-policy mode, `BY_NAME_IF_KWONLY` is the match.
 
 ### cw.grammar.BY_NAME_IF_KWONLY *= 'by_name_if_kwonly'*
 
@@ -4754,16 +4784,18 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-09-22 14:53 UTC** from commit <a href="https://github.com/i2mint/cw/commit/8f121429bf05583c3234fd9eab55c338275441b4"><code>8f12142</code></a> on branch <code>master</code>, for **cw 0.1.5** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 05:16 UTC** from commit <a href="https://github.com/i2mint/cw/commit/3c3bffe4d42335fb13e47d1d9fb8d1e171b72c38"><code>3c3bffe</code></a> on branch <code>master</code>, for **cw 0.1.6** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.1.6) is behind the latest release on PyPI (0.1.7): `pip install cw` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/8f121429bf05583c3234fd9eab55c338275441b4"><code>8f121429bf05583c3234fd9eab55c338275441b4</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/3c3bffe4d42335fb13e47d1d9fb8d1e171b72c38"><code>3c3bffe4d42335fb13e47d1d9fb8d1e171b72c38</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -4774,18 +4806,18 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/35743296363">35743296363</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38350377580">38350377580</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>8f121429bf05583c3234fd9eab55c338275441b4</code> (in the history of the built commit) |
+| Event commit | <code>3c3bffe4d42335fb13e47d1d9fb8d1e171b72c38</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.12  |
+| epythet  | 0.2.13  |
 | Sphinx   | 9.1.0   |
 | docutils | 0.22.4  |
-| Python   | 3.12.14 |
+| Python   | 3.12.15 |
 
 ## Configuration as resolved
 
@@ -4801,14 +4833,14 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.5/">0.1.5</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/cw/0.1.7/">0.1.7</a>, newer than the documented version (0.1.6).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 8f121429bf05583c3234fd9eab55c338275441b4
-pip install "epythet==0.2.12"
+git checkout 3c3bffe4d42335fb13e47d1d9fb8d1e171b72c38
+pip install "epythet==0.2.13"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

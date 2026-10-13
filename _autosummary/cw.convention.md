@@ -85,6 +85,9 @@ whatever you give it straight through, to the top parser and to every subparser.
 ### cw.convention.ARGH *= Convention(naming='by_name_if_has_default', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>)*
 
 argh 0.31.3’s grammar, footguns included.
+Specifically argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` (`argh.dispatch_commands`),
+not its no-policy legacy mode (`ArghParser().add_commands`): for a keyword-only
+parameter with no default, use `dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)`.
 
 * **Type:**
   cw’s default in every entry point
