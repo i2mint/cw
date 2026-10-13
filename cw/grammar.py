@@ -679,7 +679,9 @@ def _names_by_default(naming: str, signature: inspect.Signature) -> bool:
     ValueError: Unknown naming policy 'by name, if you like'; expected one of ('by_name_if_has_default', 'by_name_if_kwonly', 'by_name_legacy')
     """
     if naming not in _NAMINGS:
-        raise ValueError(f"Unknown naming policy {naming!r}; expected one of {_NAMINGS}")
+        raise ValueError(
+            f"Unknown naming policy {naming!r}; expected one of {_NAMINGS}"
+        )
     if naming == BY_NAME_LEGACY:
         positional = (
             inspect.Parameter.POSITIONAL_ONLY,
