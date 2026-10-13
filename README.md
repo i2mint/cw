@@ -458,7 +458,7 @@ argh`; it cannot rewrite a name or a submodule somebody imported directly.
 Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
 startup failure rather than a silent change.
 
-**Check which argh entry point the repo used before choosing a convention.** `cw.ARGH` reproduces argh's *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default). `ArghParser()` + `add_commands()` with no `name_mapping_policy` is argh's *legacy* mode (policy `None`), which is not the same grammar. They diverge on one shape, a **keyword-only parameter with no default**:
+**Check which argh entry point the repo used before choosing a convention.** `cw.ARGH` reproduces argh's *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default). `ArghParser()` + `add_commands()` with no `name_mapping_policy` is argh's *legacy* mode (policy `None`), which is not the same grammar. They diverge on one shape, a **keyword-only parameter with no default** (legacy mode decides per function, so only functions containing that shape differ):
 
 ```python
 def greet(*, who: str, punct: str = "!"): ...
@@ -467,9 +467,17 @@ def greet(*, who: str, punct: str = "!"): ...
 | what the repo wrote | usage |
 |---|---|
 | `argh.dispatch_commands(funcs)`, or `cw.ARGH` | `greet [-h] [-p PUNCT] who` |
-| `ArghParser().add_commands(funcs)` (legacy), or `naming=cw.BY_NAME_IF_KWONLY` | `greet [-h] -w WHO [-p PUNCT]` |
+| `ArghParser().add_commands(funcs)` (legacy), or `BY_NAME_IF_KWONLY` | `greet [-h] -w WHO [-p PUNCT]` |
 
-So a repo in the second row that migrates to plain `cw.dispatch` silently gets a different command line (every required keyword-only argument becomes a bare positional). If any command has a keyword-only parameter with no default and the repo used the legacy mode, pass `naming=cw.BY_NAME_IF_KWONLY`. Diff `--help` either way (`cw.testing` below does exactly that).
+Note that the compat shim's `add_commands` (and `ArghParser.add_commands`) maps "no policy" to `cw.ARGH`, so **Step 1 already changes `greet` to the first row** for a repo that used legacy mode ([#46](https://github.com/i2mint/cw/issues/46) tracks that). If any command has a keyword-only parameter with no default and the repo used the legacy mode, choose the convention explicitly:
+
+```python
+import dataclasses, cw
+kwonly = dataclasses.replace(cw.ARGH, naming=cw.BY_NAME_IF_KWONLY)
+cw.dispatch(funcs, convention=kwonly)
+```
+
+Caveat: this applies to *every* command in the call. argh's legacy mode picks the policy per function and falls back to `BY_NAME_IF_HAS_DEFAULT` for a function with no keyword-only parameter, so `def plain(x, y=1)` stays `plain [-h] [-y Y] x` there but becomes `plain [-h] x [y]` under `BY_NAME_IF_KWONLY`. Diff `--help` for every command either way (`cw.testing` below does exactly that).
 
 **Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes
 `cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`'s
