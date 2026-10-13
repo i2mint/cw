@@ -1,36 +1,36 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T15:01:59Z",
+  "built_at": "2026-10-13T16:09:33Z",
   "package": {
     "name": "cw",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "display_name": "cw",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "19e37781281a3c74f397d13cc79512fe43b64f7f",
-    "short_commit": "19e3778",
+    "commit": "46b674ee8a5be7c352884cd73e47bdc4b3531084",
+    "short_commit": "46b674e",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/19e37781281a3c74f397d13cc79512fe43b64f7f",
+    "commit_url": "https://github.com/i2mint/cw/commit/46b674ee8a5be7c352884cd73e47bdc4b3531084",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "19e37781281a3c74f397d13cc79512fe43b64f7f",
+    "sha": "46b674ee8a5be7c352884cd73e47bdc4b3531084",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38418228387",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/38418228387",
+    "run_id": "38427915872",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/38427915872",
     "server_url": "https://github.com"
   },
   "tools": {
-    "epythet": "0.2.16",
+    "epythet": "0.2.17",
     "sphinx": "9.1.0",
     "docutils": "0.22.4",
     "python": "3.12.15"
@@ -60,11 +60,11 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.1.7",
+    "latest": "0.1.8",
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 19e37781281a3c74f397d13cc79512fe43b64f7f\npip install \"epythet==0.2.16\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 46b674ee8a5be7c352884cd73e47bdc4b3531084\npip install \"epythet==0.2.17\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,

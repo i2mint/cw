@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=ca7ad2ea"></script>
+    <script src="_static/documentation_options.js?v=22607128"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.7" />
+  <meta name="docsearch:version" content="0.1.8" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -768,7 +768,7 @@ decided to live here for a while. Declare the dependency as:</p>
 </div>
 <p>Each of the last two raises an <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> naming the replacement, so a missed one is a
 startup failure rather than a silent change.</p>
-<p><strong>Check which argh entry point the repo used.</strong> <code class="docutils literal notranslate"><span class="pre">cw.ARGH</span></code> reproduces argh’s <em>explicit</em> <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> policy, which is what <code class="docutils literal notranslate"><span class="pre">argh.dispatch_commands</span></code> / <code class="docutils literal notranslate"><span class="pre">dispatch_command</span></code> use (their <code class="docutils literal notranslate"><span class="pre">old_name_mapping_policy=True</span></code> default). <code class="docutils literal notranslate"><span class="pre">ArghParser()</span></code> + <code class="docutils literal notranslate"><span class="pre">add_commands()</span></code> (or <code class="docutils literal notranslate"><span class="pre">set_default_command</span></code>) with no <code class="docutils literal notranslate"><span class="pre">name_mapping_policy</span></code> is argh’s <em>legacy</em> mode (policy <code class="docutils literal notranslate"><span class="pre">None</span></code>), which is a third grammar: it decides <strong>per function</strong>. A function with a defaulted positional parameter is read as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code>; any other function (required positionals and/or keyword-only parameters) as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code>. (argh raises <code class="docutils literal notranslate"><span class="pre">ArgumentNameMappingError</span></code> for a function that has both a defaulted positional and a keyword-only parameter; cw reads it as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> instead of crashing.) They diverge on a <strong>keyword-only parameter with no default</strong>:</p>
+<p><strong>Check which argh entry point the repo used.</strong> <code class="docutils literal notranslate"><span class="pre">cw.ARGH</span></code> reproduces argh’s <em>explicit</em> <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> policy, which is what <code class="docutils literal notranslate"><span class="pre">argh.dispatch_commands</span></code> / <code class="docutils literal notranslate"><span class="pre">dispatch_command</span></code> use (their <code class="docutils literal notranslate"><span class="pre">old_name_mapping_policy=True</span></code> default; <code class="docutils literal notranslate"><span class="pre">old_name_mapping_policy=False</span></code> selects <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code>, as in argh). <code class="docutils literal notranslate"><span class="pre">ArghParser()</span></code> + <code class="docutils literal notranslate"><span class="pre">add_commands()</span></code> (or <code class="docutils literal notranslate"><span class="pre">set_default_command</span></code>) with no <code class="docutils literal notranslate"><span class="pre">name_mapping_policy</span></code> is argh’s <em>legacy</em> mode (policy <code class="docutils literal notranslate"><span class="pre">None</span></code>), which is a third grammar: it decides <strong>per function</strong>. A function with a defaulted positional parameter is read as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code>; any other function (required positionals and/or keyword-only parameters) as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code>. (argh raises <code class="docutils literal notranslate"><span class="pre">ArgumentNameMappingError</span></code> for a function that has both a defaulted positional and a keyword-only parameter; cw reads it as <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> instead of crashing.) They diverge on a <strong>keyword-only parameter with no default</strong>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">who</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">punct</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"!"</span><span class="p">):</span> <span class="o">...</span>
 </pre></div>
 </div>
@@ -829,6 +829,7 @@ A wrong key is a startup error, not a silent drop.</p></li>
 <h2>cw’s own CLI<a class="headerlink" href="#cw-s-own-cli" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>cw<span class="w"> </span>specs<span class="w"> </span><span class="s1">'mypkg.cli:main'</span><span class="w">    </span><span class="c1"># what flags would this function get, and why?</span>
 python<span class="w"> </span>-m<span class="w"> </span>cw<span class="w"> </span><span class="nb">help</span><span class="w">  </span><span class="s1">'mypkg.cli:main'</span><span class="w">    </span><span class="c1"># the --help cw would print for it</span>
+python<span class="w"> </span>-m<span class="w"> </span>cw<span class="w"> </span>specs<span class="w"> </span><span class="s1">'mypkg.cli:main'</span><span class="w"> </span>-c<span class="w"> </span>argh-legacy<span class="w">   </span><span class="c1"># as ArghParser().add_commands would read it (also: argh, modern)</span>
 python<span class="w"> </span>-m<span class="w"> </span>cw<span class="w"> </span>parity<span class="w">                    </span><span class="c1"># cw's own migration gate, 8 shapes / 137 cases</span>
 </pre></div>
 </div>
@@ -917,7 +918,7 @@ both are asserted by tests, not by intention.</p>
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-13 15:01 UTC from <a href="https://github.com/i2mint/cw/commit/19e37781281a3c74f397d13cc79512fe43b64f7f">19e3778</a> (master) · cw 0.1.7 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-10-13 16:09 UTC from <a href="https://github.com/i2mint/cw/commit/46b674ee8a5be7c352884cd73e47bdc4b3531084">46b674e</a> (master) · cw 0.1.8 · <a href="about-this-build.html">about this build</a></p>
 
                 </article>
               

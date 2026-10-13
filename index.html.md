@@ -458,7 +458,7 @@ dependencies = ["cw>=0.1,<0.2"]
 Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
 startup failure rather than a silent change.
 
-**Check which argh entry point the repo used.** `cw.ARGH` reproduces argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default). `ArghParser()` + `add_commands()` (or `set_default_command`) with no `name_mapping_policy` is argh’s *legacy* mode (policy `None`), which is a third grammar: it decides **per function**. A function with a defaulted positional parameter is read as `BY_NAME_IF_HAS_DEFAULT`; any other function (required positionals and/or keyword-only parameters) as `BY_NAME_IF_KWONLY`. (argh raises `ArgumentNameMappingError` for a function that has both a defaulted positional and a keyword-only parameter; cw reads it as `BY_NAME_IF_HAS_DEFAULT` instead of crashing.) They diverge on a **keyword-only parameter with no default**:
+**Check which argh entry point the repo used.** `cw.ARGH` reproduces argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default; `old_name_mapping_policy=False` selects `BY_NAME_IF_KWONLY`, as in argh). `ArghParser()` + `add_commands()` (or `set_default_command`) with no `name_mapping_policy` is argh’s *legacy* mode (policy `None`), which is a third grammar: it decides **per function**. A function with a defaulted positional parameter is read as `BY_NAME_IF_HAS_DEFAULT`; any other function (required positionals and/or keyword-only parameters) as `BY_NAME_IF_KWONLY`. (argh raises `ArgumentNameMappingError` for a function that has both a defaulted positional and a keyword-only parameter; cw reads it as `BY_NAME_IF_HAS_DEFAULT` instead of crashing.) They diverge on a **keyword-only parameter with no default**:
 
 ```python
 def greet(*, who: str, punct: str = "!"): ...
@@ -518,6 +518,7 @@ Two things to expect, both argh’s rules that cw reproduces:
 ```bash
 python -m cw specs 'mypkg.cli:main'    # what flags would this function get, and why?
 python -m cw help  'mypkg.cli:main'    # the --help cw would print for it
+python -m cw specs 'mypkg.cli:main' -c argh-legacy   # as ArghParser().add_commands would read it (also: argh, modern)
 python -m cw parity                    # cw's own migration gate, 8 shapes / 137 cases
 ```
 

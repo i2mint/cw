@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=ca7ad2ea"></script>
+    <script src="../../_static/documentation_options.js?v=22607128"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -410,7 +410,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.7" />
+  <meta name="docsearch:version" content="0.1.8" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -881,6 +881,26 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">wrapper</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_convention</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The convention of ``dispatch_command(s)``: an explicit policy wins, else the old/new flag.</span>
+
+<span class="sd">    argh 0.31 reads ``old_name_mapping_policy=False`` as ``BY_NAME_IF_KWONLY`` and ``True``</span>
+<span class="sd">    (its default) as ``BY_NAME_IF_HAS_DEFAULT``, cw's default.</span>
+
+<span class="sd">    &gt;&gt;&gt; _dispatch_convention(None, True) is cw.ARGH</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _dispatch_convention(None, False).naming</span>
+<span class="sd">    'by_name_if_kwonly'</span>
+<span class="sd">    &gt;&gt;&gt; _dispatch_convention(NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT, False) is cw.ARGH</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; _dispatch_convention(NameMappingPolicy.BY_NAME_IF_HAS_DEFAULT, False).naming</span>
+<span class="sd">    'by_name_if_has_default'</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">name_mapping_policy</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">old_name_mapping_policy</span><span class="p">:</span>
+        <span class="n">name_mapping_policy</span> <span class="o">=</span> <span class="n">NameMappingPolicy</span><span class="o">.</span><span class="n">BY_NAME_IF_KWONLY</span>
+    <span class="k">return</span> <span class="n">_convention_for</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">)</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_convention_for</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""The :data:`cw.Convention` an argh ``name_mapping_policy`` asks for.</span>
 
@@ -994,11 +1014,14 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="dispatch_commands">
 <a class="viewcode-back" href="../../_autosummary/cw.compat.html#cw.compat.dispatch_commands">[docs]</a>
 <span class="nd">@_deprecated</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_commands</span><span class="p">(</span><span class="n">functions</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_commands</span><span class="p">(</span>
+    <span class="n">functions</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""argh's ``dispatch_commands``: build a parser for ``functions`` and run it.</span>
 
 <span class="sd">    The fleet's most-used argh name (34 call sites). Unlike argh's, a usage error still</span>
-<span class="sd">    exits 2 rather than 0.</span>
+<span class="sd">    exits 2 rather than 0. ``old_name_mapping_policy=False`` selects</span>
+<span class="sd">    ``BY_NAME_IF_KWONLY``, as in argh; an explicit ``name_mapping_policy`` overrides it.</span>
 
 <span class="sd">    &gt;&gt;&gt; import io</span>
 <span class="sd">    &gt;&gt;&gt; from cw import compat as argh</span>
@@ -1011,7 +1034,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">policy</span> <span class="o">=</span> <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"name_mapping_policy"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_run_with_streams</span><span class="p">(</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="n">_cw_mk_parser</span><span class="p">(</span>
-            <span class="n">functions</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">policy</span><span class="p">),</span> <span class="o">**</span><span class="n">parser_kwargs</span>
+            <span class="n">functions</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">_dispatch_convention</span><span class="p">(</span><span class="n">policy</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">parser_kwargs</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">argv</span><span class="p">,</span>
         <span class="n">argh_kwargs</span><span class="p">,</span>
@@ -1025,15 +1050,17 @@ window.runMermaid = runMermaid;</script>
 <span class="k">def</span><span class="w"> </span><span class="nf">dispatch_command</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="n">argv</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""argh's ``dispatch_command``: one function, no command word.</span>
 
-<span class="sd">    ``old_name_mapping_policy`` is accepted and ignored, as it is in argh when it is</span>
-<span class="sd">    ``True`` -- which is the only value any fleet call site passes, and is cw's default</span>
-<span class="sd">    everywhere.</span>
+<span class="sd">    ``old_name_mapping_policy=False`` selects ``BY_NAME_IF_KWONLY``, as in argh (``True``</span>
+<span class="sd">    is argh's and cw's default, ``BY_NAME_IF_HAS_DEFAULT``); an explicit</span>
+<span class="sd">    ``name_mapping_policy`` overrides it.</span>
 <span class="sd">    """</span>
     <span class="n">argh_kwargs</span><span class="p">,</span> <span class="n">parser_kwargs</span> <span class="o">=</span> <span class="n">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">policy</span> <span class="o">=</span> <span class="n">parser_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"name_mapping_policy"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_run_with_streams</span><span class="p">(</span>
         <span class="k">lambda</span><span class="p">:</span> <span class="n">_cw_mk_parser</span><span class="p">(</span>
-            <span class="n">function</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">_convention_for</span><span class="p">(</span><span class="n">policy</span><span class="p">),</span> <span class="o">**</span><span class="n">parser_kwargs</span>
+            <span class="n">function</span><span class="p">,</span>
+            <span class="n">convention</span><span class="o">=</span><span class="n">_dispatch_convention</span><span class="p">(</span><span class="n">policy</span><span class="p">,</span> <span class="n">old_name_mapping_policy</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">parser_kwargs</span><span class="p">,</span>
         <span class="p">),</span>
         <span class="n">argv</span><span class="p">,</span>
         <span class="n">argh_kwargs</span><span class="p">,</span>

@@ -85,7 +85,7 @@ traceback. Grep for it.
 | [`confirm`](#cw.compat.confirm)(action[, default, skip])                 | argh's `confirm`: a yes/no prompt, with argh's exact wording.             |
 | [`dispatch`](#cw.compat.dispatch)(parser[, argv])                         | argh's `dispatch`: run a parser that already has its commands.            |
 | [`dispatch_command`](#cw.compat.dispatch_command)(function[, argv, ...])          | argh's `dispatch_command`: one function, no command word.                 |
-| [`dispatch_commands`](#cw.compat.dispatch_commands)(functions[, argv])             | argh's `dispatch_commands`: build a parser for `functions` and run it.    |
+| [`dispatch_commands`](#cw.compat.dispatch_commands)(functions[, argv, ...])        | argh's `dispatch_commands`: build a parser for `functions` and run it.    |
 | [`set_default_command`](#cw.compat.set_default_command)(parser, function, \*[, ...]) | argh's `set_default_command`: make `function` the parser's only command.  |
 
 ### Classes
@@ -289,16 +289,17 @@ behaviour rather than a `TypeError`. `output_file=None` returns the output strin
 
 argh’s `dispatch_command`: one function, no command word.
 
-`old_name_mapping_policy` is accepted and ignored, as it is in argh when it is
-`True` – which is the only value any fleet call site passes, and is cw’s default
-everywhere.
+`old_name_mapping_policy=False` selects `BY_NAME_IF_KWONLY`, as in argh (`True`
+is argh’s and cw’s default, `BY_NAME_IF_HAS_DEFAULT`); an explicit
+`name_mapping_policy` overrides it.
 
-### cw.compat.dispatch_commands(functions, argv=None, \*\*kwargs)
+### cw.compat.dispatch_commands(functions, argv=None, , old_name_mapping_policy=True, \*\*kwargs)
 
 argh’s `dispatch_commands`: build a parser for `functions` and run it.
 
 The fleet’s most-used argh name (34 call sites). Unlike argh’s, a usage error still
-exits 2 rather than 0.
+exits 2 rather than 0. `old_name_mapping_policy=False` selects
+`BY_NAME_IF_KWONLY`, as in argh; an explicit `name_mapping_policy` overrides it.
 
 * **Return type:**
   [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
