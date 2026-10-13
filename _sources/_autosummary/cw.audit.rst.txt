@@ -1,0 +1,30 @@
+cw.audit
+========
+
+.. automodule:: cw.audit
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      IGNORE_PRAGMA
+      DEFAULT_EXCLUDE_DIRS
+      DEFAULT_EXCLUDE_TOP_DIRS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      audit
+      audit_source
+      audit_dependencies
+      format_findings
+      assert_no_argh
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Finding
+   

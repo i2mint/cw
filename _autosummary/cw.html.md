@@ -1206,14 +1206,15 @@ second one has been computed:
 
 ### Modules
 
-| [`base`](cw.base.html.md#module-cw.base)             | The small vocabulary cw's other modules share: sentinels, errors, and help rendering.   |
-|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| [`cli`](cw.cli.html.md#module-cw.cli)               | The argparse surface: building a parser, and running one.                               |
-| [`commands`](cw.commands.html.md#module-cw.commands)     | Turning an object into the `{name: callable}` tree a parser is built from.              |
-| [`compat`](cw.compat.html.md#module-cw.compat)         | Transitional argh shim: a one-line import change retires a repo.                        |
-| [`convention`](cw.convention.html.md#module-cw.convention) | What cw's defaults ARE, as one frozen value per context.                                |
-| [`egress`](cw.egress.html.md#module-cw.egress)         | Result to stdout: how a function's return value becomes lines and an exit code.         |
-| [`grammar`](cw.grammar.html.md#module-cw.grammar)       | How a Python signature becomes command-line arguments.                                  |
-| [`ingress`](cw.ingress.html.md#module-cw.ingress)       | Namespace to call: the lines that honour `/`, `*args`, `*` and `**kwargs`.              |
-| [`resolution`](cw.resolution.html.md#module-cw.resolution) | Function resolution utilities for CLI parameterization.                                 |
-| [`testing`](cw.testing.html.md#module-cw.testing)       | Record a CLI's behaviour before a migration and assert it after.                        |
+| [`audit`](cw.audit.html.md#module-cw.audit)           | Audit a migrated source tree for what is left of `argh`.                              |
+|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`base`](cw.base.html.md#module-cw.base)             | The small vocabulary cw's other modules share: sentinels, errors, and help rendering. |
+| [`cli`](cw.cli.html.md#module-cw.cli)               | The argparse surface: building a parser, and running one.                             |
+| [`commands`](cw.commands.html.md#module-cw.commands)     | Turning an object into the `{name: callable}` tree a parser is built from.            |
+| [`compat`](cw.compat.html.md#module-cw.compat)         | Transitional argh shim: a one-line import change retires a repo.                      |
+| [`convention`](cw.convention.html.md#module-cw.convention) | What cw's defaults ARE, as one frozen value per context.                              |
+| [`egress`](cw.egress.html.md#module-cw.egress)         | Result to stdout: how a function's return value becomes lines and an exit code.       |
+| [`grammar`](cw.grammar.html.md#module-cw.grammar)       | How a Python signature becomes command-line arguments.                                |
+| [`ingress`](cw.ingress.html.md#module-cw.ingress)       | Namespace to call: the lines that honour `/`, `*args`, `*` and `**kwargs`.            |
+| [`resolution`](cw.resolution.html.md#module-cw.resolution) | Function resolution utilities for CLI parameterization.                               |
+| [`testing`](cw.testing.html.md#module-cw.testing)       | Record a CLI's behaviour before a migration and assert it after.                      |

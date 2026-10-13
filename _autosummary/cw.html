@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=8618f531"></script>
+    <script src="../_static/documentation_options.js?v=bafade30"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -52,12 +52,12 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="cw.base" href="cw.base.html" />
+    <link rel="next" title="cw.audit" href="cw.audit.html" />
     <link rel="prev" title="API reference" href="../api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.9" />
+  <meta name="docsearch:version" content="0.1.10" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -319,6 +319,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a aria-current="page" class="current reference internal" href="#">cw</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="cw.audit.html">cw.audit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.base.html">cw.base</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.cli.html">cw.cli</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.commands.html">cw.commands</a></li>
@@ -1713,34 +1714,37 @@ second one has been computed:</p>
 <p class="rubric">Modules</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="cw.base.html#module-cw.base" title="cw.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.audit.html#module-cw.audit" title="cw.audit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">audit</span></code></a></p></td>
+<td><p>Audit a migrated source tree for what is left of <code class="docutils literal notranslate"><span class="pre">argh</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cw.base.html#module-cw.base" title="cw.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code></a></p></td>
 <td><p>The small vocabulary cw's other modules share: sentinels, errors, and help rendering.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cw.cli.html#module-cw.cli" title="cw.cli"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cli</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.cli.html#module-cw.cli" title="cw.cli"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cli</span></code></a></p></td>
 <td><p>The argparse surface: building a parser, and running one.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="cw.commands.html#module-cw.commands" title="cw.commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">commands</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cw.commands.html#module-cw.commands" title="cw.commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">commands</span></code></a></p></td>
 <td><p>Turning an object into the <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">callable}</span></code> tree a parser is built from.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cw.compat.html#module-cw.compat" title="cw.compat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compat</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.compat.html#module-cw.compat" title="cw.compat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compat</span></code></a></p></td>
 <td><p>Transitional argh shim: a one-line import change retires a repo.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="cw.convention.html#module-cw.convention" title="cw.convention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convention</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cw.convention.html#module-cw.convention" title="cw.convention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convention</span></code></a></p></td>
 <td><p>What cw's defaults ARE, as one frozen value per context.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cw.egress.html#module-cw.egress" title="cw.egress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">egress</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.egress.html#module-cw.egress" title="cw.egress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">egress</span></code></a></p></td>
 <td><p>Result to stdout: how a function's return value becomes lines and an exit code.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="cw.grammar.html#module-cw.grammar" title="cw.grammar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grammar</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cw.grammar.html#module-cw.grammar" title="cw.grammar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grammar</span></code></a></p></td>
 <td><p>How a Python signature becomes command-line arguments.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cw.ingress.html#module-cw.ingress" title="cw.ingress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ingress</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.ingress.html#module-cw.ingress" title="cw.ingress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ingress</span></code></a></p></td>
 <td><p>Namespace to call: the lines that honour <code class="docutils literal notranslate"><span class="pre">/</span></code>, <code class="docutils literal notranslate"><span class="pre">*args</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code> and <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="cw.resolution.html#module-cw.resolution" title="cw.resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolution</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="cw.resolution.html#module-cw.resolution" title="cw.resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolution</span></code></a></p></td>
 <td><p>Function resolution utilities for CLI parameterization.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="cw.testing.html#module-cw.testing" title="cw.testing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">testing</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="cw.testing.html#module-cw.testing" title="cw.testing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">testing</span></code></a></p></td>
 <td><p>Record a CLI's behaviour before a migration and assert it after.</p></td>
 </tr>
 </tbody>
@@ -1768,11 +1772,11 @@ second one has been computed:</p>
       </div>
     </a>
     <a class="right-next"
-       href="cw.base.html"
+       href="cw.audit.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">cw.base</p>
+        <p class="prev-next-title">cw.audit</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

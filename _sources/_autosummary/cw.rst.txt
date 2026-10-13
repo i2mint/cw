@@ -55,6 +55,7 @@
    :toctree:
    :recursive:
 
+   audit
    base
    cli
    commands

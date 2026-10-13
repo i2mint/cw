@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=8618f531"></script>
+    <script src="../_static/documentation_options.js?v=bafade30"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.9" />
+  <meta name="docsearch:version" content="0.1.10" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -319,6 +319,7 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="cw.html">cw</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cw.audit.html">cw.audit</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.base.html">cw.base</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.cli.html">cw.cli</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cw.commands.html">cw.commands</a></li>
@@ -447,7 +448,8 @@ is worse than the <a class="reference external" href="https://docs.python.org/3/
 checklist: <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">argh</span> <span class="pre">import</span> <span class="pre">CommandError</span></code>. A module that imported the <em>name</em> rather than
 the module still imports argh after the one-line change, and cw will not catch an exception
 class it has never heard of, so <code class="docutils literal notranslate"><span class="pre">CommandError:</span> <span class="pre">boom</span></code> / exit 1 becomes an unhandled
-traceback. Grep for it.</p>
+traceback. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">cw</span> <span class="pre">audit</span> <span class="pre">&lt;path&gt;</span></code> finds it (and every other residual argh import,
+live <code class="docutils literal notranslate"><span class="pre">argh.dispatch*</span></code>, and <code class="docutils literal notranslate"><span class="pre">argh</span></code> dependency); run it in CI after a migration.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">cw</span><span class="w"> </span><span class="kn">import</span> <span class="n">compat</span> <span class="k">as</span> <span class="n">argh</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">loudly</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>

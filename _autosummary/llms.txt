@@ -6,6 +6,7 @@
 ## Pages in this subsection
 
 - [cw](cw.html.md): Tools to wire a string-only environment to a Python function call.
+- [cw.audit](cw.audit.html.md): Audit a migrated source tree for what is left of &#96;argh&#96;.
 - [cw.base](cw.base.html.md): The small vocabulary cw’s other modules share: sentinels, errors, and help rendering.
 - [cw.cli](cw.cli.html.md): The argparse surface: building a parser, and running one.
 - [cw.commands](cw.commands.html.md): Turning an object into the &#96;{name: callable}&#96; tree a parser is built from.

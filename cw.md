@@ -1,4 +1,4 @@
-> built 2026-10-13 17:32 UTC from 66dfef4 (master) · cw 0.1.9. Details: build_info.json
+> built 2026-10-13 23:32 UTC from 8078d1a (master) · cw 0.1.10. Details: build_info.json
 
 # index.html.md
 
@@ -524,10 +524,26 @@ python -m cw specs 'mypkg.cli:main'    # what flags would this function get, and
 python -m cw help  'mypkg.cli:main'    # the --help cw would print for it
 python -m cw specs 'mypkg.cli:main' -c argh-legacy   # as ArghParser().add_commands would read it (also: argh, modern)
 python -m cw parity                    # cw's own migration gate, 8 shapes / 137 cases
+python -m cw audit .                   # is any argh left in this migrated tree? (exit 1 if so)
 ```
 
 `specs` is the one that earns its place day to day — it answers  *“why did that parameter not
 get a short flag?”* without building, running or importing anybody’s `__main__`.
+
+`audit` is the gate for the part of a migration no `--help` golden can see. It reads the
+source (stdlib only, `argh` need not be installed) and reports `path:line: code: message` for
+`import argh` / `from argh import ...`, `from argh import CommandError` (a different class from
+`cw.CommandError`, so its raise sites escape `cw.run` as tracebacks), live `argh.dispatch*` /
+`ArghParser` calls (including under `if __name__ == "__main__"`), `argh` declared in
+`pyproject.toml` / `setup.cfg` / `setup.py` / `requirements*.txt`, and a bare `cw.dispatch(...)`
+statement that drops the exit code. A file it cannot parse is reported as `unparsable` (it fails the gate: an audit cannot vouch for what it did not read — exclude the directory instead). A line can opt out with a `# cw-audit: ignore` comment. In a consumer’s
+test suite:
+
+```python
+def test_no_residual_argh():
+    from cw.audit import assert_no_argh
+    assert_no_argh(Path(__file__).parents[1])   # raises AssertionError listing each finding
+```
 
 ## Resolving a function from a string
 
@@ -591,6 +607,228 @@ Two properties worth stating because they are easy to lose and hard to get back:
 both are asserted by tests, not by intention.
 
 <p class="epythet-aggregates">This documentation as a single file: <a href="cw.md">cw.md</a> (Markdown, for agents).</p>
+
+
+# _autosummary/cw.audit.html.md
+
+# cw.audit
+
+Audit a migrated source tree for what is left of `argh`.
+
+Every other gate cw offers is blind to a *residual* `argh` by construction:
+`cw.testing` goldens characterize `--help` (a `CommandError` fires after dispatch,
+past anything a help corpus reaches), `python -m cw specs` looks at one signature, and
+`cw.compat` only helps a module that switched to `from cw import compat as argh`. This
+module is the gate that reads the *source*, so a migration can be called finished by a
+check that runs in CI instead of by a prose warning.
+
+Five checks, each with a stable code:
+
+`import`
+: `import argh` / `from argh import ...` anywhere. The headline check.
+
+`command-error`
+: `from argh import CommandError` (or `argh.CommandError` through an alias). The one
+  residual that silently changes runtime behaviour rather than merely failing to import:
+  `argh.CommandError is cw.CommandError` is `False`, so a raise of the former escapes
+  `cw.run` as a traceback where argh printed `CommandError: <msg>` and exited 1.
+
+`dispatch`
+: A live `argh.dispatch*` / `ArghParser` / `EntryPoint` call, including under
+  `if __name__ == "__main__"` (which looks dead and is not: `python -m pkg.mod` runs it).
+
+`dependency`
+: `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` /
+  `requirements*.txt` (the licence-exposure-only case when nothing imports it).
+
+`discarded-exit`
+: `cw.dispatch(...)` as a bare statement. cw *returns* the exit code where argh exited
+  itself, so dropping it turns every non-zero exit into 0. Calls that pass `out=` /
+  `err=` or `standalone=False` are capturing output (a test), and are not flagged,
+  nor is anything in a test file.
+
+`unparsable`
+: A file that could not be read or parsed (Python 2, syntax newer than the interpreter
+  running the audit, a NUL byte, absurd nesting). It fails the gate rather than being
+  skipped: an audit cannot vouch for what it did not read. Exclude the directory.
+
+Nothing here imports `argh`, or anything but the standard library: it reads files, and
+the answer is the same whether or not `argh` is installed on the machine running it.
+
+```pycon
+>>> src = "from argh import CommandError\n"
+>>> [(f.line, f.code) for f in audit_source(src)]
+[(1, 'command-error'), (1, 'import')]
+>>> [f.code for f in audit_source("import argh\nargh.dispatch_commands([f])\n")]
+['import', 'dispatch']
+>>> audit_source("from cw import compat as argh\nargh.dispatch_commands([f])\n")
+[]
+```
+
+A line can opt out, for the rare place that is *meant* to touch real argh (a parity test):
+
+```default
+import argh  # cw-audit: ignore
+```
+
+Run it on a tree:
+
+```default
+python -m cw audit .
+```
+
+or gate on it in a consumer’s own test suite:
+
+```default
+def test_no_residual_argh():
+    from cw.audit import assert_no_argh
+    assert_no_argh(Path(__file__).parents[1])
+```
+
+### Module Attributes
+
+| [`IGNORE_PRAGMA`](_autosummary/cw.audit.html.md#cw.audit.IGNORE_PRAGMA)            | The comment that exempts its line (any line of a multi-line statement).   |
+|---------------------------------------------------------------------------|---------------------------------------------------------------------------|
+| [`DEFAULT_EXCLUDE_DIRS`](_autosummary/cw.audit.html.md#cw.audit.DEFAULT_EXCLUDE_DIRS)     | Directory names never worth descending into, at any depth.                |
+| [`DEFAULT_EXCLUDE_TOP_DIRS`](_autosummary/cw.audit.html.md#cw.audit.DEFAULT_EXCLUDE_TOP_DIRS) | Directory names skipped only directly under the audited root.             |
+
+### Functions
+
+| [`audit`](_autosummary/cw.audit.html.md#cw.audit.audit)([path, exclude_dirs, exclude_top_dirs])   | Audit a file or a source tree; return every residual `argh` finding.       |
+|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`audit_source`](_autosummary/cw.audit.html.md#cw.audit.audit_source)(source, \*[, path])                | Findings for one Python source (text or bytes), sorted by line.            |
+| [`audit_dependencies`](_autosummary/cw.audit.html.md#cw.audit.audit_dependencies)(text, \*[, path, always])    | Findings for `argh` declared as a requirement in one metadata file's text. |
+| [`format_findings`](_autosummary/cw.audit.html.md#cw.audit.format_findings)(findings)                       | The report: one `path:line: code: message` per finding, or the all-clear.  |
+| [`assert_no_argh`](_autosummary/cw.audit.html.md#cw.audit.assert_no_argh)([path])                          | Raise `AssertionError` listing every residual `argh` under `path`.         |
+
+### Classes
+
+| [`Finding`](_autosummary/cw.audit.html.md#cw.audit.Finding)(path, line, code, message)   | One residual: where it is, which check found it, and what to do.   |
+|---------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+
+### cw.audit.DEFAULT_EXCLUDE_DIRS *= frozenset({'.git', '.hg', '.mypy_cache', '.nox', '.pytest_cache', '.ruff_cache', '.tox', '_\_pycache_\_', 'node_modules', 'site-packages'})*
+
+Directory names never worth descending into, at any depth.
+
+### cw.audit.DEFAULT_EXCLUDE_TOP_DIRS *= frozenset({'.venv', 'build', 'dist', 'env', 'venv'})*
+
+Directory names skipped only directly under the audited root. Deeper they are ordinary
+package names (`pkg/build/`, `pkg/env/`), so skipping them there would hide source.
+Any directory holding a `pyvenv.cfg` is a virtualenv wherever it is.
+
+### *class* cw.audit.Finding(path, line, code, message)
+
+Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
+
+One residual: where it is, which check found it, and what to do.
+
+```pycon
+>>> str(Finding("a.py", 3, "import", "argh is imported"))
+'a.py:3: import: argh is imported'
+```
+
+### cw.audit.IGNORE_PRAGMA *= 'cw-audit: ignore'*
+
+The comment that exempts its line (any line of a multi-line statement).
+
+### cw.audit.assert_no_argh(path='.', \*\*kwargs)
+
+Raise `AssertionError` listing every residual `argh` under `path`.
+
+The consumer-side gate: one line in a test suite makes a half-finished migration a red
+build. Keyword arguments go to [`audit()`](_autosummary/cw.audit.html.md#cw.audit.audit).
+
+* **Return type:**
+  [`None`](https://docs.python.org/3/builtins/constants.html#None)
+
+### cw.audit.audit(path='.', , exclude_dirs=frozenset({'.git', '.hg', '.mypy_cache', '.nox', '.pytest_cache', '.ruff_cache', '.tox', '_\_pycache_\_', 'node_modules', 'site-packages'}), exclude_top_dirs=frozenset({'.venv', 'build', 'dist', 'env', 'venv'}))
+
+Audit a file or a source tree; return every residual `argh` finding.
+
+`path` may be a directory (walked), a `.py` / `.pyi` file, or a metadata file.
+`exclude_dirs` are skipped at any depth; `exclude_top_dirs` only directly under
+`path` (`build`, `dist`, `.venv`…). Symlinked directories are not followed,
+and a directory with a `pyvenv.cfg` is a virtualenv. Paths in the findings are
+relative to `path` when it is a directory. A file that cannot be read or parsed is an
+`unparsable` finding, not silence.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](_autosummary/cw.audit.html.md#cw.audit.Finding)]
+
+```pycon
+>>> import tempfile, pathlib
+>>> with tempfile.TemporaryDirectory() as tmp:
+...     root = pathlib.Path(tmp)
+...     _ = (root / "m.py").write_text("from argh import CommandError\n")
+...     _ = (root / "pyproject.toml").write_text('dependencies = ["argh"]\n')
+...     [(f.path, f.code) for f in audit(root)]
+[('m.py', 'command-error'), ('m.py', 'import'), ('pyproject.toml', 'dependency')]
+```
+
+### cw.audit.audit_dependencies(text, , path='<string>', always=False)
+
+Findings for `argh` declared as a requirement in one metadata file’s text.
+
+`always` treats every line as a candidate (a `requirements.txt`).
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](_autosummary/cw.audit.html.md#cw.audit.Finding)]
+
+```pycon
+>>> text = '[project]\nname = "argh"\ndependencies = ["argh>=0.31", "x"]\n'
+>>> [(f.line, f.code) for f in audit_dependencies(text)]
+[(3, 'dependency')]
+>>> audit_dependencies('keywords = ["argh"]\ndependencies = ["arghh"]')
+[]
+>>> audit_dependencies('[tool.ruff.lint.isort]\nknown-third-party = ["argh"]')
+[]
+>>> [f.line for f in audit_dependencies("x\nargh>=0.26  # old\n", always=True)]
+[2]
+>>> [f.line for f in audit_dependencies('[tool.poetry.dependencies]\nargh = "^0.26"')]
+[2]
+>>> [f.line for f in audit_dependencies("[options]\ninstall_requires = argh")]
+[2]
+```
+
+### cw.audit.audit_source(source, , path='<string>')
+
+Findings for one Python source (text or bytes), sorted by line.
+
+A file that cannot be analysed yields a single `unparsable` finding rather than an
+exception or silence: an audit that crashes on one bad file reports nothing about the
+rest, and one that skips it cannot vouch for it.
+
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](_autosummary/cw.audit.html.md#cw.audit.Finding)]
+
+```pycon
+>>> audit_source("import argh as a\na.CommandError('x')")[1].code
+'command-error'
+>>> audit_source("import cw\ncw.dispatch(f)")[0].code
+'discarded-exit'
+>>> audit_source("import cw\nraise SystemExit(cw.dispatch(f))")
+[]
+>>> audit_source("import cw, io\ncw.dispatch(f, out=io.StringIO())")
+[]
+>>> audit_source("import argh  # cw-audit: ignore")
+[]
+>>> audit_source(b"\xef\xbb\xbfimport argh\n")[0].code
+'import'
+>>> audit_source("def (:")[0].code
+'unparsable'
+```
+
+### cw.audit.format_findings(findings)
+
+The report: one `path:line: code: message` per finding, or the all-clear.
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
+```pycon
+>>> format_findings([])
+'no residual argh found.'
+```
 
 
 # _autosummary/cw.base.html.md
@@ -1403,7 +1641,8 @@ is worse than the [`AttributeError`](https://docs.python.org/3/builtins/exceptio
 checklist: `from argh import CommandError`. A module that imported the *name* rather than
 the module still imports argh after the one-line change, and cw will not catch an exception
 class it has never heard of, so `CommandError: boom` / exit 1 becomes an unhandled
-traceback. Grep for it.
+traceback. `python -m cw audit <path>` finds it (and every other residual argh import,
+live `argh.dispatch*`, and `argh` dependency); run it in CI after a migration.
 
 ```pycon
 >>> import io
@@ -3743,17 +3982,18 @@ second one has been computed:
 
 ### Modules
 
-| [`base`](_autosummary/cw.base.html.md#module-cw.base)             | The small vocabulary cw's other modules share: sentinels, errors, and help rendering.   |
-|----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-| [`cli`](_autosummary/cw.cli.html.md#module-cw.cli)               | The argparse surface: building a parser, and running one.                               |
-| [`commands`](_autosummary/cw.commands.html.md#module-cw.commands)     | Turning an object into the `{name: callable}` tree a parser is built from.              |
-| [`compat`](_autosummary/cw.compat.html.md#module-cw.compat)         | Transitional argh shim: a one-line import change retires a repo.                        |
-| [`convention`](_autosummary/cw.convention.html.md#module-cw.convention) | What cw's defaults ARE, as one frozen value per context.                                |
-| [`egress`](_autosummary/cw.egress.html.md#module-cw.egress)         | Result to stdout: how a function's return value becomes lines and an exit code.         |
-| [`grammar`](_autosummary/cw.grammar.html.md#module-cw.grammar)       | How a Python signature becomes command-line arguments.                                  |
-| [`ingress`](_autosummary/cw.ingress.html.md#module-cw.ingress)       | Namespace to call: the lines that honour `/`, `*args`, `*` and `**kwargs`.              |
-| [`resolution`](_autosummary/cw.resolution.html.md#module-cw.resolution) | Function resolution utilities for CLI parameterization.                                 |
-| [`testing`](_autosummary/cw.testing.html.md#module-cw.testing)       | Record a CLI's behaviour before a migration and assert it after.                        |
+| [`audit`](_autosummary/cw.audit.html.md#module-cw.audit)           | Audit a migrated source tree for what is left of `argh`.                              |
+|----------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| [`base`](_autosummary/cw.base.html.md#module-cw.base)             | The small vocabulary cw's other modules share: sentinels, errors, and help rendering. |
+| [`cli`](_autosummary/cw.cli.html.md#module-cw.cli)               | The argparse surface: building a parser, and running one.                             |
+| [`commands`](_autosummary/cw.commands.html.md#module-cw.commands)     | Turning an object into the `{name: callable}` tree a parser is built from.            |
+| [`compat`](_autosummary/cw.compat.html.md#module-cw.compat)         | Transitional argh shim: a one-line import change retires a repo.                      |
+| [`convention`](_autosummary/cw.convention.html.md#module-cw.convention) | What cw's defaults ARE, as one frozen value per context.                              |
+| [`egress`](_autosummary/cw.egress.html.md#module-cw.egress)         | Result to stdout: how a function's return value becomes lines and an exit code.       |
+| [`grammar`](_autosummary/cw.grammar.html.md#module-cw.grammar)       | How a Python signature becomes command-line arguments.                                |
+| [`ingress`](_autosummary/cw.ingress.html.md#module-cw.ingress)       | Namespace to call: the lines that honour `/`, `*args`, `*` and `**kwargs`.            |
+| [`resolution`](_autosummary/cw.resolution.html.md#module-cw.resolution) | Function resolution utilities for CLI parameterization.                               |
+| [`testing`](_autosummary/cw.testing.html.md#module-cw.testing)       | Record a CLI's behaviour before a migration and assert it after.                      |
 
 
 # _autosummary/cw.ingress.html.md
@@ -4795,16 +5035,18 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-10-13 17:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4</code></a> on branch <code>master</code>, for **cw 0.1.9** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 23:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a</code></a> on branch <code>master</code>, for **cw 0.1.10** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.1.10) is behind the latest release on PyPI (0.1.11): `pip install cw` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -4815,9 +5057,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38439226228">38439226228</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38484674380">38484674380</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code> (in the history of the built commit) |
+| Event commit | <code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -4842,13 +5084,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.9/">0.1.9</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/cw/0.1.11/">0.1.11</a>, newer than the documented version (0.1.10).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 66dfef4a9468ed3ad7b8cea297633138a6ac9543
+git checkout 8078d1a9ec4e8feec67ea1ac57ef1680da8493f7
 pip install "epythet==0.2.17"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

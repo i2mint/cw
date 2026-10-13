@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="alternate" type="text/markdown" href="audit.html.md">
+<link rel="describedby" href="../../llms.txt" type="text/markdown">
+    <title>cw.audit &#8212; cw</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/epythet.css?v=70da82a8" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=bafade30"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=fd10adb8"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cw/audit';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.1.10" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">cw</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../ai-agents.html">
+    For AI agents
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/i2mint/cw" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../ai-agents.html">
+    For AI agents
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/i2mint/cw" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cw.audit</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cw.audit</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Audit a migrated source tree for what is left of ``argh``.</span>
+
+<span class="sd">Every other gate cw offers is blind to a *residual* ``argh`` by construction:</span>
+<span class="sd">``cw.testing`` goldens characterize ``--help`` (a ``CommandError`` fires after dispatch,</span>
+<span class="sd">past anything a help corpus reaches), ``python -m cw specs`` looks at one signature, and</span>
+<span class="sd">``cw.compat`` only helps a module that switched to ``from cw import compat as argh``. This</span>
+<span class="sd">module is the gate that reads the *source*, so a migration can be called finished by a</span>
+<span class="sd">check that runs in CI instead of by a prose warning.</span>
+
+<span class="sd">Five checks, each with a stable code:</span>
+
+<span class="sd">``import``</span>
+<span class="sd">    ``import argh`` / ``from argh import ...`` anywhere. The headline check.</span>
+<span class="sd">``command-error``</span>
+<span class="sd">    ``from argh import CommandError`` (or ``argh.CommandError`` through an alias). The one</span>
+<span class="sd">    residual that silently changes runtime behaviour rather than merely failing to import:</span>
+<span class="sd">    ``argh.CommandError is cw.CommandError`` is ``False``, so a raise of the former escapes</span>
+<span class="sd">    ``cw.run`` as a traceback where argh printed ``CommandError: &lt;msg&gt;`` and exited 1.</span>
+<span class="sd">``dispatch``</span>
+<span class="sd">    A live ``argh.dispatch*`` / ``ArghParser`` / ``EntryPoint`` call, including under</span>
+<span class="sd">    ``if __name__ == "__main__"`` (which looks dead and is not: ``python -m pkg.mod`` runs it).</span>
+<span class="sd">``dependency``</span>
+<span class="sd">    ``argh`` declared in ``pyproject.toml`` / ``setup.cfg`` / ``setup.py`` /</span>
+<span class="sd">    ``requirements*.txt`` (the licence-exposure-only case when nothing imports it).</span>
+<span class="sd">``discarded-exit``</span>
+<span class="sd">    ``cw.dispatch(...)`` as a bare statement. cw *returns* the exit code where argh exited</span>
+<span class="sd">    itself, so dropping it turns every non-zero exit into 0. Calls that pass ``out=`` /</span>
+<span class="sd">    ``err=`` or ``standalone=False`` are capturing output (a test), and are not flagged,</span>
+<span class="sd">    nor is anything in a test file.</span>
+<span class="sd">``unparsable``</span>
+<span class="sd">    A file that could not be read or parsed (Python 2, syntax newer than the interpreter</span>
+<span class="sd">    running the audit, a NUL byte, absurd nesting). It fails the gate rather than being</span>
+<span class="sd">    skipped: an audit cannot vouch for what it did not read. Exclude the directory.</span>
+
+<span class="sd">Nothing here imports ``argh``, or anything but the standard library: it reads files, and</span>
+<span class="sd">the answer is the same whether or not ``argh`` is installed on the machine running it.</span>
+
+<span class="sd">&gt;&gt;&gt; src = "from argh import CommandError\\n"</span>
+<span class="sd">&gt;&gt;&gt; [(f.line, f.code) for f in audit_source(src)]</span>
+<span class="sd">[(1, 'command-error'), (1, 'import')]</span>
+<span class="sd">&gt;&gt;&gt; [f.code for f in audit_source("import argh\\nargh.dispatch_commands([f])\\n")]</span>
+<span class="sd">['import', 'dispatch']</span>
+<span class="sd">&gt;&gt;&gt; audit_source("from cw import compat as argh\\nargh.dispatch_commands([f])\\n")</span>
+<span class="sd">[]</span>
+
+<span class="sd">A line can opt out, for the rare place that is *meant* to touch real argh (a parity test)::</span>
+
+<span class="sd">    import argh  # cw-audit: ignore</span>
+
+<span class="sd">Run it on a tree::</span>
+
+<span class="sd">    python -m cw audit .</span>
+
+<span class="sd">or gate on it in a consumer's own test suite::</span>
+
+<span class="sd">    def test_no_residual_argh():</span>
+<span class="sd">        from cw.audit import assert_no_argh</span>
+<span class="sd">        assert_no_argh(Path(__file__).parents[1])</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">codecs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tokenize</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span><span class="p">,</span> <span class="n">StringIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"Finding"</span><span class="p">,</span>
+    <span class="s2">"audit"</span><span class="p">,</span>
+    <span class="s2">"audit_source"</span><span class="p">,</span>
+    <span class="s2">"audit_dependencies"</span><span class="p">,</span>
+    <span class="s2">"format_findings"</span><span class="p">,</span>
+    <span class="s2">"assert_no_argh"</span><span class="p">,</span>
+    <span class="s2">"CODES"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_EXCLUDE_DIRS"</span><span class="p">,</span>
+    <span class="s2">"DEFAULT_EXCLUDE_TOP_DIRS"</span><span class="p">,</span>
+    <span class="s2">"IGNORE_PRAGMA"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1">#: The comment that exempts its line (any line of a multi-line statement).</span>
+<span class="n">IGNORE_PRAGMA</span> <span class="o">=</span> <span class="s2">"cw-audit: ignore"</span>
+<span class="n">_PRAGMA</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"#\s*cw-audit:\s*ignore\b"</span><span class="p">)</span>
+
+<span class="c1">#: Directory names never worth descending into, at any depth.</span>
+<span class="n">DEFAULT_EXCLUDE_DIRS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">".git"</span><span class="p">,</span>
+        <span class="s2">".hg"</span><span class="p">,</span>
+        <span class="s2">".tox"</span><span class="p">,</span>
+        <span class="s2">".nox"</span><span class="p">,</span>
+        <span class="s2">"node_modules"</span><span class="p">,</span>
+        <span class="s2">"__pycache__"</span><span class="p">,</span>
+        <span class="s2">".mypy_cache"</span><span class="p">,</span>
+        <span class="s2">".ruff_cache"</span><span class="p">,</span>
+        <span class="s2">".pytest_cache"</span><span class="p">,</span>
+        <span class="s2">"site-packages"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">#: Directory names skipped only directly under the audited root. Deeper they are ordinary</span>
+<span class="c1">#: package names (``pkg/build/``, ``pkg/env/``), so skipping them there would hide source.</span>
+<span class="c1">#: Any directory holding a ``pyvenv.cfg`` is a virtualenv wherever it is.</span>
+<span class="n">DEFAULT_EXCLUDE_TOP_DIRS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">".venv"</span><span class="p">,</span> <span class="s2">"venv"</span><span class="p">,</span> <span class="s2">"env"</span><span class="p">,</span> <span class="s2">"build"</span><span class="p">,</span> <span class="s2">"dist"</span><span class="p">})</span>
+
+<span class="c1">#: The names ``argh`` exports that start or run a command-line program.</span>
+<span class="n">ARGH_DISPATCH_NAMES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"dispatch_command"</span><span class="p">,</span> <span class="s2">"dispatch_commands"</span><span class="p">,</span> <span class="s2">"ArghParser"</span><span class="p">,</span> <span class="s2">"EntryPoint"</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">#: ``from argh import &lt;these&gt;`` binds a submodule, not a function.</span>
+<span class="n">_ARGH_SUBMODULES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"assembling"</span><span class="p">,</span>
+        <span class="s2">"completion"</span><span class="p">,</span>
+        <span class="s2">"constants"</span><span class="p">,</span>
+        <span class="s2">"decorators"</span><span class="p">,</span>
+        <span class="s2">"dispatching"</span><span class="p">,</span>
+        <span class="s2">"exceptions"</span><span class="p">,</span>
+        <span class="s2">"helpers"</span><span class="p">,</span>
+        <span class="s2">"interaction"</span><span class="p">,</span>
+        <span class="s2">"io"</span><span class="p">,</span>
+        <span class="s2">"utils"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">#: Keys (dashes and underscores equal) whose values are requirements.</span>
+<span class="n">_DEPENDENCY_KEYS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"dependencies"</span><span class="p">,</span>
+        <span class="s2">"requires"</span><span class="p">,</span>
+        <span class="s2">"requirements"</span><span class="p">,</span>
+        <span class="s2">"install_requires"</span><span class="p">,</span>
+        <span class="s2">"setup_requires"</span><span class="p">,</span>
+        <span class="s2">"tests_require"</span><span class="p">,</span>
+        <span class="s2">"extras_require"</span><span class="p">,</span>
+        <span class="s2">"optional_dependencies"</span><span class="p">,</span>
+        <span class="s2">"dev_dependencies"</span><span class="p">,</span>
+        <span class="s2">"extra_dependencies"</span><span class="p">,</span>
+        <span class="s2">"override_dependencies"</span><span class="p">,</span>
+        <span class="s2">"constraint_dependencies"</span><span class="p">,</span>
+        <span class="s2">"dependency_groups"</span><span class="p">,</span>
+        <span class="s2">"pypi_dependencies"</span><span class="p">,</span>
+        <span class="s2">"requires_extra"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">#: Tables whose *keys* are names of extras / groups, not of packages (``argh = ["cw"]``).</span>
+<span class="n">_GROUP_TABLES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">"optional_dependencies"</span><span class="p">,</span> <span class="s2">"extras_require"</span><span class="p">,</span> <span class="s2">"requires_extra"</span><span class="p">,</span> <span class="s2">"dependency_groups"</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1">#: ``argh`` as a requirement: with extras, then a specifier, marker or url, or nothing.</span>
+<span class="n">_SPEC</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"argh(?![-_.\w])\s*(?:\[[^\]]*\])?\s*(?:[&lt;&gt;=!~;@(].*)?"</span>
+<span class="c1">#: An ``#egg=argh`` fragment (optionally ``-&lt;version&gt;``, optionally followed by ``&amp;...``).</span>
+<span class="n">_EGG</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">".*[#&amp;]egg=argh(?:-\d[\w.]*)?(?:&amp;.*)?"</span>
+<span class="c1">#: Quoted (pyproject, setup.py) anywhere on a line; bare (setup.cfg, requirements) as the line.</span>
+<span class="n">_QUOTED_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"""["']\s*</span><span class="si">{</span><span class="n">_SPEC</span><span class="si">}</span><span class="s2">["']"""</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">_BARE_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"^(?:</span><span class="si">{</span><span class="n">_SPEC</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_EGG</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="c1">#: ``{ argh = "^1" }`` -- a Poetry inline table.</span>
+<span class="n">_INLINE_ARGH</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[{,]\s*argh\s*="</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="n">_REQUIREMENT_FILES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pyproject.toml"</span><span class="p">,</span> <span class="s2">"setup.cfg"</span><span class="p">,</span> <span class="s2">"setup.py"</span><span class="p">)</span>
+<span class="n">_KEY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*[=:](?![=/])\s*(.*)$"</span><span class="p">)</span>
+<span class="n">_HEADER</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"""^\[+\s*([^\]"'\s][^\]]*)\]+\s*(?:#.*)?$"""</span><span class="p">)</span>
+
+<span class="n">CODES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"import"</span><span class="p">:</span> <span class="s2">"argh is imported"</span><span class="p">,</span>
+    <span class="s2">"command-error"</span><span class="p">:</span> <span class="s2">"CommandError taken from argh, not cw"</span><span class="p">,</span>
+    <span class="s2">"dispatch"</span><span class="p">:</span> <span class="s2">"argh dispatch still reachable"</span><span class="p">,</span>
+    <span class="s2">"dependency"</span><span class="p">:</span> <span class="s2">"argh declared as a dependency"</span><span class="p">,</span>
+    <span class="s2">"discarded-exit"</span><span class="p">:</span> <span class="s2">"cw.dispatch exit code discarded"</span><span class="p">,</span>
+    <span class="s2">"unparsable"</span><span class="p">:</span> <span class="s2">"a file could not be read or parsed, so it was not checked"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_DEPENDENCY_WHY</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"argh is declared as a dependency (LGPL-3.0-or-later); drop it once nothing "</span>
+    <span class="s2">"imports it."</span>
+<span class="p">)</span>
+
+<span class="n">_COMMAND_ERROR_WHY</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"argh.CommandError is not cw.CommandError, so a raise of it escapes cw.run as a "</span>
+    <span class="s2">"traceback where argh printed 'CommandError: &lt;msg&gt;' and exited 1. Import it from cw."</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="Finding">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.Finding">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Finding</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One residual: where it is, which check found it, and what to do.</span>
+
+<span class="sd">    &gt;&gt;&gt; str(Finding("a.py", 3, "import", "argh is imported"))</span>
+<span class="sd">    'a.py:3: import: argh is imported'</span>
+<span class="sd">    """</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">line</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Python source: imports, dispatch calls, discarded exit codes</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_argh</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">module</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">module</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">or</span> <span class="n">module</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"argh."</span><span class="p">))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_Visitor</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">NodeVisitor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Collect findings from one module's AST.</span>
+
+<span class="sd">    Tracks which local names are bound to real ``argh`` (so ``from cw import compat as</span>
+<span class="sd">    argh`` is rightly left alone) and to ``cw.dispatch`` / ``cw.run``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1">#: ``(first line, last line, code, message)``</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># names bound to argh or an argh submodule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argh_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># local name -&gt; argh attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">argh_star</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># ``from argh import *``</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># names bound to cw / cw.cli</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cw_dispatchers</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># names bound to cw.dispatch / cw.run</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_main_guard_depth</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">AST</span><span class="p">,</span> <span class="n">code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"end_lineno"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">lineno</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">))</span>
+
+    <span class="c1"># -- imports -------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Import</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_argh</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"import"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"import </span><span class="si">{</span><span class="n">alias</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="c1"># ``import argh.x`` binds ``argh``; ``import argh.x as y`` binds ``y``.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="s2">"argh"</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"cw"</span><span class="p">,</span> <span class="s2">"cw.cli"</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="s2">"cw"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_ImportFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">_is_argh</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">):</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"import"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"from </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s2"> import </span><span class="si">{</span><span class="n">names</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="n">local</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"CommandError"</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"command-error"</span><span class="p">,</span> <span class="n">_COMMAND_ERROR_WHY</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argh_star</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_ARGH_SUBMODULES</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">argh_names</span><span class="p">[</span><span class="n">local</span><span class="p">]</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"cw"</span><span class="p">,</span> <span class="s2">"cw.cli"</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="n">local</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cw_dispatchers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"cli"</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="c1"># -- argh attribute use --------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">attr</span> <span class="o">==</span> <span class="s2">"CommandError"</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>  <span class="c1"># argh.exceptions.CommandError</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"command-error"</span><span class="p">,</span> <span class="n">_COMMAND_ERROR_WHY</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argh_star</span>
+            <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">"CommandError"</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Load</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"command-error"</span><span class="p">,</span> <span class="n">_COMMAND_ERROR_WHY</span><span class="p">)</span>
+
+    <span class="c1"># -- calls ---------------------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_argh_dispatch_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The argh dispatching name ``func`` calls, or None."""</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">argh_names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">argh_star</span> <span class="ow">and</span> <span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">ARGH_DISPATCH_NAMES</span><span class="p">:</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">id</span>
+            <span class="k">return</span> <span class="n">attr</span> <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">ARGH_DISPATCH_NAMES</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="n">func</span><span class="o">.</span><span class="n">attr</span> <span class="ow">in</span> <span class="n">ARGH_DISPATCH_NAMES</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>  <span class="c1"># argh.dispatching.dispatch</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">attr</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_argh_dispatch_name</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">reach</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">" It sits under an `if __name__ == '__main__'` guard, which looks "</span>
+                <span class="s2">"dead but is reached by `python -m &lt;module&gt;`."</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_guard_depth</span>
+                <span class="k">else</span> <span class="s2">""</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"dispatch"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"argh.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">(...) is still called.</span><span class="si">{</span><span class="n">reach</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_If</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">If</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_is_main_guard</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">test</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">test</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_main_guard_depth</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_main_guard_depth</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">orelse</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="c1"># -- discarded exit code -------------------------------------------------------</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_cw_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cw_dispatchers</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="n">func</span><span class="o">.</span><span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">):</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">while</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>  <span class="c1"># cw.cli.dispatch</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_captures_output</span><span class="p">(</span><span class="n">call</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""``out=`` / ``err=`` given, or ``standalone`` set to anything but True."""</span>
+        <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">call</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">keyword</span><span class="o">.</span><span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"out"</span><span class="p">,</span> <span class="s2">"err"</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">keyword</span><span class="o">.</span><span class="n">arg</span> <span class="o">==</span> <span class="s2">"standalone"</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">keyword</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Expr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">call</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_cw_dispatch</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">func</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_captures_output</span><span class="p">(</span><span class="n">call</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span>
+                <span class="n">node</span><span class="p">,</span>
+                <span class="s2">"discarded-exit"</span><span class="p">,</span>
+                <span class="s2">"cw returns the exit code where argh exited itself; "</span>
+                <span class="s2">"wrap it: `raise SystemExit(cw.dispatch(...))`."</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_main_guard</span><span class="p">(</span><span class="n">test</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Is ``test`` ``__name__ == "__main__"`` (either order)?"""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">test</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Compare</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">ops</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">ops</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ast</span><span class="o">.</span><span class="n">Eq</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">sides</span> <span class="o">=</span> <span class="p">[</span><span class="n">test</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">test</span><span class="o">.</span><span class="n">comparators</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="n">has_name</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">"__name__"</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sides</span><span class="p">)</span>
+    <span class="n">has_main</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">"__main__"</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sides</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">has_name</span> <span class="ow">and</span> <span class="n">has_main</span>
+
+
+<span class="c1">#: Recursion allowance while analysing one file: a chain of ~500 ``a + b + ...`` terms is</span>
+<span class="c1">#: ordinary generated code but already past the default limit of 1000 frames.</span>
+<span class="n">_ANALYSIS_RECURSION_LIMIT</span> <span class="o">=</span> <span class="mi">6000</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_deep_recursion</span><span class="p">(</span><span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">_ANALYSIS_RECURSION_LIMIT</span><span class="p">):</span>
+    <span class="n">previous</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getrecursionlimit</span><span class="p">()</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">setrecursionlimit</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">previous</span><span class="p">,</span> <span class="n">limit</span><span class="p">))</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">setrecursionlimit</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+
+
+<span class="c1">#: Stack for the analysis thread. Python's recursion limit is only a count: the C stack it</span>
+<span class="c1">#: eats differs per platform (Windows' 1 MB main-thread stack dies long before 6000</span>
+<span class="c1">#: nested frames), so deep trees are analysed on a thread with room for them.</span>
+<span class="n">_ANALYSIS_STACK_BYTES</span> <span class="o">=</span> <span class="mi">256</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_big_stack</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""``func`` as a function that runs on a big-stack thread with a raised recursion limit."""</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">outcome</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">():</span>
+            <span class="k">with</span> <span class="n">_deep_recursion</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">outcome</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">BaseException</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># re-raised in the caller's thread</span>
+                    <span class="n">outcome</span><span class="p">[</span><span class="s2">"error"</span><span class="p">]</span> <span class="o">=</span> <span class="n">exc</span>
+
+        <span class="n">previous</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">stack_size</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">threading</span><span class="o">.</span><span class="n">stack_size</span><span class="p">(</span><span class="n">_ANALYSIS_STACK_BYTES</span><span class="p">)</span>
+            <span class="n">thread</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+            <span class="n">thread</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">):</span>  <span class="c1"># no such stack here: analyse in place</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">threading</span><span class="o">.</span><span class="n">stack_size</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">"error"</span> <span class="ow">in</span> <span class="n">outcome</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">outcome</span><span class="p">[</span><span class="s2">"error"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">outcome</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">run</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode_text</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Text of a metadata file: UTF-8 (BOM allowed) or UTF-16 (PowerShell's redirect)."""</span>
+    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="n">codecs</span><span class="o">.</span><span class="n">BOM_UTF16_LE</span><span class="p">,</span> <span class="n">codecs</span><span class="o">.</span><span class="n">BOM_UTF16_BE</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-16"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8-sig"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decode</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Source text of ``data`` per PEP 263 (BOM and ``coding:`` cookie), never raising."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">encoding</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tokenize</span><span class="o">.</span><span class="n">detect_encoding</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">):</span>
+        <span class="n">encoding</span> <span class="o">=</span> <span class="s2">"utf-8"</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeError</span><span class="p">,</span> <span class="ne">LookupError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8-sig"</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"replace"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pragma_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Line numbers carrying a real ``# cw-audit: ignore`` *comment* (not a string)."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">token</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenize</span><span class="o">.</span><span class="n">generate_tokens</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">readline</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">token</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">tokenize</span><span class="o">.</span><span class="n">COMMENT</span> <span class="ow">and</span> <span class="n">_PRAGMA</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">string</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">tokenize</span><span class="o">.</span><span class="n">TokenError</span><span class="p">,</span> <span class="ne">SyntaxError</span><span class="p">,</span> <span class="ne">IndentationError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">n</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">_PRAGMA</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="p">}</span>
+
+
+<span class="nd">@_on_big_stack</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_visit_source</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Visitor</span><span class="p">:</span>
+    <span class="n">visitor</span> <span class="o">=</span> <span class="n">_Visitor</span><span class="p">()</span>
+    <span class="n">visitor</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">visitor</span>
+
+
+<div class="viewcode-block" id="audit_source">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.audit_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">audit_source</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"&lt;string&gt;"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Findings for one Python source (text or bytes), sorted by line.</span>
+
+<span class="sd">    A file that cannot be analysed yields a single ``unparsable`` finding rather than an</span>
+<span class="sd">    exception or silence: an audit that crashes on one bad file reports nothing about the</span>
+<span class="sd">    rest, and one that skips it cannot vouch for it.</span>
+
+<span class="sd">    &gt;&gt;&gt; audit_source("import argh as a\\na.CommandError('x')")[1].code</span>
+<span class="sd">    'command-error'</span>
+<span class="sd">    &gt;&gt;&gt; audit_source("import cw\\ncw.dispatch(f)")[0].code</span>
+<span class="sd">    'discarded-exit'</span>
+<span class="sd">    &gt;&gt;&gt; audit_source("import cw\\nraise SystemExit(cw.dispatch(f))")</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; audit_source("import cw, io\\ncw.dispatch(f, out=io.StringIO())")</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; audit_source("import argh  # cw-audit: ignore")</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; audit_source(b"\\xef\\xbb\\xbfimport argh\\n")[0].code</span>
+<span class="sd">    'import'</span>
+<span class="sd">    &gt;&gt;&gt; audit_source("def (:")[0].code</span>
+<span class="sd">    'unparsable'</span>
+<span class="sd">    """</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_decode</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="k">else</span> <span class="n">source</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">visitor</span> <span class="o">=</span> <span class="n">_visit_source</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">exc</span><span class="o">.</span><span class="n">lineno</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"unparsable"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"cannot parse: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">RecursionError</span><span class="p">,</span> <span class="ne">MemoryError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">reason</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"unparsable"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"cannot analyse: </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">"</span><span class="p">)]</span>
+    <span class="n">pragmas</span> <span class="o">=</span> <span class="n">_pragma_lines</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ignored</span><span class="p">(</span><span class="n">first</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">last</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span> <span class="ow">in</span> <span class="n">pragmas</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">first</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">visitor</span><span class="o">.</span><span class="n">findings</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ignored</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Dependency declarations: pure grep, scoped to where requirements live</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalise</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[-_.]+"</span><span class="p">,</span> <span class="s2">"-"</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_key_parts</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""``'Optional-Dependencies.cli'`` -&gt; ``['optional_dependencies', 'cli']``."""</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"."</span><span class="p">)]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_strip_comment</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``value`` without a trailing ``# comment`` (a ``#`` inside quotes is kept)."""</span>
+    <span class="n">quote</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">char</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">quote</span><span class="p">:</span>
+            <span class="n">quote</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">char</span> <span class="o">==</span> <span class="n">quote</span> <span class="k">else</span> <span class="n">quote</span>
+        <span class="k">elif</span> <span class="n">char</span> <span class="ow">in</span> <span class="s2">"</span><span class="se">\"</span><span class="s2">'"</span><span class="p">:</span>
+            <span class="n">quote</span> <span class="o">=</span> <span class="n">char</span>
+        <span class="k">elif</span> <span class="n">char</span> <span class="o">==</span> <span class="s2">"#"</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">" </span><span class="se">\t</span><span class="s2">,[]</span><span class="se">\"</span><span class="s2">'"</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">value</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Does a table header (``[tool.poetry.group.dev.dependencies]``) hold requirements?"""</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_requirement_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""``(lineno, candidate)`` for each line that may declare a requirement.</span>
+
+<span class="sd">    A line qualifies when it sits in a table whose header has a dependency segment</span>
+<span class="sd">    (``[project.optional-dependencies]``, ``[tool.poetry.dependencies]``,</span>
+<span class="sd">    ``[options.extras_require]``), or under a dependency key (``dependencies =``,</span>
+<span class="sd">    ``install_requires =``, ``requires =``) -- or always, for a requirements file. That</span>
+<span class="sd">    scoping is what keeps ``name = "argh"``, ``keywords = ["argh"]`` and tool settings such</span>
+<span class="sd">    as ``known-third-party = ["argh"]`` from reading as dependencies. The candidate has any</span>
+<span class="sd">    ``key =`` prefix removed, except an ``argh = ...`` key itself (Poetry's spelling).</span>
+<span class="sd">    """</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># the key whose (possibly multi-line) value this line belongs to</span>
+    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">_PRAGMA</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">always</span><span class="p">:</span>  <span class="c1"># a requirements file: every line is a requirement</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s*(</span><span class="se">\\</span><span class="s2">|--hash.*|\s#.*)$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span>
+            <span class="k">continue</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">_HEADER</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_KEY</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+            <span class="n">header</span><span class="p">,</span> <span class="n">owner</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="kc">None</span>
+            <span class="c1"># ``[tool.poetry.dependencies.argh]``: the table is the package.</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"argh"</span>
+            <span class="k">continue</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_KEY</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">owner</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">parts</span>
+            <span class="n">is_package_key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="p">)</span>
+            <span class="n">in_group_table</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_package_key</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">in_group_table</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"argh"</span>  <span class="c1"># Poetry: ``argh = "^0.26"``</span>
+                <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"]"</span><span class="p">):</span>
+            <span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">continue</span>
+        <span class="n">scoped</span> <span class="o">=</span> <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">part</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">owner</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">scoped</span><span class="p">:</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">_strip_comment</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"argh"</span> <span class="k">if</span> <span class="n">_INLINE_ARGH</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span> <span class="k">else</span> <span class="n">candidate</span>
+
+
+<div class="viewcode-block" id="audit_dependencies">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.audit_dependencies">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">audit_dependencies</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"&lt;string&gt;"</span><span class="p">,</span> <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Findings for ``argh`` declared as a requirement in one metadata file's text.</span>
+
+<span class="sd">    ``always`` treats every line as a candidate (a ``requirements.txt``).</span>
+
+<span class="sd">    &gt;&gt;&gt; text = '[project]\\nname = "argh"\\ndependencies = ["argh&gt;=0.31", "x"]\\n'</span>
+<span class="sd">    &gt;&gt;&gt; [(f.line, f.code) for f in audit_dependencies(text)]</span>
+<span class="sd">    [(3, 'dependency')]</span>
+<span class="sd">    &gt;&gt;&gt; audit_dependencies('keywords = ["argh"]\\ndependencies = ["arghh"]')</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; audit_dependencies('[tool.ruff.lint.isort]\\nknown-third-party = ["argh"]')</span>
+<span class="sd">    []</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies("x\\nargh&gt;=0.26  # old\\n", always=True)]</span>
+<span class="sd">    [2]</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies('[tool.poetry.dependencies]\\nargh = "^0.26"')]</span>
+<span class="sd">    [2]</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies("[options]\\ninstall_requires = argh")]</span>
+<span class="sd">    [2]</span>
+<span class="sd">    """</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">_requirement_lines</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="n">always</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">_QUOTED_REQUIREMENT</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_BARE_REQUIREMENT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">_DEPENDENCY_WHY</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">findings</span></div>
+
+
+
+<span class="nd">@_on_big_stack</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_py_dependencies</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""``argh`` in dependency keywords / dict entries of a ``setup.py``, found with ``ast``.</span>
+
+<span class="sd">    A line scan cannot tell ``install_requires=`` from the keyword before it on the same</span>
+<span class="sd">    line, nor follow ``install_requires=REQUIREMENTS``; the tree can (one assignment deep,</span>
+<span class="sd">    anywhere in the file). The key may be a keyword of *any* call (``setup(...)``,</span>
+<span class="sd">    ``my_setup(**kw)``, ``dict(...)``) or a string key of a dict literal -- legacy templates</span>
+<span class="sd">    build ``setup_kwargs = dict(install_requires=[...])`` and splat it.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">_deep_recursion</span><span class="p">():</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+            <span class="n">assigned</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Assign</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                            <span class="n">assigned</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AnnAssign</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                        <span class="n">assigned</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">constants</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">AST</span><span class="p">,</span> <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="n">node</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">assigned</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+                        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                        <span class="k">yield from</span> <span class="n">constants</span><span class="p">(</span><span class="n">assigned</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">seen</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Dict</span><span class="p">):</span>  <span class="c1"># the keys name extras, not packages</span>
+                    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                        <span class="k">yield from</span> <span class="n">constants</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">iter_child_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+                        <span class="k">yield from</span> <span class="n">constants</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">seen</span><span class="p">)</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">is_dependency_key</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span>
+                    <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">)</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span>
+                <span class="p">)</span>
+
+            <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ast</span><span class="o">.</span><span class="n">expr</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+                    <span class="n">values</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="n">k</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">keywords</span> <span class="k">if</span> <span class="n">is_dependency_key</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">arg</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Dict</span><span class="p">):</span>
+                    <span class="n">values</span> <span class="o">+=</span> <span class="p">[</span>
+                        <span class="n">v</span>
+                        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="n">is_dependency_key</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="p">]</span>
+            <span class="n">pragmas</span> <span class="o">=</span> <span class="n">_pragma_lines</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">const</span> <span class="ow">in</span> <span class="n">constants</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">set</span><span class="p">()):</span>
+                    <span class="n">text</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">_BARE_REQUIREMENT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="ow">and</span> <span class="n">const</span><span class="o">.</span><span class="n">lineno</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pragmas</span><span class="p">:</span>
+                        <span class="n">found</span><span class="p">[</span><span class="n">const</span><span class="o">.</span><span class="n">lineno</span><span class="p">]</span> <span class="o">=</span> <span class="n">Finding</span><span class="p">(</span>
+                            <span class="n">path</span><span class="p">,</span> <span class="n">const</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">_DEPENDENCY_WHY</span>
+                        <span class="p">)</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">found</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">SyntaxError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">RecursionError</span><span class="p">,</span> <span class="ne">MemoryError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># audit_source already reports the file as unparsable</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------------------</span>
+<span class="c1"># Walking a tree</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_walk</span><span class="p">(</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">exclude_dirs</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">top</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">problems</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">base</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Files under ``root``, skipping excluded dirs, virtualenvs and symlinks that lead nowhere.</span>
+
+<span class="sd">    A directory that cannot be listed is appended to ``problems``, not raised: the audit</span>
+<span class="sd">    must say what it could not read rather than die on it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">root</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">iterdir</span><span class="p">())</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_unreadable</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_symlink</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()):</span>
+                <span class="k">continue</span>  <span class="c1"># a link can loop back up, leave the tree, or dangle</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+                <span class="k">yield</span> <span class="n">path</span>
+                <span class="k">continue</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">skip</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">name</span> <span class="ow">in</span> <span class="n">exclude_dirs</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">top</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".egg-info"</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">"pyvenv.cfg"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_unreadable</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">base</span><span class="p">,</span> <span class="n">exc</span><span class="p">))</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">_walk</span><span class="p">(</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">exclude_dirs</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">problems</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_unreadable</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">base</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">OSError</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Finding</span><span class="p">:</span>
+    <span class="n">shown</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">base</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span> <span class="k">if</span> <span class="n">path</span> <span class="o">!=</span> <span class="n">base</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Finding</span><span class="p">(</span><span class="n">shown</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"unparsable"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"cannot read: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">strerror</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_requirements_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">".txt"</span><span class="p">,</span> <span class="s2">".in"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="s2">"requirements"</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"requirements"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_test_file</span><span class="p">(</span><span class="n">relative</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A test (judged by its path *below* the audited root) is not an entry point."""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">relative</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"test_"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">relative</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"_test"</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">relative</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"conftest.py"</span>
+        <span class="ow">or</span> <span class="s2">"tests"</span> <span class="ow">in</span> <span class="n">relative</span><span class="o">.</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="audit">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.audit">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">audit</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">exclude_dirs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_EXCLUDE_DIRS</span><span class="p">,</span>
+    <span class="n">exclude_top_dirs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_EXCLUDE_TOP_DIRS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Audit a file or a source tree; return every residual ``argh`` finding.</span>
+
+<span class="sd">    ``path`` may be a directory (walked), a ``.py`` / ``.pyi`` file, or a metadata file.</span>
+<span class="sd">    ``exclude_dirs`` are skipped at any depth; ``exclude_top_dirs`` only directly under</span>
+<span class="sd">    ``path`` (``build``, ``dist``, ``.venv``...). Symlinked directories are not followed,</span>
+<span class="sd">    and a directory with a ``pyvenv.cfg`` is a virtualenv. Paths in the findings are</span>
+<span class="sd">    relative to ``path`` when it is a directory. A file that cannot be read or parsed is an</span>
+<span class="sd">    ``unparsable`` finding, not silence.</span>
+
+<span class="sd">    &gt;&gt;&gt; import tempfile, pathlib</span>
+<span class="sd">    &gt;&gt;&gt; with tempfile.TemporaryDirectory() as tmp:</span>
+<span class="sd">    ...     root = pathlib.Path(tmp)</span>
+<span class="sd">    ...     _ = (root / "m.py").write_text("from argh import CommandError\\n")</span>
+<span class="sd">    ...     _ = (root / "pyproject.toml").write_text('dependencies = ["argh"]\\n')</span>
+<span class="sd">    ...     [(f.path, f.code) for f in audit(root)]</span>
+<span class="sd">    [('m.py', 'command-error'), ('m.py', 'import'), ('pyproject.toml', 'dependency')]</span>
+<span class="sd">    """</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">root</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"no such file or directory: </span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="n">root</span> <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="n">root</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">walk</span> <span class="o">=</span> <span class="n">_walk</span><span class="p">(</span>
+        <span class="n">root</span><span class="p">,</span>
+        <span class="nb">frozenset</span><span class="p">(</span><span class="n">exclude_dirs</span><span class="p">),</span>
+        <span class="nb">frozenset</span><span class="p">(</span><span class="n">exclude_top_dirs</span><span class="p">),</span>
+        <span class="n">findings</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="n">base</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">:</span>
+        <span class="n">relative</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+        <span class="n">shown</span> <span class="o">=</span> <span class="n">relative</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="n">is_python</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">".py"</span><span class="p">,</span> <span class="s2">".pyi"</span><span class="p">)</span>
+        <span class="n">is_metadata</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_REQUIREMENT_FILES</span> <span class="ow">or</span> <span class="n">_is_requirements_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">is_python</span> <span class="ow">or</span> <span class="n">is_metadata</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">Finding</span><span class="p">(</span><span class="n">shown</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"unparsable"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"cannot read: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">strerror</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">is_python</span><span class="p">:</span>
+            <span class="n">found</span> <span class="o">=</span> <span class="n">audit_source</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">shown</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_test_file</span><span class="p">(</span><span class="n">relative</span><span class="p">):</span>  <span class="c1"># a test may drop the code</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">code</span> <span class="o">!=</span> <span class="s2">"discarded-exit"</span><span class="p">]</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">found</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"setup.py"</span><span class="p">:</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_setup_py_dependencies</span><span class="p">(</span><span class="n">_decode</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">path</span><span class="o">=</span><span class="n">shown</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">is_metadata</span><span class="p">:</span>
+            <span class="n">findings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">audit_dependencies</span><span class="p">(</span>
+                    <span class="n">_decode_text</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">shown</span><span class="p">,</span>
+                    <span class="n">always</span><span class="o">=</span><span class="n">_is_requirements_file</span><span class="p">(</span><span class="n">file</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="format_findings">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.format_findings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_findings</span><span class="p">(</span><span class="n">findings</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Finding</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The report: one ``path:line: code: message`` per finding, or the all-clear.</span>
+
+<span class="sd">    &gt;&gt;&gt; format_findings([])</span>
+<span class="sd">    'no residual argh found.'</span>
+<span class="sd">    """</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">findings</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"no residual argh found."</span>
+    <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">findings</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="assert_no_argh">
+<a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.assert_no_argh">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">assert_no_argh</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Raise ``AssertionError`` listing every residual ``argh`` under ``path``.</span>
+
+<span class="sd">    The consumer-side gate: one line in a test suite makes a half-finished migration a red</span>
+<span class="sd">    build. Keyword arguments go to :func:`audit`.</span>
+<span class="sd">    """</span>
+    <span class="n">findings</span> <span class="o">=</span> <span class="n">audit</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">findings</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span><span class="si">}</span><span class="s2"> residual argh finding(s):</span><span class="se">\n</span><span class="si">{</span><span class="n">format_findings</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

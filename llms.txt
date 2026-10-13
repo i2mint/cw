@@ -8,6 +8,7 @@
 - [cw — your functions, as a command-line tool](index.html.md): def greet(name, &#42;, loudly=False):
 - [API reference](api.html.md): | &#96;cw&#96;   | Tools to wire a string-only environment to a Python function call.   |
 - [cw](_autosummary/cw.html.md): Tools to wire a string-only environment to a Python function call.
+- [cw.audit](_autosummary/cw.audit.html.md): Audit a migrated source tree for what is left of &#96;argh&#96;.
 - [cw.base](_autosummary/cw.base.html.md): The small vocabulary cw’s other modules share: sentinels, errors, and help rendering.
 - [cw.cli](_autosummary/cw.cli.html.md): The argparse surface: building a parser, and running one.
 - [cw.commands](_autosummary/cw.commands.html.md): Turning an object into the &#96;{name: callable}&#96; tree a parser is built from.
@@ -19,7 +20,7 @@
 - [cw.resolution](_autosummary/cw.resolution.html.md): Function resolution utilities for CLI parameterization.
 - [cw.testing](_autosummary/cw.testing.html.md): Record a CLI’s behaviour before a migration and assert it after.
 - [For AI agents](ai-agents.html.md): &#96;cw&#96; ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 17:32 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 23:32 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
 
 ## Optional
 

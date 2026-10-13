@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-13T17:32:18Z",
+  "built_at": "2026-10-13T23:32:23Z",
   "package": {
     "name": "cw",
-    "version": "0.1.9",
+    "version": "0.1.10",
     "display_name": "cw",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "66dfef4a9468ed3ad7b8cea297633138a6ac9543",
-    "short_commit": "66dfef4",
+    "commit": "8078d1a9ec4e8feec67ea1ac57ef1680da8493f7",
+    "short_commit": "8078d1a",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543",
+    "commit_url": "https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "66dfef4a9468ed3ad7b8cea297633138a6ac9543",
+    "sha": "8078d1a9ec4e8feec67ea1ac57ef1680da8493f7",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "38439226228",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/38439226228",
+    "run_id": "38484674380",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/38484674380",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -55,19 +55,21 @@
     "docs_dir": "docsrc"
   },
   "site": {
-    "modules_documented": 11,
-    "objects_documented": 151
+    "modules_documented": 12,
+    "objects_documented": 160
   },
   "pypi": {
     "checked": true,
-    "latest": "0.1.9",
-    "relation": "same",
+    "latest": "0.1.11",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 66dfef4a9468ed3ad7b8cea297633138a6ac9543\npip install \"epythet==0.2.17\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 8078d1a9ec4e8feec67ea1ac57ef1680da8493f7\npip install \"epythet==0.2.17\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.1.10) is behind the latest release on PyPI (0.1.11): `pip install cw` gives newer code than these docs describe."
+    ]
   }
 }

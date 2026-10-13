@@ -5,17 +5,19 @@ orphan: true
 
 # About this build
 
-This documentation was built on **2026-10-13 17:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4</code></a> on branch <code>master</code>, for **cw 0.1.9** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 23:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a</code></a> on branch <code>master</code>, for **cw 0.1.10** (from <code>pyproject.toml</code>).
 
-:::{note}
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+:::{warning}
+The documentation and the package may be misaligned:
+
+- The documented version (0.1.10) is behind the latest release on PyPI (0.1.11): `pip install cw` gives newer code than these docs describe.
 :::
 
 ## Source
 
 | | |
 |---|---|
-| Commit | <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code></a> |
+| Commit | <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code></a> |
 | Branch | <code>master</code> |
 | Tags at this commit | none |
 | Working tree | clean |
@@ -26,9 +28,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 | | |
 |---|---|
 | Repository | <code>i2mint/cw</code> |
-| Run | <a href="https://github.com/i2mint/cw/actions/runs/38439226228">38439226228</a> |
+| Run | <a href="https://github.com/i2mint/cw/actions/runs/38484674380">38484674380</a> |
 | Ref | <code>refs/heads/master</code> |
-| Event commit | <code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code> (in the history of the built commit) |
+| Event commit | <code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -53,13 +55,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.9/">0.1.9</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/cw/0.1.11/">0.1.11</a>, newer than the documented version (0.1.10).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 66dfef4a9468ed3ad7b8cea297633138a6ac9543
+git checkout 8078d1a9ec4e8feec67ea1ac57ef1680da8493f7
 pip install "epythet==0.2.17"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

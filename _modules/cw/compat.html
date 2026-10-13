@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=8618f531"></script>
+    <script src="../../_static/documentation_options.js?v=bafade30"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -410,7 +410,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.9" />
+  <meta name="docsearch:version" content="0.1.10" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -767,7 +767,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">checklist: ``from argh import CommandError``. A module that imported the *name* rather than</span>
 <span class="sd">the module still imports argh after the one-line change, and cw will not catch an exception</span>
 <span class="sd">class it has never heard of, so ``CommandError: boom`` / exit 1 becomes an unhandled</span>
-<span class="sd">traceback. Grep for it.</span>
+<span class="sd">traceback. ``python -m cw audit &lt;path&gt;`` finds it (and every other residual argh import,</span>
+<span class="sd">live ``argh.dispatch*``, and ``argh`` dependency); run it in CI after a migration.</span>
 
 <span class="sd">&gt;&gt;&gt; import io</span>
 <span class="sd">&gt;&gt;&gt; from cw import compat as argh</span>
