@@ -9,6 +9,7 @@ cw.convention
    .. autosummary::
    
       ARGH
+      ARGH_LEGACY
       MODERN
    
    .. rubric:: Classes

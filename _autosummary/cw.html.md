@@ -328,12 +328,13 @@ appears; ADR-0003 extends “overridden” to cover `config` entries too.
 
 #### naming *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'by_name_if_has_default'*
 
-a default makes it an option) or
+a default makes it an option),
 `BY_NAME_IF_KWONLY` (keyword-only makes it an option; a default only makes a
-positional optional).
+positional optional) or `BY_NAME_LEGACY` (argh’s no-policy mode: one of the two
+above, picked per function).
 
 * **Type:**
-  `BY_NAME_IF_HAS_DEFAULT` (argh’s legacy rule
+  `BY_NAME_IF_HAS_DEFAULT` (argh’s explicit rule
 
 #### resolve_hints *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=6e0256f3"></script>
+    <script src="../_static/documentation_options.js?v=ca7ad2ea"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.6" />
+  <meta name="docsearch:version" content="0.1.7" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -460,7 +460,10 @@ whatever you give it straight through, to the top parser and to every subparser.
 <tr class="row-odd"><td><p><a class="reference internal" href="#cw.convention.ARGH" title="cw.convention.ARGH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ARGH</span></code></a></p></td>
 <td><p>argh 0.31.3's grammar, footguns included.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#cw.convention.MODERN" title="cw.convention.MODERN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MODERN</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#cw.convention.ARGH_LEGACY" title="cw.convention.ARGH_LEGACY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ARGH_LEGACY</span></code></a></p></td>
+<td><p>argh's <em>no-policy</em> mode, i.e. what <code class="docutils literal notranslate"><span class="pre">ArghParser().add_commands(funcs)</span></code> builds: <a class="reference internal" href="#cw.convention.ARGH" title="cw.convention.ARGH"><code class="xref py py-data docutils literal notranslate"><span class="pre">ARGH</span></code></a> except that <code class="docutils literal notranslate"><span class="pre">naming</span></code> is <code class="docutils literal notranslate"><span class="pre">BY_NAME_LEGACY</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cw.convention.MODERN" title="cw.convention.MODERN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MODERN</span></code></a></p></td>
 <td><p>The same machinery with the improvements switched on.</p></td>
 </tr>
 </tbody>
@@ -480,13 +483,21 @@ whatever you give it straight through, to the top parser and to every subparser.
 <span class="sig-prename descclassname"><span class="pre">cw.convention.</span></span><span class="sig-name descname"><span class="pre">ARGH</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Convention(naming='by_name_if_has_default',</span> <span class="pre">short_flags=True,</span> <span class="pre">hyphenate_commands=True,</span> <span class="pre">hyphenate_groups=False,</span> <span class="pre">default_in_help=True,</span> <span class="pre">hints_when_declared=False,</span> <span class="pre">resolve_hints=False,</span> <span class="pre">decode=&lt;function</span> <span class="pre">argh_decode&gt;,</span> <span class="pre">egress=&lt;function</span> <span class="pre">argh_egress&gt;)</span></span><a class="headerlink" href="#cw.convention.ARGH" title="Link to this definition">#</a></dt>
 <dd><p>argh 0.31.3’s grammar, footguns included.
 Specifically argh’s <em>explicit</em> <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> (<code class="docutils literal notranslate"><span class="pre">argh.dispatch_commands</span></code>),
-not its no-policy legacy mode (<code class="docutils literal notranslate"><span class="pre">ArghParser().add_commands</span></code>): for a keyword-only
-parameter with no default, use <code class="docutils literal notranslate"><span class="pre">dataclasses.replace(ARGH,</span> <span class="pre">naming=BY_NAME_IF_KWONLY)</span></code>.</p>
+not its no-policy legacy mode (<code class="docutils literal notranslate"><span class="pre">ArghParser().add_commands</span></code>), which is
+<a class="reference internal" href="#cw.convention.ARGH_LEGACY" title="cw.convention.ARGH_LEGACY"><code class="xref py py-data docutils literal notranslate"><span class="pre">ARGH_LEGACY</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>cw’s default in every entry point</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="cw.convention.ARGH_LEGACY">
+<span class="sig-prename descclassname"><span class="pre">cw.convention.</span></span><span class="sig-name descname"><span class="pre">ARGH_LEGACY</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Convention(naming='by_name_legacy',</span> <span class="pre">short_flags=True,</span> <span class="pre">hyphenate_commands=True,</span> <span class="pre">hyphenate_groups=False,</span> <span class="pre">default_in_help=True,</span> <span class="pre">hints_when_declared=False,</span> <span class="pre">resolve_hints=False,</span> <span class="pre">decode=&lt;function</span> <span class="pre">argh_decode&gt;,</span> <span class="pre">egress=&lt;function</span> <span class="pre">argh_egress&gt;)</span></span><a class="headerlink" href="#cw.convention.ARGH_LEGACY" title="Link to this definition">#</a></dt>
+<dd><p>argh’s <em>no-policy</em> mode, i.e. what <code class="docutils literal notranslate"><span class="pre">ArghParser().add_commands(funcs)</span></code> builds:
+<a class="reference internal" href="#cw.convention.ARGH" title="cw.convention.ARGH"><code class="xref py py-data docutils literal notranslate"><span class="pre">ARGH</span></code></a> except that <code class="docutils literal notranslate"><span class="pre">naming</span></code> is <code class="docutils literal notranslate"><span class="pre">BY_NAME_LEGACY</span></code>. <a class="reference internal" href="cw.compat.html#module-cw.compat" title="cw.compat"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cw.compat</span></code></a> uses it
+when an <code class="docutils literal notranslate"><span class="pre">add_commands</span></code> / <code class="docutils literal notranslate"><span class="pre">set_default_command</span></code> call names no policy.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -555,12 +566,13 @@ appears; ADR-0003 extends “overridden” to cover <code class="docutils litera
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cw.convention.Convention.naming">
 <span class="sig-name descname"><span class="pre">naming</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'by_name_if_has_default'</span></span><a class="headerlink" href="#cw.convention.Convention.naming" title="Link to this definition">#</a></dt>
-<dd><p>a default makes it an option) or
+<dd><p>a default makes it an option),
 <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code> (keyword-only makes it an option; a default only makes a
-positional optional).</p>
+positional optional) or <code class="docutils literal notranslate"><span class="pre">BY_NAME_LEGACY</span></code> (argh’s no-policy mode: one of the two
+above, picked per function).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> (argh’s legacy rule</p>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_HAS_DEFAULT</span></code> (argh’s explicit rule</p>
 </dd>
 </dl>
 </dd></dl>
@@ -645,6 +657,7 @@ empty help column – strictly worse than argh, in the value the fleet is told t
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cw.convention.ARGH"><code class="docutils literal notranslate"><span class="pre">ARGH</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cw.convention.ARGH_LEGACY"><code class="docutils literal notranslate"><span class="pre">ARGH_LEGACY</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cw.convention.Convention"><code class="docutils literal notranslate"><span class="pre">Convention</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cw.convention.Convention.decode"><code class="docutils literal notranslate"><span class="pre">Convention.decode()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cw.convention.Convention.default_in_help"><code class="docutils literal notranslate"><span class="pre">Convention.default_in_help</span></code></a></li>

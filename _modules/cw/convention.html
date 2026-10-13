@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=6e0256f3"></script>
+    <script src="../../_static/documentation_options.js?v=ca7ad2ea"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -410,7 +410,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.6" />
+  <meta name="docsearch:version" content="0.1.7" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -782,6 +782,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BY_NAME_IF_HAS_DEFAULT</span><span class="p">,</span>
     <span class="n">BY_NAME_IF_KWONLY</span><span class="p">,</span>
+    <span class="n">BY_NAME_LEGACY</span><span class="p">,</span>
     <span class="n">argh_decode</span><span class="p">,</span>
     <span class="n">modern_decode</span><span class="p">,</span>
 <span class="p">)</span>
@@ -789,9 +790,11 @@ window.runMermaid = runMermaid;</script>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"Convention"</span><span class="p">,</span>
     <span class="s2">"ARGH"</span><span class="p">,</span>
+    <span class="s2">"ARGH_LEGACY"</span><span class="p">,</span>
     <span class="s2">"MODERN"</span><span class="p">,</span>
     <span class="s2">"BY_NAME_IF_HAS_DEFAULT"</span><span class="p">,</span>
     <span class="s2">"BY_NAME_IF_KWONLY"</span><span class="p">,</span>
+    <span class="s2">"BY_NAME_LEGACY"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -810,9 +813,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    True</span>
 <span class="sd">    """</span>
 
-    <span class="c1">#: ``BY_NAME_IF_HAS_DEFAULT`` (argh's legacy rule: a default makes it an option) or</span>
+    <span class="c1">#: ``BY_NAME_IF_HAS_DEFAULT`` (argh's explicit rule: a default makes it an option),</span>
     <span class="c1">#: ``BY_NAME_IF_KWONLY`` (keyword-only makes it an option; a default only makes a</span>
-    <span class="c1">#: positional optional).</span>
+    <span class="c1">#: positional optional) or ``BY_NAME_LEGACY`` (argh's no-policy mode: one of the two</span>
+    <span class="c1">#: above, picked per function).</span>
     <span class="n">naming</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BY_NAME_IF_HAS_DEFAULT</span>
     <span class="c1">#: Infer ``-x`` from a parameter's first character -- suppressed when two parameters</span>
     <span class="c1">#: share one, and always lost to ``--help`` for ``h``.</span>
@@ -840,9 +844,14 @@ window.runMermaid = runMermaid;</script>
 
 <span class="c1">#: cw's default in every entry point: argh 0.31.3's grammar, footguns included.</span>
 <span class="c1">#: Specifically argh's *explicit* ``BY_NAME_IF_HAS_DEFAULT`` (``argh.dispatch_commands``),</span>
-<span class="c1">#: not its no-policy legacy mode (``ArghParser().add_commands``): for a keyword-only</span>
-<span class="c1">#: parameter with no default, use ``dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)``.</span>
+<span class="c1">#: not its no-policy legacy mode (``ArghParser().add_commands``), which is</span>
+<span class="c1">#: :data:`ARGH_LEGACY`.</span>
 <span class="n">ARGH</span> <span class="o">=</span> <span class="n">Convention</span><span class="p">()</span>
+
+<span class="c1">#: argh's *no-policy* mode, i.e. what ``ArghParser().add_commands(funcs)`` builds:</span>
+<span class="c1">#: :data:`ARGH` except that ``naming`` is ``BY_NAME_LEGACY``. :mod:`cw.compat` uses it</span>
+<span class="c1">#: when an ``add_commands`` / ``set_default_command`` call names no policy.</span>
+<span class="n">ARGH_LEGACY</span> <span class="o">=</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">ARGH</span><span class="p">,</span> <span class="n">naming</span><span class="o">=</span><span class="n">BY_NAME_LEGACY</span><span class="p">)</span>
 
 <span class="c1">#: The same machinery with the improvements switched on. ``naming`` follows parameter</span>
 <span class="c1">#: kind rather than the presence of a default, annotations are actually resolved and</span>

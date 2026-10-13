@@ -245,7 +245,7 @@ This reproduces argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` – what
 `argh.dispatch_commands` uses – not argh’s no-policy mode (`ArghParser().add_commands`
 with no `name_mapping_policy`). The two differ for a keyword-only parameter with no
 default: this policy makes it a positional, the no-policy mode makes it a required
-option. For code that used the no-policy mode, `BY_NAME_IF_KWONLY` is the match.
+option. For code that used the no-policy mode, `BY_NAME_LEGACY` is the match.
 
 ### cw.grammar.BY_NAME_IF_KWONLY *= 'by_name_if_kwonly'*
 

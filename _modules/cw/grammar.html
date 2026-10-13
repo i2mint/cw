@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=6e0256f3"></script>
+    <script src="../../_static/documentation_options.js?v=ca7ad2ea"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -410,7 +410,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.6" />
+  <meta name="docsearch:version" content="0.1.7" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -796,12 +796,21 @@ window.runMermaid = runMermaid;</script>
 <span class="c1">#: ``argh.dispatch_commands`` uses -- not argh's no-policy mode (``ArghParser().add_commands``</span>
 <span class="c1">#: with no ``name_mapping_policy``). The two differ for a keyword-only parameter with no</span>
 <span class="c1">#: default: this policy makes it a positional, the no-policy mode makes it a required</span>
-<span class="c1">#: option. For code that used the no-policy mode, ``BY_NAME_IF_KWONLY`` is the match.</span>
+<span class="c1">#: option. For code that used the no-policy mode, ``BY_NAME_LEGACY`` is the match.</span>
 <span class="n">BY_NAME_IF_HAS_DEFAULT</span> <span class="o">=</span> <span class="s2">"by_name_if_has_default"</span>
 
 <span class="c1">#: A parameter is named on the command line iff it is keyword-only. Position and</span>
 <span class="c1">#: optionality become independent, which is what most people expect.</span>
 <span class="n">BY_NAME_IF_KWONLY</span> <span class="o">=</span> <span class="s2">"by_name_if_kwonly"</span>
+
+<span class="c1">#: argh's *no-policy* mode (``ArghParser().add_commands(funcs)`` with no</span>
+<span class="c1">#: ``name_mapping_policy``), which is neither of the above but decides **per function**:</span>
+<span class="c1">#: a function with a defaulted positional parameter is read as ``BY_NAME_IF_HAS_DEFAULT``;</span>
+<span class="c1">#: any other function (required positionals and/or keyword-only parameters) as</span>
+<span class="c1">#: ``BY_NAME_IF_KWONLY``. (argh *raises* for a function that has both a defaulted</span>
+<span class="c1">#: positional and a keyword-only parameter; cw does not, and reads it as</span>
+<span class="c1">#: ``BY_NAME_IF_HAS_DEFAULT``, which is what argh's own error message says to set.)</span>
+<span class="n">BY_NAME_LEGACY</span> <span class="o">=</span> <span class="s2">"by_name_legacy"</span>
 
 <span class="c1">#: The types argh's annotation guesser recognises as scalars. Nothing more, because argh</span>
 <span class="c1">#: has nothing more.</span>
@@ -1392,6 +1401,32 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">raw</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_names_by_default</span><span class="p">(</span><span class="n">naming</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Signature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Whether a positional-or-keyword parameter with a default is named (an option).</span>
+
+<span class="sd">    &gt;&gt;&gt; import inspect</span>
+<span class="sd">    &gt;&gt;&gt; sig = lambda f: inspect.signature(f)</span>
+<span class="sd">    &gt;&gt;&gt; _names_by_default(BY_NAME_IF_HAS_DEFAULT, sig(lambda x, y=1: 0))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _names_by_default(BY_NAME_IF_KWONLY, sig(lambda x, y=1: 0))</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; _names_by_default(BY_NAME_LEGACY, sig(lambda x, y=1: 0))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; _names_by_default(BY_NAME_LEGACY, sig(lambda x, *, y: 0))</span>
+<span class="sd">    False</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">naming</span> <span class="o">==</span> <span class="n">BY_NAME_LEGACY</span><span class="p">:</span>
+        <span class="n">positional</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_ONLY</span><span class="p">,</span>
+            <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">POSITIONAL_OR_KEYWORD</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="n">positional</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">empty</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">naming</span> <span class="o">==</span> <span class="n">BY_NAME_IF_HAS_DEFAULT</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_infer_specs</span><span class="p">(</span>
     <span class="n">func</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="o">/</span><span class="p">,</span>
@@ -1421,7 +1456,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="n">collisions</span> <span class="o">=</span> <span class="n">_short_flag_collisions</span><span class="p">(</span><span class="n">signature</span><span class="p">)</span>
     <span class="n">hints</span> <span class="o">=</span> <span class="n">_hints_of</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">resolve</span><span class="o">=</span><span class="n">convention</span><span class="o">.</span><span class="n">resolve_hints</span><span class="p">)</span> <span class="k">if</span> <span class="n">use_hints</span> <span class="k">else</span> <span class="p">{}</span>
-    <span class="n">by_name</span> <span class="o">=</span> <span class="n">convention</span><span class="o">.</span><span class="n">naming</span> <span class="o">==</span> <span class="n">BY_NAME_IF_HAS_DEFAULT</span>
+    <span class="n">by_name</span> <span class="o">=</span> <span class="n">_names_by_default</span><span class="p">(</span><span class="n">convention</span><span class="o">.</span><span class="n">naming</span><span class="p">,</span> <span class="n">signature</span><span class="p">)</span>
     <span class="n">specs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ArgSpec</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">signature</span><span class="o">.</span><span class="n">parameters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>

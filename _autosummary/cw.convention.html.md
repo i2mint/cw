@@ -73,9 +73,10 @@ whatever you give it straight through, to the top parser and to every subparser.
 
 ### Module Attributes
 
-| [`ARGH`](#cw.convention.ARGH)   | argh 0.31.3's grammar, footguns included.             |
-|---------------------------------------------------------|-------------------------------------------------------|
-| [`MODERN`](#cw.convention.MODERN) | The same machinery with the improvements switched on. |
+| [`ARGH`](#cw.convention.ARGH)        | argh 0.31.3's grammar, footguns included.                                                                                                                                     |
+|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [`ARGH_LEGACY`](#cw.convention.ARGH_LEGACY) | argh's *no-policy* mode, i.e. what `ArghParser().add_commands(funcs)` builds: [`ARGH`](#cw.convention.ARGH) except that `naming` is `BY_NAME_LEGACY`. |
+| [`MODERN`](#cw.convention.MODERN)      | The same machinery with the improvements switched on.                                                                                                                         |
 
 ### Classes
 
@@ -86,11 +87,17 @@ whatever you give it straight through, to the top parser and to every subparser.
 
 argh 0.31.3’s grammar, footguns included.
 Specifically argh’s *explicit* `BY_NAME_IF_HAS_DEFAULT` (`argh.dispatch_commands`),
-not its no-policy legacy mode (`ArghParser().add_commands`): for a keyword-only
-parameter with no default, use `dataclasses.replace(ARGH, naming=BY_NAME_IF_KWONLY)`.
+not its no-policy legacy mode (`ArghParser().add_commands`), which is
+[`ARGH_LEGACY`](#cw.convention.ARGH_LEGACY).
 
 * **Type:**
   cw’s default in every entry point
+
+### cw.convention.ARGH_LEGACY *= Convention(naming='by_name_legacy', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>)*
+
+argh’s *no-policy* mode, i.e. what `ArghParser().add_commands(funcs)` builds:
+[`ARGH`](#cw.convention.ARGH) except that `naming` is `BY_NAME_LEGACY`. [`cw.compat`](cw.compat.html.md#module-cw.compat) uses it
+when an `add_commands` / `set_default_command` call names no policy.
 
 ### *class* cw.convention.Convention(naming='by_name_if_has_default', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>)
 
@@ -142,12 +149,13 @@ appears; ADR-0003 extends “overridden” to cover `config` entries too.
 
 #### naming *: [str](https://docs.python.org/3/builtins/stdtypes.html#str)* *= 'by_name_if_has_default'*
 
-a default makes it an option) or
+a default makes it an option),
 `BY_NAME_IF_KWONLY` (keyword-only makes it an option; a default only makes a
-positional optional).
+positional optional) or `BY_NAME_LEGACY` (argh’s no-policy mode: one of the two
+above, picked per function).
 
 * **Type:**
-  `BY_NAME_IF_HAS_DEFAULT` (argh’s legacy rule
+  `BY_NAME_IF_HAS_DEFAULT` (argh’s explicit rule
 
 #### resolve_hints *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
