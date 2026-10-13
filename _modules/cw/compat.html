@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=22607128"></script>
+    <script src="../../_static/documentation_options.js?v=8618f531"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -410,7 +410,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.8" />
+  <meta name="docsearch:version" content="0.1.9" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -915,13 +915,43 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    True</span>
 <span class="sd">    &gt;&gt;&gt; _convention_for(NameMappingPolicy.BY_NAME_IF_KWONLY).naming</span>
 <span class="sd">    'by_name_if_kwonly'</span>
+
+<span class="sd">    argh's own enum (whose values are sentences) is read by member *name*, so a repo that</span>
+<span class="sd">    kept an ``argh.assembling`` import for the enum gets the policy it asked for:</span>
+
+<span class="sd">    &gt;&gt;&gt; import types</span>
+<span class="sd">    &gt;&gt;&gt; theirs = types.SimpleNamespace(name='BY_NAME_IF_HAS_DEFAULT', value='specify ...')</span>
+<span class="sd">    &gt;&gt;&gt; _convention_for(theirs).naming</span>
+<span class="sd">    'by_name_if_has_default'</span>
+
+<span class="sd">    Anything else is an error, not a silent fall-through to keyword-only:</span>
+
+<span class="sd">    &gt;&gt;&gt; _convention_for('by name if you like')</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">      ...</span>
+<span class="sd">    ValueError: Unknown name_mapping_policy 'by name if you like'; expected a NameMappingPolicy member or one of ('by_name_if_has_default', 'by_name_if_kwonly', 'by_name_legacy')</span>
 <span class="sd">    """</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 
     <span class="k">if</span> <span class="n">name_mapping_policy</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">default</span> <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cw</span><span class="o">.</span><span class="n">ARGH</span>
-    <span class="n">naming</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="n">name_mapping_policy</span><span class="p">)</span>
+    <span class="n">naming</span> <span class="o">=</span> <span class="n">_naming_of</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">ARGH</span><span class="p">,</span> <span class="n">naming</span><span class="o">=</span><span class="n">naming</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_naming_of</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The cw ``naming`` string for a policy: our enum, argh's enum (by name), or a naming string."""</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NAMINGS</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name_mapping_policy</span> <span class="ow">in</span> <span class="n">_NAMINGS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="n">name_mapping_policy</span><span class="p">))</span>
+    <span class="n">member</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">name_mapping_policy</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">NameMappingPolicy</span><span class="o">.</span><span class="n">__members__</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">NameMappingPolicy</span><span class="p">[</span><span class="n">member</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Unknown name_mapping_policy </span><span class="si">{</span><span class="n">name_mapping_policy</span><span class="si">!r}</span><span class="s2">; expected a "</span>
+        <span class="sa">f</span><span class="s2">"NameMappingPolicy member or one of </span><span class="si">{</span><span class="n">_NAMINGS</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_split_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
@@ -1019,8 +1049,8 @@ window.runMermaid = runMermaid;</script>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""argh's ``dispatch_commands``: build a parser for ``functions`` and run it.</span>
 
-<span class="sd">    The fleet's most-used argh name (34 call sites). Unlike argh's, a usage error still</span>
-<span class="sd">    exits 2 rather than 0. ``old_name_mapping_policy=False`` selects</span>
+<span class="sd">    The fleet's most-used argh name (34 call sites). A usage error exits 2,</span>
+<span class="sd">    as in argh. ``old_name_mapping_policy=False`` selects</span>
 <span class="sd">    ``BY_NAME_IF_KWONLY``, as in argh; an explicit ``name_mapping_policy`` overrides it.</span>
 
 <span class="sd">    &gt;&gt;&gt; import io</span>

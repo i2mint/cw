@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=22607128"></script>
+    <script src="../_static/documentation_options.js?v=8618f531"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.8" />
+  <meta name="docsearch:version" content="0.1.9" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -731,8 +731,8 @@ is argh’s and cw’s default, <code class="docutils literal notranslate"><span
 <dt class="sig sig-object py" id="cw.compat.dispatch_commands">
 <span class="sig-prename descclassname"><span class="pre">cw.compat.</span></span><span class="sig-name descname"><span class="pre">dispatch_commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_name_mapping_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/compat.html#dispatch_commands"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.compat.dispatch_commands" title="Link to this definition">#</a></dt>
 <dd><p>argh’s <code class="docutils literal notranslate"><span class="pre">dispatch_commands</span></code>: build a parser for <code class="docutils literal notranslate"><span class="pre">functions</span></code> and run it.</p>
-<p>The fleet’s most-used argh name (34 call sites). Unlike argh’s, a usage error still
-exits 2 rather than 0. <code class="docutils literal notranslate"><span class="pre">old_name_mapping_policy=False</span></code> selects
+<p>The fleet’s most-used argh name (34 call sites). A usage error exits 2,
+as in argh. <code class="docutils literal notranslate"><span class="pre">old_name_mapping_policy=False</span></code> selects
 <code class="docutils literal notranslate"><span class="pre">BY_NAME_IF_KWONLY</span></code>, as in argh; an explicit <code class="docutils literal notranslate"><span class="pre">name_mapping_policy</span></code> overrides it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>

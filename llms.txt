@@ -19,7 +19,7 @@
 - [cw.resolution](_autosummary/cw.resolution.html.md): Function resolution utilities for CLI parameterization.
 - [cw.testing](_autosummary/cw.testing.html.md): Record a CLI’s behaviour before a migration and assert it after.
 - [For AI agents](ai-agents.html.md): &#96;cw&#96; ships artifacts for coding agents alongside its code. This page lists
-- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 16:09 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
+- [About this build](about-this-build.html.md): This documentation was built on &#42;&#42;2026-10-13 17:32 UTC&#42;&#42; from commit &lt;a href="https://github.com/i2m...
 
 ## Optional
 

@@ -1,4 +1,4 @@
-> built 2026-10-13 16:09 UTC from 46b674e (master) · cw 0.1.8. Details: build_info.json
+> built 2026-10-13 17:32 UTC from 66dfef4 (master) · cw 0.1.9. Details: build_info.json
 
 # index.html.md
 
@@ -1642,8 +1642,8 @@ is argh’s and cw’s default, `BY_NAME_IF_HAS_DEFAULT`); an explicit
 
 argh’s `dispatch_commands`: build a parser for `functions` and run it.
 
-The fleet’s most-used argh name (34 call sites). Unlike argh’s, a usage error still
-exits 2 rather than 0. `old_name_mapping_policy=False` selects
+The fleet’s most-used argh name (34 call sites). A usage error exits 2,
+as in argh. `old_name_mapping_policy=False` selects
 `BY_NAME_IF_KWONLY`, as in argh; an explicit `name_mapping_policy` overrides it.
 
 * **Return type:**
@@ -4795,7 +4795,7 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-10-13 16:09 UTC** from commit <a href="https://github.com/i2mint/cw/commit/46b674ee8a5be7c352884cd73e47bdc4b3531084"><code>46b674e</code></a> on branch <code>master</code>, for **cw 0.1.8** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-13 17:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4</code></a> on branch <code>master</code>, for **cw 0.1.9** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -4804,7 +4804,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/46b674ee8a5be7c352884cd73e47bdc4b3531084"><code>46b674ee8a5be7c352884cd73e47bdc4b3531084</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/66dfef4a9468ed3ad7b8cea297633138a6ac9543"><code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -4815,9 +4815,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38427915872">38427915872</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38439226228">38439226228</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>46b674ee8a5be7c352884cd73e47bdc4b3531084</code> (in the history of the built commit) |
+| Event commit | <code>66dfef4a9468ed3ad7b8cea297633138a6ac9543</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -4842,13 +4842,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.8/">0.1.8</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/cw/0.1.9/">0.1.9</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 46b674ee8a5be7c352884cd73e47bdc4b3531084
+git checkout 66dfef4a9468ed3ad7b8cea297633138a6ac9543
 pip install "epythet==0.2.17"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

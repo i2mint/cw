@@ -297,8 +297,8 @@ is argh’s and cw’s default, `BY_NAME_IF_HAS_DEFAULT`); an explicit
 
 argh’s `dispatch_commands`: build a parser for `functions` and run it.
 
-The fleet’s most-used argh name (34 call sites). Unlike argh’s, a usage error still
-exits 2 rather than 0. `old_name_mapping_policy=False` selects
+The fleet’s most-used argh name (34 call sites). A usage error exits 2,
+as in argh. `old_name_mapping_policy=False` selects
 `BY_NAME_IF_KWONLY`, as in argh; an explicit `name_mapping_policy` overrides it.
 
 * **Return type:**
