@@ -134,3 +134,24 @@ def test_explicit_policies_are_unchanged(signature):
         )
         argh.add_commands(theirs, [func], name_mapping_policy=policy)
         assert render_help(_sub(parser)) == render_help(_sub(theirs))
+
+
+@pytest.mark.parametrize("signature", ["x, y=1", "*, k", "x, *, k, d=2"])
+def test_argh_own_enum_is_read_by_name(signature):
+    """Passing argh's own ``NameMappingPolicy`` (not cw.compat's) gives argh's grammar."""
+    func = make(signature)
+    for policy in NameMappingPolicy:
+        parser = argparse.ArgumentParser(
+            prog="prog", formatter_class=argh.PARSER_FORMATTER
+        )
+        compat.add_commands(parser, [func], name_mapping_policy=policy)
+        theirs = argparse.ArgumentParser(
+            prog="prog", formatter_class=argh.PARSER_FORMATTER
+        )
+        argh.add_commands(theirs, [func], name_mapping_policy=policy)
+        assert render_help(_sub(parser)) == render_help(_sub(theirs))
+
+
+def test_unknown_policy_raises():
+    with pytest.raises(ValueError, match="Unknown name_mapping_policy"):
+        compat.dispatch_command(lambda a, b=1: 0, ["--help"], name_mapping_policy="nope")

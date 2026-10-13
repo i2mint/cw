@@ -99,6 +99,8 @@ BY_NAME_IF_KWONLY = "by_name_if_kwonly"
 #: ``BY_NAME_IF_HAS_DEFAULT``, which is what argh's own error message says to set.)
 BY_NAME_LEGACY = "by_name_legacy"
 
+_NAMINGS = (BY_NAME_IF_HAS_DEFAULT, BY_NAME_IF_KWONLY, BY_NAME_LEGACY)
+
 #: The types argh's annotation guesser recognises as scalars. Nothing more, because argh
 #: has nothing more.
 BASIC_TYPES = (str, int, float, bool)
@@ -671,7 +673,13 @@ def _names_by_default(naming: str, signature: inspect.Signature) -> bool:
     True
     >>> _names_by_default(BY_NAME_LEGACY, sig(lambda x, *, y: 0))
     False
+    >>> _names_by_default('by name, if you like', sig(lambda x, y=1: 0))
+    Traceback (most recent call last):
+      ...
+    ValueError: Unknown naming policy 'by name, if you like'; expected one of ('by_name_if_has_default', 'by_name_if_kwonly', 'by_name_legacy')
     """
+    if naming not in _NAMINGS:
+        raise ValueError(f"Unknown naming policy {naming!r}; expected one of {_NAMINGS}")
     if naming == BY_NAME_LEGACY:
         positional = (
             inspect.Parameter.POSITIONAL_ONLY,
