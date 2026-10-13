@@ -24,6 +24,14 @@ from cw.audit import (
 REPO = Path(__file__).resolve().parents[1]
 
 
+def _symlink(link, target, *, directory=False):
+    """Make a symlink, or skip the test where the platform will not (Windows w/o privilege)."""
+    try:
+        link.symlink_to(target, target_is_directory=directory)
+    except (OSError, NotImplementedError):
+        pytest.skip("symlinks are not available here")
+
+
 def codes(source):
     return [f.code for f in audit_source(textwrap.dedent(source))]
 
@@ -384,7 +392,7 @@ class TestReviewRegressions:
 
     def test_symlinked_directories_are_not_followed(self, tmp_path):
         (tmp_path / "m.py").write_text("import argh\n")
-        (tmp_path / "loop").symlink_to(tmp_path, target_is_directory=True)
+        _symlink(tmp_path / "loop", tmp_path, directory=True)
         assert len(audit(tmp_path)) == 1
 
     def test_a_missing_path_is_a_clear_error(self, tmp_path):
@@ -500,7 +508,7 @@ class TestSecondReviewRegressions:
         }
 
     def test_a_dangling_symlink_is_skipped(self, tmp_path):
-        (tmp_path / "gone.py").symlink_to(tmp_path / "missing.py")
+        _symlink(tmp_path / "gone.py", tmp_path / "missing.py")
         assert audit(tmp_path) == []
 
     def test_command_error_through_an_attribute_chain(self):

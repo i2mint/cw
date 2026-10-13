@@ -708,7 +708,7 @@ def _walk(
 
 
 def _unreadable(path: Path, base: Path, exc: OSError) -> Finding:
-    shown = str(path.relative_to(base)) if path != base else str(path)
+    shown = path.relative_to(base).as_posix() if path != base else str(path)
     return Finding(shown, 1, "unparsable", f"cannot read: {exc.strerror or exc}")
 
 
@@ -765,7 +765,7 @@ def audit(
     )
     for file in walk:
         relative = file.relative_to(base)
-        shown = str(relative)
+        shown = relative.as_posix()
         is_python = file.suffix in (".py", ".pyi")
         is_metadata = file.name in _REQUIREMENT_FILES or _is_requirements_file(file)
         if not (is_python or is_metadata):
