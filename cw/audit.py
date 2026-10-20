@@ -846,7 +846,9 @@ def audit(
         is_metadata = file.name in _REQUIREMENT_FILES or _is_requirements_file(file)
         is_python = (
             file.suffix in _PYTHON_SUFFIXES
-            or (file == root and not is_metadata)  # a named file is audited, whatever its suffix
+            or (
+                file == root and not is_metadata
+            )  # a named file is audited, whatever its suffix
             or (not file.suffix and not is_metadata and _has_python_shebang(file))
         )
         if not (is_python or is_metadata):
