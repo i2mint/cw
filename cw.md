@@ -1,4 +1,4 @@
-> built 2026-10-20 04:15 UTC from 4b7dc92 (master) · cw 0.1.12. Details: build_info.json
+> built 2026-10-20 06:40 UTC from 751854a (master) · cw 0.1.13. Details: build_info.json
 
 # index.html.md
 
@@ -641,8 +641,9 @@ Five checks, each with a stable code:
   `if __name__ == "__main__"` (which looks dead and is not: `python -m pkg.mod` runs it).
 
 `dependency`
-: `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` /
-  `requirements*.txt` (the licence-exposure-only case when nothing imports it).
+: `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` / `Pipfile` /
+  `tox.ini` / `environment.yml` / `requirements*.txt` / `requirements*.lock`
+  (also as a direct wheel or sdist link; the licence-exposure-only case when nothing imports it).
 
 `discarded-exit`
 : `cw.dispatch(...)` as a bare statement. cw *returns* the exit code where argh exited
@@ -697,12 +698,12 @@ def test_no_residual_argh():
 
 ### Functions
 
-| [`audit`](_autosummary/cw.audit.html.md#cw.audit.audit)([path, exclude_dirs, exclude_top_dirs])   | Audit a file or a source tree; return every residual `argh` finding.       |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`audit_source`](_autosummary/cw.audit.html.md#cw.audit.audit_source)(source, \*[, path])                | Findings for one Python source (text or bytes), sorted by line.            |
-| [`audit_dependencies`](_autosummary/cw.audit.html.md#cw.audit.audit_dependencies)(text, \*[, path, always])    | Findings for `argh` declared as a requirement in one metadata file's text. |
-| [`format_findings`](_autosummary/cw.audit.html.md#cw.audit.format_findings)(findings)                       | The report: one `path:line: code: message` per finding, or the all-clear.  |
-| [`assert_no_argh`](_autosummary/cw.audit.html.md#cw.audit.assert_no_argh)([path])                          | Raise `AssertionError` listing every residual `argh` under `path`.         |
+| [`audit`](_autosummary/cw.audit.html.md#cw.audit.audit)([path, exclude_dirs, exclude_top_dirs])     | Audit a file or a source tree; return every residual `argh` finding.       |
+|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`audit_source`](_autosummary/cw.audit.html.md#cw.audit.audit_source)(source, \*[, path])                  | Findings for one Python source (text or bytes), sorted by line.            |
+| [`audit_dependencies`](_autosummary/cw.audit.html.md#cw.audit.audit_dependencies)(text, \*[, path, always, ...]) | Findings for `argh` declared as a requirement in one metadata file's text. |
+| [`format_findings`](_autosummary/cw.audit.html.md#cw.audit.format_findings)(findings)                         | The report: one `path:line: code: message` per finding, or the all-clear.  |
+| [`assert_no_argh`](_autosummary/cw.audit.html.md#cw.audit.assert_no_argh)([path])                            | Raise `AssertionError` listing every residual `argh` under `path`.         |
 
 ### Classes
 
@@ -769,11 +770,13 @@ relative to `path` when it is a directory. A file that cannot be read or parsed 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](_autosummary/cw.audit.html.md#cw.audit.Finding)]
 
-### cw.audit.audit_dependencies(text, , path='<string>', always=False)
+### cw.audit.audit_dependencies(text, , path='<string>', always=False, pipfile=False, conda=False)
 
 Findings for `argh` declared as a requirement in one metadata file’s text.
 
-`always` treats every line as a candidate (a `requirements.txt`).
+`always` treats every line as a candidate (a `requirements.txt`); `pipfile` reads
+`[packages]` / `[dev-packages]` tables; `conda` reads `- argh` list entries
+(an `environment.yml`, including its nested `- pip:` list).
 
 ```pycon
 >>> text = '[project]\nname = "argh"\ndependencies = ["argh>=0.31", "x"]\n'
@@ -789,6 +792,12 @@ Findings for `argh` declared as a requirement in one metadata file’s text.
 [2]
 >>> [f.line for f in audit_dependencies("[options]\ninstall_requires = argh")]
 [2]
+>>> [f.line for f in audit_dependencies('[packages]\nargh = "*"', pipfile=True)]
+[2]
+>>> [f.line for f in audit_dependencies("dependencies:\n  - argh=0.26\n  - x", conda=True)]
+[2]
+>>> [f.line for f in audit_dependencies("https://h/argh-0.26-py3-none-any.whl", always=True)]
+[1]
 ```
 
 * **Return type:**
@@ -5059,16 +5068,18 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-10-20 04:15 UTC** from commit <a href="https://github.com/i2mint/cw/commit/4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b"><code>4b7dc92</code></a> on branch <code>master</code>, for **cw 0.1.12** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-20 06:40 UTC** from commit <a href="https://github.com/i2mint/cw/commit/751854a6b6097891166265ac7294224f292feb71"><code>751854a</code></a> on branch <code>master</code>, for **cw 0.1.13** (from <code>pyproject.toml</code>).
 
-#### NOTE
-Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
+#### WARNING
+The documentation and the package may be misaligned:
+
+- The documented version (0.1.13) is behind the latest release on PyPI (0.1.14): `pip install cw` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b"><code>4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/751854a6b6097891166265ac7294224f292feb71"><code>751854a6b6097891166265ac7294224f292feb71</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -5079,9 +5090,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/39368480816">39368480816</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/39381622218">39381622218</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b</code> (in the history of the built commit) |
+| Event commit | <code>751854a6b6097891166265ac7294224f292feb71</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -5106,13 +5117,13 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.12/">0.1.12</a>, the same as the documented version.
+Latest release: <a href="https://pypi.org/project/cw/0.1.14/">0.1.14</a>, newer than the documented version (0.1.13).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b
+git checkout 751854a6b6097891166265ac7294224f292feb71
 pip install "epythet==0.2.18"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

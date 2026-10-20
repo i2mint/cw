@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=297ad043"></script>
+    <script src="../../_static/documentation_options.js?v=8d02545a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -411,7 +411,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.12" />
+  <meta name="docsearch:version" content="0.1.13" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -734,8 +734,9 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    A live ``argh.dispatch*`` / ``ArghParser`` / ``EntryPoint`` call, including under</span>
 <span class="sd">    ``if __name__ == "__main__"`` (which looks dead and is not: ``python -m pkg.mod`` runs it).</span>
 <span class="sd">``dependency``</span>
-<span class="sd">    ``argh`` declared in ``pyproject.toml`` / ``setup.cfg`` / ``setup.py`` /</span>
-<span class="sd">    ``requirements*.txt`` (the licence-exposure-only case when nothing imports it).</span>
+<span class="sd">    ``argh`` declared in ``pyproject.toml`` / ``setup.cfg`` / ``setup.py`` / ``Pipfile`` /</span>
+<span class="sd">    ``tox.ini`` / ``environment.yml`` / ``requirements*.txt`` / ``requirements*.lock``</span>
+<span class="sd">    (also as a direct wheel or sdist link; the licence-exposure-only case when nothing imports it).</span>
 <span class="sd">``discarded-exit``</span>
 <span class="sd">    ``cw.dispatch(...)`` as a bare statement. cw *returns* the exit code where argh exited</span>
 <span class="sd">    itself, so dropping it turns every non-zero exit into 0. Calls that pass ``out=`` /</span>
@@ -863,8 +864,12 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">"dependency_groups"</span><span class="p">,</span>
         <span class="s2">"pypi_dependencies"</span><span class="p">,</span>
         <span class="s2">"requires_extra"</span><span class="p">,</span>
+        <span class="s2">"deps"</span><span class="p">,</span>  <span class="c1"># tox.ini</span>
     <span class="p">}</span>
 <span class="p">)</span>
+
+<span class="c1">#: Pipfile's tables of requirements (the keys of a Pipfile are the package names).</span>
+<span class="n">_PIPFILE_KEYS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"packages"</span><span class="p">,</span> <span class="s2">"dev_packages"</span><span class="p">})</span>
 
 <span class="c1">#: Tables whose *keys* are names of extras / groups, not of packages (``argh = ["cw"]``).</span>
 <span class="n">_GROUP_TABLES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
@@ -877,11 +882,19 @@ window.runMermaid = runMermaid;</script>
 <span class="n">_EGG</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">".*[#&amp;]egg=argh(?:-\d[\w.]*)?(?:&amp;.*)?"</span>
 <span class="c1">#: Quoted (pyproject, setup.py) anywhere on a line; bare (setup.cfg, requirements) as the line.</span>
 <span class="n">_QUOTED_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"""["']\s*</span><span class="si">{</span><span class="n">_SPEC</span><span class="si">}</span><span class="s2">["']"""</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
-<span class="n">_BARE_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"^(?:</span><span class="si">{</span><span class="n">_SPEC</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_EGG</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="c1">#: A direct link to an argh wheel or sdist (``https://.../argh-0.26.2-py2.py3-none-any.whl``).</span>
+<span class="n">_ARCHIVE</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(?:.*[/</span><span class="se">\\</span><span class="s2">])?argh-\d[^/</span><span class="se">\\</span><span class="s2">]*?\.(?:whl|tar\.gz|zip)(?:[#?].*)?"</span>
+<span class="n">_BARE_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">rf</span><span class="s2">"^(?:</span><span class="si">{</span><span class="n">_SPEC</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_EGG</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">_ARCHIVE</span><span class="si">}</span><span class="s2">)$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+<span class="c1">#: A conda ``environment.yml`` entry: ``- argh``, ``- conda-forge::argh=0.26``.</span>
+<span class="n">_CONDA_REQUIREMENT</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">"^-\s+(?:[\w.-]+::)?argh(?![-_.\w])\s*(?:[&lt;&gt;=!~].*)?$"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span>
+<span class="p">)</span>
+<span class="c1">#: ``:python_version&lt;"3.8" = argh`` -- an extras key that is only an environment marker.</span>
+<span class="n">_MARKER_KEY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\s*([\w.-]*:[^=]*?)\s*=\s*(.*)$"</span><span class="p">)</span>
 <span class="c1">#: ``{ argh = "^1" }`` -- a Poetry inline table.</span>
 <span class="n">_INLINE_ARGH</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[{,]\s*argh\s*="</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
 <span class="n">_PYTHON_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">".py"</span><span class="p">,</span> <span class="s2">".pyi"</span><span class="p">,</span> <span class="s2">".pyw"</span><span class="p">)</span>
-<span class="n">_REQUIREMENT_FILES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pyproject.toml"</span><span class="p">,</span> <span class="s2">"setup.cfg"</span><span class="p">,</span> <span class="s2">"setup.py"</span><span class="p">)</span>
+<span class="n">_REQUIREMENT_FILES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pyproject.toml"</span><span class="p">,</span> <span class="s2">"setup.cfg"</span><span class="p">,</span> <span class="s2">"setup.py"</span><span class="p">,</span> <span class="s2">"tox.ini"</span><span class="p">,</span> <span class="s2">"Pipfile"</span><span class="p">)</span>
 <span class="n">_KEY</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*[=:](?![=/])\s*(.*)$"</span><span class="p">)</span>
 <span class="n">_HEADER</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"""^\[+\s*([^\]"'\s][^\]]*)\]+\s*(?:#.*)?$"""</span><span class="p">)</span>
 
@@ -961,8 +974,10 @@ window.runMermaid = runMermaid;</script>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_add</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="s2">"import"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"import </span><span class="si">{</span><span class="n">alias</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
                 <span class="c1"># ``import argh.x`` binds ``argh``; ``import argh.x as y`` binds ``y``.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="s2">"argh"</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"cw"</span><span class="p">,</span> <span class="s2">"cw.cli"</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="s2">"cw"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rebind</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">"."</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"cw"</span><span class="p">,</span> <span class="s2">"cw.cli"</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="s2">"cw"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">visit_ImportFrom</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">ImportFrom</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -982,10 +997,30 @@ window.runMermaid = runMermaid;</script>
         <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"cw"</span><span class="p">,</span> <span class="s2">"cw.cli"</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
                 <span class="n">local</span> <span class="o">=</span> <span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span>
-                <span class="k">if</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">local</span> <span class="o">!=</span> <span class="s2">"*"</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_rebind</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"*"</span><span class="p">:</span>  <span class="c1"># ``from cw import *`` binds dispatch and run</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cw_dispatchers</span><span class="o">.</span><span class="n">update</span><span class="p">((</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_rebind</span><span class="p">(</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"dispatch"</span><span class="p">,</span> <span class="s2">"run"</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">cw_dispatchers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"cli"</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">cw_modules</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># any other import (re)binds its names to something that is not argh</span>
+            <span class="k">for</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rebind</span><span class="p">(</span><span class="n">alias</span><span class="o">.</span><span class="n">asname</span> <span class="ow">or</span> <span class="n">alias</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_rebind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">names</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Forget that ``names`` are bound to argh: they now point at something else."""</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argh_modules</span><span class="o">.</span><span class="n">discard</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">argh_names</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Assign</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_rebind</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
 
     <span class="c1"># -- argh attribute use --------------------------------------------------------</span>
@@ -1279,12 +1314,14 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">_DEPENDENCY_KEYS</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Does a table header (``[tool.poetry.group.dev.dependencies]``) hold requirements?"""</span>
-    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">part</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_requirement_lines</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_requirement_lines</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">_DEPENDENCY_KEYS</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">"""``(lineno, candidate)`` for each line that may declare a requirement.</span>
 
 <span class="sd">    A line qualifies when it sits in a table whose header has a dependency segment</span>
@@ -1312,18 +1349,21 @@ window.runMermaid = runMermaid;</script>
             <span class="n">header</span><span class="p">,</span> <span class="n">owner</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="kc">None</span>
             <span class="c1"># ``[tool.poetry.dependencies.argh]``: the table is the package.</span>
             <span class="n">names</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">names</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">names</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"argh"</span>
             <span class="k">continue</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">_KEY</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
         <span class="n">value</span> <span class="o">=</span> <span class="n">line</span>
+        <span class="n">marker</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">key</span> <span class="k">else</span> <span class="n">_MARKER_KEY</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">marker</span><span class="p">:</span>  <span class="c1"># ``:python_version&lt;"3.8" = argh``: the value is the requirement</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">owner</span> <span class="o">=</span> <span class="n">marker</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">"extras_require"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
             <span class="n">parts</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
             <span class="n">value</span><span class="p">,</span> <span class="n">owner</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">parts</span>
             <span class="n">is_package_key</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"argh"</span> <span class="ow">and</span> <span class="p">(</span>
-                <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
-                <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="p">)</span>
             <span class="n">in_group_table</span> <span class="o">=</span> <span class="n">_key_parts</span><span class="p">(</span><span class="n">header</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span> <span class="ow">or</span> <span class="p">(</span>
                 <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="n">_GROUP_TABLES</span>
@@ -1334,8 +1374,8 @@ window.runMermaid = runMermaid;</script>
         <span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"]"</span><span class="p">):</span>
             <span class="n">owner</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">continue</span>
-        <span class="n">scoped</span> <span class="o">=</span> <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="n">part</span> <span class="ow">in</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">owner</span> <span class="ow">or</span> <span class="p">()</span>
+        <span class="n">scoped</span> <span class="o">=</span> <span class="n">_in_dependency_table</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">part</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">owner</span> <span class="ow">or</span> <span class="p">()</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">scoped</span><span class="p">:</span>
             <span class="n">candidate</span> <span class="o">=</span> <span class="n">_strip_comment</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
@@ -1345,11 +1385,18 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="audit_dependencies">
 <a class="viewcode-back" href="../../_autosummary/cw.audit.html#cw.audit.audit_dependencies">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">audit_dependencies</span><span class="p">(</span>
-    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"&lt;string&gt;"</span><span class="p">,</span> <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"&lt;string&gt;"</span><span class="p">,</span>
+    <span class="n">always</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">pipfile</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">conda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Finding</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Findings for ``argh`` declared as a requirement in one metadata file's text.</span>
 
-<span class="sd">    ``always`` treats every line as a candidate (a ``requirements.txt``).</span>
+<span class="sd">    ``always`` treats every line as a candidate (a ``requirements.txt``); ``pipfile`` reads</span>
+<span class="sd">    ``[packages]`` / ``[dev-packages]`` tables; ``conda`` reads ``- argh`` list entries</span>
+<span class="sd">    (an ``environment.yml``, including its nested ``- pip:`` list).</span>
 
 <span class="sd">    &gt;&gt;&gt; text = '[project]\\nname = "argh"\\ndependencies = ["argh&gt;=0.31", "x"]\\n'</span>
 <span class="sd">    &gt;&gt;&gt; [(f.line, f.code) for f in audit_dependencies(text)]</span>
@@ -1364,9 +1411,27 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    [2]</span>
 <span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies("[options]\\ninstall_requires = argh")]</span>
 <span class="sd">    [2]</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies('[packages]\\nargh = "*"', pipfile=True)]</span>
+<span class="sd">    [2]</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies("dependencies:\\n  - argh=0.26\\n  - x", conda=True)]</span>
+<span class="sd">    [2]</span>
+<span class="sd">    &gt;&gt;&gt; [f.line for f in audit_dependencies("https://h/argh-0.26-py3-none-any.whl", always=True)]</span>
+<span class="sd">    [1]</span>
 <span class="sd">    """</span>
     <span class="n">findings</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">_requirement_lines</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="n">always</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">conda</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">raw</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(),</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_CONDA_REQUIREMENT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_PRAGMA</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+                <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">_DEPENDENCY_WHY</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"- "</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_PRAGMA</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+#.*$"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()[</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">_BARE_REQUIREMENT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>  <span class="c1"># the ``- pip:`` list</span>
+                    <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">_DEPENDENCY_WHY</span><span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">findings</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">_DEPENDENCY_KEYS</span> <span class="o">|</span> <span class="n">_PIPFILE_KEYS</span> <span class="k">if</span> <span class="n">pipfile</span> <span class="k">else</span> <span class="n">_DEPENDENCY_KEYS</span>
+    <span class="k">for</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">_requirement_lines</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">always</span><span class="o">=</span><span class="n">always</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">_QUOTED_REQUIREMENT</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">candidate</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_BARE_REQUIREMENT</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
             <span class="n">findings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Finding</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="s2">"dependency"</span><span class="p">,</span> <span class="n">_DEPENDENCY_WHY</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">findings</span></div>
@@ -1512,9 +1577,15 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_requirements_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">".txt"</span><span class="p">,</span> <span class="s2">".in"</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">".txt"</span><span class="p">,</span> <span class="s2">".in"</span><span class="p">,</span> <span class="s2">".lock"</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="s2">"requirements"</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"requirements"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_conda_file</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">".yml"</span><span class="p">,</span> <span class="s2">".yaml"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span>
+        <span class="p">(</span><span class="s2">"environment"</span><span class="p">,</span> <span class="s2">"conda"</span><span class="p">)</span>
+    <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_test_file</span><span class="p">(</span><span class="n">relative</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1568,7 +1639,10 @@ window.runMermaid = runMermaid;</script>
     <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">walk</span><span class="p">:</span>
         <span class="n">relative</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
         <span class="n">shown</span> <span class="o">=</span> <span class="n">relative</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-        <span class="n">is_metadata</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_REQUIREMENT_FILES</span> <span class="ow">or</span> <span class="n">_is_requirements_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">is_conda</span> <span class="o">=</span> <span class="n">_is_conda_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">is_metadata</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_REQUIREMENT_FILES</span> <span class="ow">or</span> <span class="n">_is_requirements_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_conda</span>
+        <span class="p">)</span>
         <span class="n">is_python</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">file</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">in</span> <span class="n">_PYTHON_SUFFIXES</span>
             <span class="ow">or</span> <span class="p">(</span>
@@ -1598,6 +1672,8 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">_decode_text</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
                     <span class="n">path</span><span class="o">=</span><span class="n">shown</span><span class="p">,</span>
                     <span class="n">always</span><span class="o">=</span><span class="n">_is_requirements_file</span><span class="p">(</span><span class="n">file</span><span class="p">),</span>
+                    <span class="n">pipfile</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"Pipfile"</span><span class="p">,</span>
+                    <span class="n">conda</span><span class="o">=</span><span class="n">is_conda</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">findings</span><span class="p">)</span></div>

@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-20T04:15:38Z",
+  "built_at": "2026-10-20T06:40:44Z",
   "package": {
     "name": "cw",
-    "version": "0.1.12",
+    "version": "0.1.13",
     "display_name": "cw",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
-    "short_commit": "4b7dc92",
+    "commit": "751854a6b6097891166265ac7294224f292feb71",
+    "short_commit": "751854a",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
+    "commit_url": "https://github.com/i2mint/cw/commit/751854a6b6097891166265ac7294224f292feb71",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
+    "sha": "751854a6b6097891166265ac7294224f292feb71",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "39368480816",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/39368480816",
+    "run_id": "39381622218",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/39381622218",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -60,14 +60,16 @@
   },
   "pypi": {
     "checked": true,
-    "latest": "0.1.12",
-    "relation": "same",
+    "latest": "0.1.14",
+    "relation": "behind",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b\npip install \"epythet==0.2.18\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 751854a6b6097891166265ac7294224f292feb71\npip install \"epythet==0.2.18\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": true,
-    "notes": []
+    "aligned": false,
+    "notes": [
+      "The documented version (0.1.13) is behind the latest release on PyPI (0.1.14): `pip install cw` gives newer code than these docs describe."
+    ]
   }
 }

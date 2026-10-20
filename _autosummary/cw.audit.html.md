@@ -25,8 +25,9 @@ Five checks, each with a stable code:
   `if __name__ == "__main__"` (which looks dead and is not: `python -m pkg.mod` runs it).
 
 `dependency`
-: `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` /
-  `requirements*.txt` (the licence-exposure-only case when nothing imports it).
+: `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` / `Pipfile` /
+  `tox.ini` / `environment.yml` / `requirements*.txt` / `requirements*.lock`
+  (also as a direct wheel or sdist link; the licence-exposure-only case when nothing imports it).
 
 `discarded-exit`
 : `cw.dispatch(...)` as a bare statement. cw *returns* the exit code where argh exited
@@ -81,12 +82,12 @@ def test_no_residual_argh():
 
 ### Functions
 
-| [`audit`](#cw.audit.audit)([path, exclude_dirs, exclude_top_dirs])   | Audit a file or a source tree; return every residual `argh` finding.       |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| [`audit_source`](#cw.audit.audit_source)(source, \*[, path])                | Findings for one Python source (text or bytes), sorted by line.            |
-| [`audit_dependencies`](#cw.audit.audit_dependencies)(text, \*[, path, always])    | Findings for `argh` declared as a requirement in one metadata file's text. |
-| [`format_findings`](#cw.audit.format_findings)(findings)                       | The report: one `path:line: code: message` per finding, or the all-clear.  |
-| [`assert_no_argh`](#cw.audit.assert_no_argh)([path])                          | Raise `AssertionError` listing every residual `argh` under `path`.         |
+| [`audit`](#cw.audit.audit)([path, exclude_dirs, exclude_top_dirs])     | Audit a file or a source tree; return every residual `argh` finding.       |
+|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
+| [`audit_source`](#cw.audit.audit_source)(source, \*[, path])                  | Findings for one Python source (text or bytes), sorted by line.            |
+| [`audit_dependencies`](#cw.audit.audit_dependencies)(text, \*[, path, always, ...]) | Findings for `argh` declared as a requirement in one metadata file's text. |
+| [`format_findings`](#cw.audit.format_findings)(findings)                         | The report: one `path:line: code: message` per finding, or the all-clear.  |
+| [`assert_no_argh`](#cw.audit.assert_no_argh)([path])                            | Raise `AssertionError` listing every residual `argh` under `path`.         |
 
 ### Classes
 
@@ -153,11 +154,13 @@ relative to `path` when it is a directory. A file that cannot be read or parsed 
 * **Return type:**
   [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
 
-### cw.audit.audit_dependencies(text, , path='<string>', always=False)
+### cw.audit.audit_dependencies(text, , path='<string>', always=False, pipfile=False, conda=False)
 
 Findings for `argh` declared as a requirement in one metadata file’s text.
 
-`always` treats every line as a candidate (a `requirements.txt`).
+`always` treats every line as a candidate (a `requirements.txt`); `pipfile` reads
+`[packages]` / `[dev-packages]` tables; `conda` reads `- argh` list entries
+(an `environment.yml`, including its nested `- pip:` list).
 
 ```pycon
 >>> text = '[project]\nname = "argh"\ndependencies = ["argh>=0.31", "x"]\n'
@@ -173,6 +176,12 @@ Findings for `argh` declared as a requirement in one metadata file’s text.
 [2]
 >>> [f.line for f in audit_dependencies("[options]\ninstall_requires = argh")]
 [2]
+>>> [f.line for f in audit_dependencies('[packages]\nargh = "*"', pipfile=True)]
+[2]
+>>> [f.line for f in audit_dependencies("dependencies:\n  - argh=0.26\n  - x", conda=True)]
+[2]
+>>> [f.line for f in audit_dependencies("https://h/argh-0.26-py3-none-any.whl", always=True)]
+[1]
 ```
 
 * **Return type:**
