@@ -564,3 +564,35 @@ class TestThirdReviewRegressions:
     def test_an_unknown_encoding_cookie_is_a_finding_not_a_crash(self, tmp_path):
         (tmp_path / "m.py").write_bytes(b"# coding: undefined\nimport argh\n")
         assert "import" in {f.code for f in audit(tmp_path)} | {"import"}
+
+
+class TestAuditFollowUps:
+    """i2mint/cw#54."""
+
+    def test_named_file_is_audited_whatever_its_suffix(self, tmp_path):
+        script = tmp_path / "tool"
+        script.write_text("from argh import CommandError\n")
+        assert [f.code for f in audit(script)] == ["command-error", "import"]
+
+    def test_walk_reads_shebang_scripts_and_pyw(self, tmp_path):
+        (tmp_path / "bin").mkdir()
+        (tmp_path / "bin" / "tool").write_text("#!/usr/bin/env python3\nimport argh\n")
+        (tmp_path / "gui.pyw").write_text("import argh\n")
+        (tmp_path / "bin" / "sh_tool").write_text("#!/bin/sh\nimport argh\n")
+        assert sorted(f.path for f in audit(tmp_path)) == ["bin/tool", "gui.pyw"]
+
+    @pytest.mark.parametrize(
+        "src",
+        ['import importlib\nimportlib.import_module("argh")\n', '__import__("argh.helpers")\n'],
+    )
+    def test_dynamic_imports_are_found(self, src):
+        assert [f.code for f in audit_source(src)] == ["import"]
+
+    def test_dynamic_import_of_something_else_is_clean(self):
+        assert audit_source('__import__("json")\n') == []
+
+    def test_fifo_named_py_does_not_block(self, tmp_path):
+        import os
+
+        os.mkfifo(tmp_path / "pipe.py")
+        assert audit(tmp_path) == []
