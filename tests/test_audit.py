@@ -594,6 +594,8 @@ class TestAuditFollowUps:
     def test_fifo_named_py_does_not_block(self, tmp_path):
         import os
 
+        if not hasattr(os, "mkfifo"):
+            pytest.skip("no FIFOs on this platform")
         os.mkfifo(tmp_path / "pipe.py")
         assert audit(tmp_path) == []
 
