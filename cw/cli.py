@@ -46,7 +46,7 @@ from collections.abc import Mapping
 from typing import Any, Callable, Optional, TextIO
 
 from cw.base import ArghHelpFormatter, CommandError
-from cw.commands import commands_from, import_object, is_command
+from cw.commands import _named, commands_from, import_object, is_command
 from cw.convention import ARGH, Convention
 from cw.egress import guard_no_coroutine
 from cw.grammar import GrammarError, specs_for_function
@@ -613,6 +613,14 @@ def add_commands(
     >>> parser.format_usage()
     'usage: priv [-h] {git_ops} ...\\n'
 
+    ``group_name`` follows ``convention.hyphenate_groups`` exactly as a group derived from a
+    mapping key does, so ``cw.MODERN`` means one thing whichever spelling of a group you use:
+
+    >>> parser = argparse.ArgumentParser(prog='priv')
+    >>> _ = add_commands(parser, [status], group_name='git_ops', convention=cw.MODERN)
+    >>> parser.format_usage()
+    'usage: priv [-h] {git-ops} ...\\n'
+
     ``obj`` is anything :func:`cw.dispatch` takes, **a mapping included** -- which is what
     makes this the answer to "a group in the mapping form wants ``title=``" (issue #31,
     ADR-0008). Seed the parser with :func:`mk_parser` rather than ``ArgumentParser()`` so
@@ -650,7 +658,7 @@ def add_commands(
     _check_config_keys(tree, config, what="command")
     _add_group(
         _subparsers_of(parser),
-        group_name,
+        _named(group_name, convention=convention, group=True),
         tree,
         config=config,
         convention=convention,
