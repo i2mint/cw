@@ -1,32 +1,32 @@
 {
   "schema_version": 1,
-  "built_at": "2026-10-20T02:54:56Z",
+  "built_at": "2026-10-20T04:15:38Z",
   "package": {
     "name": "cw",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "display_name": "cw",
     "source": "pyproject.toml"
   },
   "git": {
     "available": true,
-    "commit": "c892cc0a1b65df70452bdd4992f07960309bcfda",
-    "short_commit": "c892cc0",
+    "commit": "4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
+    "short_commit": "4b7dc92",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/c892cc0a1b65df70452bdd4992f07960309bcfda",
+    "commit_url": "https://github.com/i2mint/cw/commit/4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "c892cc0a1b65df70452bdd4992f07960309bcfda",
+    "sha": "4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "39361336298",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/39361336298",
+    "run_id": "39368480816",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/39368480816",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -61,15 +61,13 @@
   "pypi": {
     "checked": true,
     "latest": "0.1.12",
-    "relation": "behind",
+    "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout c892cc0a1b65df70452bdd4992f07960309bcfda\npip install \"epythet==0.2.18\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 4b7dc92ae0fbbac122fc1baf26e49c7cdbf69d1b\npip install \"epythet==0.2.18\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
-    "aligned": false,
-    "notes": [
-      "The documented version (0.1.11) is behind the latest release on PyPI (0.1.12): `pip install cw` gives newer code than these docs describe."
-    ]
+    "aligned": true,
+    "notes": []
   }
 }

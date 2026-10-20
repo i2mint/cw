@@ -102,6 +102,16 @@ members.
 'usage: priv [-h] {git_ops} ...\n'
 ```
 
+`group_name` follows `convention.hyphenate_groups` exactly as a group derived from a
+mapping key does, so `cw.MODERN` means one thing whichever spelling of a group you use:
+
+```pycon
+>>> parser = argparse.ArgumentParser(prog='priv')
+>>> _ = add_commands(parser, [status], group_name='git_ops', convention=cw.MODERN)
+>>> parser.format_usage()
+'usage: priv [-h] {git-ops} ...\n'
+```
+
 `obj` is anything [`cw.dispatch()`](cw.html.md#cw.dispatch) takes, **a mapping included** – which is what
 makes this the answer to “a group in the mapping form wants `title=`” (issue #31,
 ADR-0008). Seed the parser with [`mk_parser()`](#cw.cli.mk_parser) rather than `ArgumentParser()` so

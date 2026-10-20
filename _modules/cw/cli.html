@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=1e825a29"></script>
+    <script src="../../_static/documentation_options.js?v=297ad043"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -411,7 +411,7 @@ window.runMermaid = runMermaid;</script>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.11" />
+  <meta name="docsearch:version" content="0.1.12" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -760,7 +760,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TextIO</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArghHelpFormatter</span><span class="p">,</span> <span class="n">CommandError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cw.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">commands_from</span><span class="p">,</span> <span class="n">import_object</span><span class="p">,</span> <span class="n">is_command</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cw.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">_named</span><span class="p">,</span> <span class="n">commands_from</span><span class="p">,</span> <span class="n">import_object</span><span class="p">,</span> <span class="n">is_command</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.convention</span><span class="w"> </span><span class="kn">import</span> <span class="n">ARGH</span><span class="p">,</span> <span class="n">Convention</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.egress</span><span class="w"> </span><span class="kn">import</span> <span class="n">guard_no_coroutine</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cw.grammar</span><span class="w"> </span><span class="kn">import</span> <span class="n">GrammarError</span><span class="p">,</span> <span class="n">specs_for_function</span>
@@ -1338,6 +1338,14 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
 <span class="sd">    'usage: priv [-h] {git_ops} ...\\n'</span>
 
+<span class="sd">    ``group_name`` follows ``convention.hyphenate_groups`` exactly as a group derived from a</span>
+<span class="sd">    mapping key does, so ``cw.MODERN`` means one thing whichever spelling of a group you use:</span>
+
+<span class="sd">    &gt;&gt;&gt; parser = argparse.ArgumentParser(prog='priv')</span>
+<span class="sd">    &gt;&gt;&gt; _ = add_commands(parser, [status], group_name='git_ops', convention=cw.MODERN)</span>
+<span class="sd">    &gt;&gt;&gt; parser.format_usage()</span>
+<span class="sd">    'usage: priv [-h] {git-ops} ...\\n'</span>
+
 <span class="sd">    ``obj`` is anything :func:`cw.dispatch` takes, **a mapping included** -- which is what</span>
 <span class="sd">    makes this the answer to "a group in the mapping form wants ``title=``" (issue #31,</span>
 <span class="sd">    ADR-0008). Seed the parser with :func:`mk_parser` rather than ``ArgumentParser()`` so</span>
@@ -1375,7 +1383,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">_check_config_keys</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">what</span><span class="o">=</span><span class="s2">"command"</span><span class="p">)</span>
     <span class="n">_add_group</span><span class="p">(</span>
         <span class="n">_subparsers_of</span><span class="p">(</span><span class="n">parser</span><span class="p">),</span>
-        <span class="n">group_name</span><span class="p">,</span>
+        <span class="n">_named</span><span class="p">(</span><span class="n">group_name</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="n">tree</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
         <span class="n">convention</span><span class="o">=</span><span class="n">convention</span><span class="p">,</span>
