@@ -642,8 +642,7 @@ def _requirement_lines(
             parts = _key_parts(key.group(1))
             value, owner = key.group(2), parts
             is_package_key = parts[-1] == "argh" and (
-                _in_dependency_table(header, keys)
-                or any(p in keys for p in parts[:-1])
+                _in_dependency_table(header, keys) or any(p in keys for p in parts[:-1])
             )
             in_group_table = _key_parts(header)[-1] in _GROUP_TABLES or (
                 len(parts) > 1 and parts[-2] in _GROUP_TABLES
