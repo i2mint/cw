@@ -61,6 +61,7 @@ or gate on it in a consumer's own test suite::
 import ast
 import codecs
 import re
+import stat
 import sys
 import threading
 import tokenize
@@ -165,6 +166,7 @@ _QUOTED_REQUIREMENT = re.compile(rf"""["']\s*{_SPEC}["']""", re.I)
 _BARE_REQUIREMENT = re.compile(rf"^(?:{_SPEC}|{_EGG})$", re.I)
 #: ``{ argh = "^1" }`` -- a Poetry inline table.
 _INLINE_ARGH = re.compile(r"[{,]\s*argh\s*=", re.I)
+_PYTHON_SUFFIXES = (".py", ".pyi", ".pyw")
 _REQUIREMENT_FILES = ("pyproject.toml", "setup.cfg", "setup.py")
 _KEY = re.compile(r"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*[=:](?![=/])\s*(.*)$")
 _HEADER = re.compile(r"""^\[+\s*([^\]"'\s][^\]]*)\]+\s*(?:#.*)?$""")
@@ -303,7 +305,22 @@ class _Visitor(ast.NodeVisitor):
                 return func.attr
         return None
 
+    @staticmethod
+    def _dynamic_import_target(node: ast.Call) -> str | None:
+        """The constant module name of ``import_module("x")`` / ``__import__("x")``, or None."""
+        func = node.func
+        called = func.id if isinstance(func, ast.Name) else getattr(func, "attr", None)
+        if called not in ("import_module", "__import__") or not node.args:
+            return None
+        first = node.args[0]
+        if isinstance(first, ast.Constant) and isinstance(first.value, str):
+            return first.value
+        return None
+
     def visit_Call(self, node: ast.Call) -> None:
+        target = self._dynamic_import_target(node)
+        if _is_argh(target):
+            self._add(node, "import", f"dynamic import of {target}")
         name = self._argh_dispatch_name(node.func)
         if name:
             reach = (
@@ -720,7 +737,7 @@ def _walk(
     A directory that cannot be listed is appended to ``problems``, not raised: the audit
     must say what it could not read rather than die on it.
     """
-    if root.is_file():
+    if _is_regular_file(root):
         yield root
         return
     try:
@@ -733,7 +750,8 @@ def _walk(
             if path.is_symlink() and (path.is_dir() or not path.exists()):
                 continue  # a link can loop back up, leave the tree, or dangle
             if not path.is_dir():
-                yield path
+                if _is_regular_file(path):  # a FIFO or socket would block the read
+                    yield path
                 continue
             name = path.name
             skip = (
@@ -749,6 +767,20 @@ def _walk(
             yield from _walk(
                 path, exclude_dirs, top, problems, base=base, depth=depth + 1
             )
+
+
+def _is_regular_file(path: Path) -> bool:
+    return stat.S_ISREG(path.stat().st_mode)
+
+
+def _has_python_shebang(file: Path) -> bool:
+    """True if an extensionless ``file`` starts with a ``#!`` line naming python."""
+    try:
+        with file.open("rb") as fh:
+            first = fh.readline(256)
+    except OSError:
+        return False
+    return first.startswith(b"#!") and b"python" in first
 
 
 def _unreadable(path: Path, base: Path, exc: OSError) -> Finding:
@@ -780,7 +812,8 @@ def audit(
 ) -> list[Finding]:
     """Audit a file or a source tree; return every residual ``argh`` finding.
 
-    ``path`` may be a directory (walked), a ``.py`` / ``.pyi`` file, or a metadata file.
+    ``path`` may be a directory (walked), a Python file (any suffix when named explicitly; ``.py``/``.pyi``/``.pyw`` or a python
+    shebang when walked), or a metadata file.
     ``exclude_dirs`` are skipped at any depth; ``exclude_top_dirs`` only directly under
     ``path`` (``build``, ``dist``, ``.venv``...). Symlinked directories are not followed,
     and a directory with a ``pyvenv.cfg`` is a virtualenv. Paths in the findings are
@@ -810,8 +843,12 @@ def audit(
     for file in walk:
         relative = file.relative_to(base)
         shown = relative.as_posix()
-        is_python = file.suffix in (".py", ".pyi")
         is_metadata = file.name in _REQUIREMENT_FILES or _is_requirements_file(file)
+        is_python = (
+            file.suffix in _PYTHON_SUFFIXES
+            or (file == root and not is_metadata)  # a named file is audited, whatever its suffix
+            or (not file.suffix and not is_metadata and _has_python_shebang(file))
+        )
         if not (is_python or is_metadata):
             continue
         try:
