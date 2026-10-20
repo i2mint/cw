@@ -596,3 +596,58 @@ class TestAuditFollowUps:
 
         os.mkfifo(tmp_path / "pipe.py")
         assert audit(tmp_path) == []
+
+
+def test_star_import_of_cw_then_bare_dispatch_is_discarded_exit():
+    from cw.audit import audit_source
+
+    found = audit_source("from cw import *\ndispatch(f)\n")
+    assert [f.code for f in found] == ["discarded-exit"]
+
+
+def test_rebinding_argh_after_an_ignored_import():
+    from cw.audit import audit_source
+
+    src = (
+        "import argh  # cw-audit: ignore\n"
+        "from cw import compat as argh\n"
+        "argh.dispatch_commands([f])\n"
+    )
+    assert audit_source(src) == []
+    src2 = "import argh  # cw-audit: ignore\nargh.dispatch_commands([f])\n"
+    assert [f.code for f in audit_source(src2)] == ["dispatch"]
+
+
+def test_more_metadata_files(tmp_path):
+    from cw.audit import audit
+
+    files = {
+        "Pipfile": '[packages]\nargh = "*"\n',
+        "tox.ini": "[testenv]\ndeps =\n    pytest\n    argh>=0.26\n",
+        "environment.yml": "dependencies:\n  - python\n  - pip:\n    - argh==0.31\n",
+        "conda.yml": "dependencies:\n  - conda-forge::argh\n",
+        "requirements-dev.lock": "argh==0.31.2\n",
+        "requirements.txt": "https://h.org/argh-0.26.2-py2.py3-none-any.whl\n",
+        "setup.cfg": '[options.extras_require]\n:python_version<"3.8" = argh\n',
+    }
+    for name, text in files.items():
+        (tmp_path / name).write_text(text)
+    assert {f.path for f in audit(tmp_path)} == set(files)
+
+
+def test_metadata_false_positives(tmp_path):
+    from cw.audit import audit
+
+    (tmp_path / "Pipfile").write_text('[packages]\nrequests = "*"\n')
+    (tmp_path / "environment.yml").write_text("dependencies:\n  - arghh\n  - x\n")
+    (tmp_path / "pyproject.toml").write_text('[tool.setuptools]\npackages = ["argh"]\n')
+    assert audit(tmp_path) == []
+
+
+def test_cli_include_audits_a_default_excluded_dir(tmp_path):
+    from cw.__main__ import main
+
+    (tmp_path / "build").mkdir()
+    (tmp_path / "build" / "m.py").write_text("import argh\n")
+    assert main(["audit", str(tmp_path)]) == 0
+    assert main(["audit", str(tmp_path), "--include", "build"]) == 1

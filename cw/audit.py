@@ -20,8 +20,9 @@ Five checks, each with a stable code:
     A live ``argh.dispatch*`` / ``ArghParser`` / ``EntryPoint`` call, including under
     ``if __name__ == "__main__"`` (which looks dead and is not: ``python -m pkg.mod`` runs it).
 ``dependency``
-    ``argh`` declared in ``pyproject.toml`` / ``setup.cfg`` / ``setup.py`` /
-    ``requirements*.txt`` (the licence-exposure-only case when nothing imports it).
+    ``argh`` declared in ``pyproject.toml`` / ``setup.cfg`` / ``setup.py`` / ``Pipfile`` /
+    ``tox.ini`` / ``environment.yml`` / ``requirements*.txt`` / ``requirements*.lock``
+    (also as a direct wheel or sdist link; the licence-exposure-only case when nothing imports it).
 ``discarded-exit``
     ``cw.dispatch(...)`` as a bare statement. cw *returns* the exit code where argh exited
     itself, so dropping it turns every non-zero exit into 0. Calls that pass ``out=`` /
@@ -149,8 +150,12 @@ _DEPENDENCY_KEYS = frozenset(
         "dependency_groups",
         "pypi_dependencies",
         "requires_extra",
+        "deps",  # tox.ini
     }
 )
+
+#: Pipfile's tables of requirements (the keys of a Pipfile are the package names).
+_PIPFILE_KEYS = frozenset({"packages", "dev_packages"})
 
 #: Tables whose *keys* are names of extras / groups, not of packages (``argh = ["cw"]``).
 _GROUP_TABLES = frozenset(
@@ -163,11 +168,19 @@ _SPEC = r"argh(?![-_.\w])\s*(?:\[[^\]]*\])?\s*(?:[<>=!~;@(].*)?"
 _EGG = r".*[#&]egg=argh(?:-\d[\w.]*)?(?:&.*)?"
 #: Quoted (pyproject, setup.py) anywhere on a line; bare (setup.cfg, requirements) as the line.
 _QUOTED_REQUIREMENT = re.compile(rf"""["']\s*{_SPEC}["']""", re.I)
-_BARE_REQUIREMENT = re.compile(rf"^(?:{_SPEC}|{_EGG})$", re.I)
+#: A direct link to an argh wheel or sdist (``https://.../argh-0.26.2-py2.py3-none-any.whl``).
+_ARCHIVE = r"(?:.*[/\\])?argh-\d[^/\\]*?\.(?:whl|tar\.gz|zip)(?:[#?].*)?"
+_BARE_REQUIREMENT = re.compile(rf"^(?:{_SPEC}|{_EGG}|{_ARCHIVE})$", re.I)
+#: A conda ``environment.yml`` entry: ``- argh``, ``- conda-forge::argh=0.26``.
+_CONDA_REQUIREMENT = re.compile(
+    r"^-\s+(?:[\w.-]+::)?argh(?![-_.\w])\s*(?:[<>=!~].*)?$", re.I
+)
+#: ``:python_version<"3.8" = argh`` -- an extras key that is only an environment marker.
+_MARKER_KEY = re.compile(r"^\s*([\w.-]*:[^=]*?)\s*=\s*(.*)$")
 #: ``{ argh = "^1" }`` -- a Poetry inline table.
 _INLINE_ARGH = re.compile(r"[{,]\s*argh\s*=", re.I)
 _PYTHON_SUFFIXES = (".py", ".pyi", ".pyw")
-_REQUIREMENT_FILES = ("pyproject.toml", "setup.cfg", "setup.py")
+_REQUIREMENT_FILES = ("pyproject.toml", "setup.cfg", "setup.py", "tox.ini", "Pipfile")
 _KEY = re.compile(r"^\s*(?:[\w.]*\(\s*)?([\w.-]+)\s*[=:](?![=/])\s*(.*)$")
 _HEADER = re.compile(r"""^\[+\s*([^\]"'\s][^\]]*)\]+\s*(?:#.*)?$""")
 
@@ -244,8 +257,10 @@ class _Visitor(ast.NodeVisitor):
                 self._add(node, "import", f"import {alias.name}")
                 # ``import argh.x`` binds ``argh``; ``import argh.x as y`` binds ``y``.
                 self.argh_modules.add(alias.asname or "argh")
-            elif alias.name in ("cw", "cw.cli"):
-                self.cw_modules.add(alias.asname or "cw")
+            else:
+                self._rebind(alias.asname or alias.name.partition(".")[0])
+                if alias.name in ("cw", "cw.cli"):
+                    self.cw_modules.add(alias.asname or "cw")
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
@@ -265,10 +280,30 @@ class _Visitor(ast.NodeVisitor):
         elif node.level == 0 and node.module in ("cw", "cw.cli"):
             for alias in node.names:
                 local = alias.asname or alias.name
-                if alias.name in ("dispatch", "run"):
+                if local != "*":
+                    self._rebind(local)
+                if alias.name == "*":  # ``from cw import *`` binds dispatch and run
+                    self.cw_dispatchers.update(("dispatch", "run"))
+                    self._rebind("dispatch", "run")
+                elif alias.name in ("dispatch", "run"):
                     self.cw_dispatchers.add(local)
                 elif alias.name == "cli":
                     self.cw_modules.add(local)
+        else:  # any other import (re)binds its names to something that is not argh
+            for alias in node.names:
+                self._rebind(alias.asname or alias.name)
+        self.generic_visit(node)
+
+    def _rebind(self, *names: str) -> None:
+        """Forget that ``names`` are bound to argh: they now point at something else."""
+        for name in names:
+            self.argh_modules.discard(name)
+            self.argh_names.pop(name, None)
+
+    def visit_Assign(self, node: ast.Assign) -> None:
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self._rebind(target.id)
         self.generic_visit(node)
 
     # -- argh attribute use --------------------------------------------------------
@@ -559,12 +594,14 @@ def _strip_comment(value: str) -> str:
     return value.rstrip()
 
 
-def _in_dependency_table(header: str) -> bool:
+def _in_dependency_table(header: str, keys=_DEPENDENCY_KEYS) -> bool:
     """Does a table header (``[tool.poetry.group.dev.dependencies]``) hold requirements?"""
-    return any(part in _DEPENDENCY_KEYS for part in _key_parts(header))
+    return any(part in keys for part in _key_parts(header))
 
 
-def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
+def _requirement_lines(
+    text: str, *, always: bool, keys=_DEPENDENCY_KEYS
+) -> Iterator[tuple[int, str]]:
     """``(lineno, candidate)`` for each line that may declare a requirement.
 
     A line qualifies when it sits in a table whose header has a dependency segment
@@ -592,18 +629,21 @@ def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
             header, owner = match.group(1), None
             # ``[tool.poetry.dependencies.argh]``: the table is the package.
             names = _key_parts(header)
-            if names[-1] == "argh" and any(p in _DEPENDENCY_KEYS for p in names[:-1]):
+            if names[-1] == "argh" and any(p in keys for p in names[:-1]):
                 if names[-2] not in _GROUP_TABLES:
                     yield lineno, "argh"
             continue
         key = _KEY.match(line)
         value = line
+        marker = None if key else _MARKER_KEY.match(line)
+        if marker:  # ``:python_version<"3.8" = argh``: the value is the requirement
+            value, owner = marker.group(2), ["extras_require"]
         if key:
             parts = _key_parts(key.group(1))
             value, owner = key.group(2), parts
             is_package_key = parts[-1] == "argh" and (
-                _in_dependency_table(header)
-                or any(p in _DEPENDENCY_KEYS for p in parts[:-1])
+                _in_dependency_table(header, keys)
+                or any(p in keys for p in parts[:-1])
             )
             in_group_table = _key_parts(header)[-1] in _GROUP_TABLES or (
                 len(parts) > 1 and parts[-2] in _GROUP_TABLES
@@ -614,8 +654,8 @@ def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
         elif line.startswith("]"):
             owner = None
             continue
-        scoped = _in_dependency_table(header) or any(
-            part in _DEPENDENCY_KEYS for part in owner or ()
+        scoped = _in_dependency_table(header, keys) or any(
+            part in keys for part in owner or ()
         )
         if scoped:
             candidate = _strip_comment(value)
@@ -623,11 +663,18 @@ def _requirement_lines(text: str, *, always: bool) -> Iterator[tuple[int, str]]:
 
 
 def audit_dependencies(
-    text: str, *, path: str = "<string>", always: bool = False
+    text: str,
+    *,
+    path: str = "<string>",
+    always: bool = False,
+    pipfile: bool = False,
+    conda: bool = False,
 ) -> list[Finding]:
     """Findings for ``argh`` declared as a requirement in one metadata file's text.
 
-    ``always`` treats every line as a candidate (a ``requirements.txt``).
+    ``always`` treats every line as a candidate (a ``requirements.txt``); ``pipfile`` reads
+    ``[packages]`` / ``[dev-packages]`` tables; ``conda`` reads ``- argh`` list entries
+    (an ``environment.yml``, including its nested ``- pip:`` list).
 
     >>> text = '[project]\\nname = "argh"\\ndependencies = ["argh>=0.31", "x"]\\n'
     >>> [(f.line, f.code) for f in audit_dependencies(text)]
@@ -642,9 +689,27 @@ def audit_dependencies(
     [2]
     >>> [f.line for f in audit_dependencies("[options]\\ninstall_requires = argh")]
     [2]
+    >>> [f.line for f in audit_dependencies('[packages]\\nargh = "*"', pipfile=True)]
+    [2]
+    >>> [f.line for f in audit_dependencies("dependencies:\\n  - argh=0.26\\n  - x", conda=True)]
+    [2]
+    >>> [f.line for f in audit_dependencies("https://h/argh-0.26-py3-none-any.whl", always=True)]
+    [1]
     """
     findings = []
-    for lineno, candidate in _requirement_lines(text, always=always):
+    if conda:
+        for lineno, raw in enumerate(text.splitlines(), 1):
+            if _CONDA_REQUIREMENT.match(raw.strip()) and not _PRAGMA.search(raw):
+                findings.append(Finding(path, lineno, "dependency", _DEPENDENCY_WHY))
+            elif raw.strip().startswith("- ") and not _PRAGMA.search(raw):
+                item = re.sub(r"\s+#.*$", "", raw.strip()[2:].strip())
+                if _BARE_REQUIREMENT.match(item):  # the ``- pip:`` list
+                    findings.append(
+                        Finding(path, lineno, "dependency", _DEPENDENCY_WHY)
+                    )
+        return findings
+    keys = _DEPENDENCY_KEYS | _PIPFILE_KEYS if pipfile else _DEPENDENCY_KEYS
+    for lineno, candidate in _requirement_lines(text, always=always, keys=keys):
         if _QUOTED_REQUIREMENT.search(candidate) or _BARE_REQUIREMENT.match(candidate):
             findings.append(Finding(path, lineno, "dependency", _DEPENDENCY_WHY))
     return findings
@@ -789,9 +854,15 @@ def _unreadable(path: Path, base: Path, exc: OSError) -> Finding:
 
 
 def _is_requirements_file(path: Path) -> bool:
-    if path.suffix not in (".txt", ".in"):
+    if path.suffix not in (".txt", ".in", ".lock"):
         return False
     return "requirements" in path.stem.lower() or path.parent.name == "requirements"
+
+
+def _is_conda_file(path: Path) -> bool:
+    return path.suffix in (".yml", ".yaml") and path.stem.lower().startswith(
+        ("environment", "conda")
+    )
 
 
 def _is_test_file(relative: Path) -> bool:
@@ -843,7 +914,10 @@ def audit(
     for file in walk:
         relative = file.relative_to(base)
         shown = relative.as_posix()
-        is_metadata = file.name in _REQUIREMENT_FILES or _is_requirements_file(file)
+        is_conda = _is_conda_file(file)
+        is_metadata = (
+            file.name in _REQUIREMENT_FILES or _is_requirements_file(file) or is_conda
+        )
         is_python = (
             file.suffix in _PYTHON_SUFFIXES
             or (
@@ -873,6 +947,8 @@ def audit(
                     _decode_text(data),
                     path=shown,
                     always=_is_requirements_file(file),
+                    pipfile=file.name == "Pipfile",
+                    conda=is_conda,
                 )
             )
     return sorted(findings)

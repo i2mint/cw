@@ -85,20 +85,24 @@ def _names(csv):
     return {name.strip() for name in (csv or "").split(",") if name.strip()}
 
 
-def audit(path, *, exclude=None):
+def audit(path, *, exclude=None, include=None):
     """Report any argh left in a migrated source tree; exit 1 if there is some.
 
     Checks for imports of argh (CommandError taken from argh, specially), argh dispatch
     calls still reachable, argh declared as a dependency, and a cw.dispatch whose exit code
     is discarded. Put it in a repo's CI after a migration. PATH is a directory or a file. EXCLUDE adds directory names to
-    skip (comma-separated); a line can opt out with a `# cw-audit: ignore` comment.
+    skip (comma-separated); INCLUDE names directories to audit that are skipped by default
+    (`build`, `dist`, `env`, `venv`: a flat package may be literally called that). A line can opt out with a `# cw-audit: ignore` comment.
     """
     from cw import audit as _audit
     from cw.base import CommandError
 
     try:
+        include = _names(include)
         findings = _audit.audit(
-            path, exclude_dirs=_audit.DEFAULT_EXCLUDE_DIRS | _names(exclude)
+            path,
+            exclude_dirs=(_audit.DEFAULT_EXCLUDE_DIRS | _names(exclude)) - include,
+            exclude_top_dirs=_audit.DEFAULT_EXCLUDE_TOP_DIRS - include,
         )
     except FileNotFoundError as exc:
         raise CommandError(str(exc)) from exc
