@@ -34,6 +34,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/epythet.css?v=70da82a8" />
   
@@ -43,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=bafade30"></script>
+    <script src="../_static/documentation_options.js?v=1e825a29"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +58,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.10" />
+  <meta name="docsearch:version" content="0.1.11" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -492,7 +493,7 @@ shared one; and every help string is <code class="docutils literal notranslate">
 </div>
 <dl class="py class">
 <dt class="sig sig-object py" id="cw.grammar.ArgSpec">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.grammar.</span></span><span class="sig-name descname"><span class="pre">ArgSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">cw.MISSING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">cw.MISSING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/grammar.html#ArgSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.grammar.ArgSpec" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cw.grammar.</span></span><span class="sig-name descname"><span class="pre">ArgSpec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flags</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">required</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">cw.MISSING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">cw.MISSING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">dict()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">completer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/grammar.html#ArgSpec"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.grammar.ArgSpec" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>One command-line argument, as data, before argparse ever sees it.</p>
 <p><code class="docutils literal notranslate"><span class="pre">required</span></code>, <code class="docutils literal notranslate"><span class="pre">default</span></code> and <code class="docutils literal notranslate"><span class="pre">nargs</span></code> are held in their own fields rather than in
@@ -521,11 +522,6 @@ turning <code class="docutils literal notranslate"><span class="pre">{a,b}</span
 <p>The price is a <code class="docutils literal notranslate"><span class="pre">dest</span></code> with a hyphen in it, which no Python call can use.
 <a class="reference internal" href="#cw.grammar.ArgSpec.argparse_dest" title="cw.grammar.ArgSpec.argparse_dest"><code class="xref py py-attr docutils literal notranslate"><span class="pre">argparse_dest</span></code></a> names it and <a class="reference internal" href="cw.cli.html#module-cw.cli" title="cw.cli"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cw.cli</span></code></a> renames it back on the way into
 the call – one dictionary lookup, in one place.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span> <span class="o">=</span> <span class="n">ArgSpec</span><span class="p">(</span><span class="s1">'project_dir'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'project-dir'</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">spec</span><span class="o">.</span><span class="n">add_argument_args</span><span class="p">()</span>
 <span class="go">(('project-dir',), {})</span>
@@ -533,6 +529,11 @@ the call – one dictionary lookup, in one place.</p>
 <span class="go">'project-dir'</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -565,7 +566,7 @@ guessed from a list-valued default overrides an explicitly declared one.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cw.grammar.ArgSpec.codec">
-<span class="sig-name descname"><span class="pre">codec</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="cw.base.html#cw.base.Codec" title="cw.base.Codec"><span class="pre">Codec</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cw.grammar.ArgSpec.codec" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">codec</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cw.base.html#cw.base.Codec" title="cw.base.Codec"><span class="pre">Codec</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cw.grammar.ArgSpec.codec" title="Link to this definition">#</a></dt>
 <dd><p>The optional post-parse decoder (<code class="docutils literal notranslate"><span class="pre">cw.ingress</span></code>’s site, not argparse’s <code class="docutils literal notranslate"><span class="pre">type=</span></code>).</p>
 </dd></dl>
 
@@ -608,17 +609,17 @@ which is where <code class="docutils literal notranslate"><span class="pre">argc
 argh hyphenates <code class="docutils literal notranslate"><span class="pre">&#64;arg</span></code>’s), <code class="docutils literal notranslate"><span class="pre">codec</span></code> (the post-parse decoder), and the whole
 leaf being <code class="xref py py-data docutils literal notranslate"><span class="pre">cw.HIDE</span></code>, which <a class="reference internal" href="#cw.grammar.specs_for_function" title="cw.grammar.specs_for_function"><code class="xref py py-func docutils literal notranslate"><span class="pre">specs_for_function()</span></code></a> handles before it
 gets here.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgSpec</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ArgSpec</span><span class="o">.</span><span class="n">from_override</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="s1">'synth'</span><span class="p">,</span> <span class="p">{</span><span class="s1">'flags'</span><span class="p">:</span> <span class="p">[</span><span class="s1">'-s'</span><span class="p">],</span> <span class="s1">'nargs'</span><span class="p">:</span> <span class="s1">'?'</span><span class="p">})</span>
 <span class="go">ArgSpec(param_name='synth', flags=['-s'], required=cw.MISSING, default=cw.MISSING,</span>
 <span class="go">        nargs='?', extra={}, codec=None, hidden=False, completer=None)</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgSpec</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
@@ -644,7 +645,7 @@ gets here.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cw.grammar.ArgSpec.nargs">
-<span class="sig-name descname"><span class="pre">nargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cw.grammar.ArgSpec.nargs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.15)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#cw.grammar.ArgSpec.nargs" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">add_argument(nargs=...)</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> means “do not pass it”.</p>
 </dd></dl>
 
@@ -683,7 +684,7 @@ unset an inferred <code class="docutils literal notranslate"><span class="pre">n
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -740,11 +741,6 @@ startup failure with a message rather than a flag that silently never appears.</
 <code class="docutils literal notranslate"><span class="pre">required=False</span></code>. The covered set is exactly argh’s – <code class="docutils literal notranslate"><span class="pre">str</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>,
 <code class="docutils literal notranslate"><span class="pre">bool</span></code>, <code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">list[T]</span></code>, <code class="docutils literal notranslate"><span class="pre">Literal[...]</span></code> and <code class="docutils literal notranslate"><span class="pre">Union</span></code>/<code class="docutils literal notranslate"><span class="pre">Optional</span></code> – and
 nothing else, because argh recognises nothing else.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">argh_decode</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 <span class="go">{'type': &lt;class 'int'&gt;}</span>
@@ -758,6 +754,11 @@ nothing else, because argh recognises nothing else.</p>
 <span class="go">{}</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -767,26 +768,21 @@ nothing else, because argh recognises nothing else.</p>
 <p>ADR-0004 rule 2: derived names and the keys you address them by must go through the
 <em>same</em> function, or a <code class="docutils literal notranslate"><span class="pre">config</span></code> written in one spelling silently misses a command
 named in the other.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cli_name</span><span class="p">(</span><span class="s1">'git_ops'</span><span class="p">),</span> <span class="n">cli_name</span><span class="p">(</span><span class="s1">'git_ops'</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">('git-ops', 'git_ops')</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cli_name</span><span class="p">(</span><span class="s1">'git_ops'</span><span class="p">),</span> <span class="n">cli_name</span><span class="p">(</span><span class="s1">'git_ops'</span><span class="p">,</span> <span class="n">hyphenate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="go">('git-ops', 'git_ops')</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cw.grammar.command_name">
 <span class="sig-prename descclassname"><span class="pre">cw.grammar.</span></span><span class="sig-name descname"><span class="pre">command_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyphenate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/grammar.html#command_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.grammar.command_name" title="Link to this definition">#</a></dt>
 <dd><p>The command word for a callable: its <code class="docutils literal notranslate"><span class="pre">__name__</span></code>, with <code class="docutils literal notranslate"><span class="pre">_</span></code> becoming <code class="docutils literal notranslate"><span class="pre">-</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">pack_go</span><span class="p">():</span> <span class="o">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">command_name</span><span class="p">(</span><span class="n">pack_go</span><span class="p">)</span>
 <span class="go">'pack-go'</span>
@@ -802,6 +798,11 @@ has no name to derive, and guessing one is how you ship the wrong CLI:</p>
 <span class="x">__name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -813,11 +814,6 @@ has no name to derive, and guessing one is how you ship the wrong CLI:</p>
 <p><code class="docutils literal notranslate"><span class="pre">Optional[X]</span></code> is unwrapped to <code class="docutils literal notranslate"><span class="pre">X</span></code> rather than read as “the first member wins”,
 which is the single most useful difference: under argh, <code class="docutils literal notranslate"><span class="pre">n:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></code>
 quietly becomes <code class="docutils literal notranslate"><span class="pre">nargs='?'</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">p</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">inspect</span><span class="o">.</span><span class="n">Parameter</span><span class="o">.</span><span class="n">KEYWORD_ONLY</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">modern_decode</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">==</span> <span class="p">{</span><span class="s1">'type'</span><span class="p">:</span> <span class="nb">int</span><span class="p">}</span>
 <span class="go">True</span>
@@ -844,6 +840,11 @@ cannot do — argh recognises <code class="docutils literal notranslate"><span c
 <span class="go">{}</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Mapping</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -866,11 +867,6 @@ that migrating an <code class="docutils literal notranslate"><span class="pre">&
 inference back on.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">config</span></code> leaf of <code class="xref py py-data docutils literal notranslate"><span class="pre">cw.HIDE</span></code> removes the argument from the command line while
 leaving the parameter to its own default:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgSpec</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">serve</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">'0.0.0.0'</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">,</span> <span class="n">pool</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="o">...</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">flags</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">specs_for_function</span><span class="p">(</span><span class="n">serve</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="p">{</span><span class="s1">'pool'</span><span class="p">:</span> <span class="n">HIDE</span><span class="p">})]</span>
@@ -889,6 +885,11 @@ function takes <code class="docutils literal notranslate"><span class="pre">**kw
 <span class="x">function's parameters are: host, port, pool</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#cw.grammar.ArgSpec" title="cw.grammar.ArgSpec"><code class="xref py py-class docutils literal notranslate"><span class="pre">ArgSpec</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

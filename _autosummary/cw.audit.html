@@ -34,6 +34,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/epythet.css?v=70da82a8" />
   
@@ -43,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=bafade30"></script>
+    <script src="../_static/documentation_options.js?v=1e825a29"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +58,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.10" />
+  <meta name="docsearch:version" content="0.1.11" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -540,7 +541,7 @@ Any directory holding a <code class="docutils literal notranslate"><span class="
 build. Keyword arguments go to <a class="reference internal" href="#cw.audit.audit" title="cw.audit.audit"><code class="xref py py-func docutils literal notranslate"><span class="pre">audit()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -549,17 +550,13 @@ build. Keyword arguments go to <a class="reference internal" href="#cw.audit.aud
 <dt class="sig sig-object py" id="cw.audit.audit">
 <span class="sig-prename descclassname"><span class="pre">cw.audit.</span></span><span class="sig-name descname"><span class="pre">audit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({'.git',</span> <span class="pre">'.hg',</span> <span class="pre">'.mypy_cache',</span> <span class="pre">'.nox',</span> <span class="pre">'.pytest_cache',</span> <span class="pre">'.ruff_cache',</span> <span class="pre">'.tox',</span> <span class="pre">'__pycache__',</span> <span class="pre">'node_modules',</span> <span class="pre">'site-packages'})</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude_top_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">frozenset({'.venv',</span> <span class="pre">'build',</span> <span class="pre">'dist',</span> <span class="pre">'env',</span> <span class="pre">'venv'})</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/audit.html#audit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.audit.audit" title="Link to this definition">#</a></dt>
 <dd><p>Audit a file or a source tree; return every residual <code class="docutils literal notranslate"><span class="pre">argh</span></code> finding.</p>
-<p><code class="docutils literal notranslate"><span class="pre">path</span></code> may be a directory (walked), a <code class="docutils literal notranslate"><span class="pre">.py</span></code> / <code class="docutils literal notranslate"><span class="pre">.pyi</span></code> file, or a metadata file.
+<p><code class="docutils literal notranslate"><span class="pre">path</span></code> may be a directory (walked), a Python file (any suffix when named explicitly; <code class="docutils literal notranslate"><span class="pre">.py</span></code>/<code class="docutils literal notranslate"><span class="pre">.pyi</span></code>/<code class="docutils literal notranslate"><span class="pre">.pyw</span></code> or a python
+shebang when walked), or a metadata file.
 <code class="docutils literal notranslate"><span class="pre">exclude_dirs</span></code> are skipped at any depth; <code class="docutils literal notranslate"><span class="pre">exclude_top_dirs</span></code> only directly under
 <code class="docutils literal notranslate"><span class="pre">path</span></code> (<code class="docutils literal notranslate"><span class="pre">build</span></code>, <code class="docutils literal notranslate"><span class="pre">dist</span></code>, <code class="docutils literal notranslate"><span class="pre">.venv</span></code>…). Symlinked directories are not followed,
 and a directory with a <code class="docutils literal notranslate"><span class="pre">pyvenv.cfg</span></code> is a virtualenv. Paths in the findings are
 relative to <code class="docutils literal notranslate"><span class="pre">path</span></code> when it is a directory. A file that cannot be read or parsed is an
 <code class="docutils literal notranslate"><span class="pre">unparsable</span></code> finding, not silence.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span><span class="o">,</span><span class="w"> </span><span class="nn">pathlib</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">root</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
@@ -569,6 +566,11 @@ relative to <code class="docutils literal notranslate"><span class="pre">path</s
 <span class="go">[('m.py', 'command-error'), ('m.py', 'import'), ('pyproject.toml', 'dependency')]</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -576,11 +578,6 @@ relative to <code class="docutils literal notranslate"><span class="pre">path</s
 <span class="sig-prename descclassname"><span class="pre">cw.audit.</span></span><span class="sig-name descname"><span class="pre">audit_dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'&lt;string&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/audit.html#audit_dependencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.audit.audit_dependencies" title="Link to this definition">#</a></dt>
 <dd><p>Findings for <code class="docutils literal notranslate"><span class="pre">argh</span></code> declared as a requirement in one metadata file’s text.</p>
 <p><code class="docutils literal notranslate"><span class="pre">always</span></code> treats every line as a candidate (a <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">text</span> <span class="o">=</span> <span class="s1">'[project]</span><span class="se">\n</span><span class="s1">name = "argh"</span><span class="se">\n</span><span class="s1">dependencies = ["argh&gt;=0.31", "x"]</span><span class="se">\n</span><span class="s1">'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">f</span><span class="o">.</span><span class="n">line</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">code</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">audit_dependencies</span><span class="p">(</span><span class="n">text</span><span class="p">)]</span>
 <span class="go">[(3, 'dependency')]</span>
@@ -596,6 +593,11 @@ relative to <code class="docutils literal notranslate"><span class="pre">path</s
 <span class="go">[2]</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -605,11 +607,6 @@ relative to <code class="docutils literal notranslate"><span class="pre">path</s
 <p>A file that cannot be analysed yields a single <code class="docutils literal notranslate"><span class="pre">unparsable</span></code> finding rather than an
 exception or silence: an audit that crashes on one bad file reports nothing about the
 rest, and one that skips it cannot vouch for it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">audit_source</span><span class="p">(</span><span class="s2">"import argh as a</span><span class="se">\n</span><span class="s2">a.CommandError('x')"</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">code</span>
 <span class="go">'command-error'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">audit_source</span><span class="p">(</span><span class="s2">"import cw</span><span class="se">\n</span><span class="s2">cw.dispatch(f)"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">code</span>
@@ -626,21 +623,26 @@ rest, and one that skips it cannot vouch for it.</p>
 <span class="go">'unparsable'</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="#cw.audit.Finding" title="cw.audit.Finding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finding</span></code></a>]</span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cw.audit.format_findings">
 <span class="sig-prename descclassname"><span class="pre">cw.audit.</span></span><span class="sig-name descname"><span class="pre">format_findings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">findings</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/audit.html#format_findings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.audit.format_findings" title="Link to this definition">#</a></dt>
 <dd><p>The report: one <code class="docutils literal notranslate"><span class="pre">path:line:</span> <span class="pre">code:</span> <span class="pre">message</span></code> per finding, or the all-clear.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_findings</span><span class="p">([])</span>
+<span class="go">'no residual argh found.'</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_findings</span><span class="p">([])</span>
-<span class="go">'no residual argh found.'</span>
-</pre></div>
-</div>
 </dd></dl>
 
 </section>

@@ -231,16 +231,16 @@ Resolves an object by either returning it directly if it’s of the correct type
 or looking it up in a mapping if it’s a string.
 
 * **Parameters:**
-  * **obj** (`Union`[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`T`)]) – The object to resolve. Can be a string (to be looked up in object_map)
+  * **obj** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), `T`]) – The object to resolve. Can be a string (to be looked up in object_map)
     or the object itself (if it’s already of type T).
-  * **object_map** ([`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`T`)]) – A dictionary mapping strings to objects of type T.
+  * **object_map** ([`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), `T`]) – A dictionary mapping strings to objects of type T.
   * **expected_type** ([`type`](https://docs.python.org/3/builtins/functions.html#type)) – (Optional) The expected type of the resolved object.
     If provided, raises a TypeError if the resolved object
     is not of this type.
   * **error_message** ([`str`](https://docs.python.org/3/builtins/stdtypes.html#str)) – (Optional) A custom error message to use if a ValueError
     or TypeError is raised. If None, a default message is used.
 * **Return type:**
-  [`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`T`)
+  `T`
 * **Returns:**
   The resolved object of type T.
 * **Raises:**
@@ -261,10 +261,10 @@ This is the main entry point for function resolution. It handles:
 - Parameter binding via functools.partial
 
 * **Parameters:**
-  * **func_spec** (`Union`[[`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), [`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncSpec`)]) – Function specification (callable, string, etc.)
-  * **func_key_and_kwargs** ([`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncSpec`)], [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]) – Parser function to extract key and params from spec.
+  * **func_spec** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), `FuncSpec`]) – Function specification (callable, string, etc.)
+  * **func_key_and_kwargs** ([`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[`FuncSpec`], [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[`FuncKey`, [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]) – Parser function to extract key and params from spec.
     By default, will parse dot-path function names and call expressions.
-  * **get_func** ([`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)), [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)] | [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str))], [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]) – Function or mapping to resolve function keys to callables
+  * **get_func** ([`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[`FuncKey`, [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)] | [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[`FuncKey`], [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]) – Function or mapping to resolve function keys to callables
 * **Return type:**
   [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
 * **Returns:**

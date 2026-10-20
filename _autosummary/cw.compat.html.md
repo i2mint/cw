@@ -188,9 +188,6 @@ argh’s `add_commands`, accepting the pre-0.30 spelling as well.
 keyword nothing reads. Accepting both makes those four call sites work – flag it in
 the migration notes, because “would crash” becoming “works” is still a change.
 
-* **Return type:**
-  [`None`](https://docs.python.org/3/builtins/constants.html#None)
-
 ```pycon
 >>> import argparse
 >>> from cw import compat as argh
@@ -201,6 +198,9 @@ the migration notes, because “would crash” becoming “works” is still a c
 >>> parser.format_usage()
 'usage: priv [-h] {git_ops} ...\n'
 ```
+
+* **Return type:**
+  [`None`](https://docs.python.org/3/builtins/constants.html#None)
 
 ### cw.compat.arg(\*flags, \*\*add_argument_kwargs)
 
@@ -215,9 +215,6 @@ Not deprecated by a warning, unlike the rest of this module – it is a decorato
 evaluated at import time, so warning on it would fire before anybody could act, and it
 is the one name here whose target (a plain attribute) is a supported cw contract rather
 than a shim.
-
-* **Return type:**
-  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)
 
 ```pycon
 >>> from cw import compat as argh
@@ -249,6 +246,9 @@ it travels in the leaf and [`cw.cli`](cw.cli.html.md#module-cw.cli) assigns it t
 True
 ```
 
+* **Return type:**
+  [`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable)
+
 ### cw.compat.completion *= <cw.compat._Completion object>*
 
 `argh.completion.autocomplete(parser)` keeps working after the import swap.
@@ -272,9 +272,6 @@ Accepts argh’s `output_file` / `errors_file` / `completion` and the four keywo
 that were verified to have zero fleet uses, so a call site that passes one gets cw’s
 behaviour rather than a `TypeError`. `output_file=None` returns the output string.
 
-* **Return type:**
-  [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
-
 ```pycon
 >>> import io
 >>> from cw import compat as argh
@@ -285,6 +282,9 @@ behaviour rather than a `TypeError`. `output_file=None` returns the output strin
 >>> parser.dispatch(['ping'], output_file=None)
 'pong\n'
 ```
+
+* **Return type:**
+  [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 ### cw.compat.dispatch_command(function, argv=None, , old_name_mapping_policy=True, \*\*kwargs)
 
@@ -302,9 +302,6 @@ The fleet’s most-used argh name (34 call sites). A usage error exits 2,
 as in argh. `old_name_mapping_policy=False` selects
 `BY_NAME_IF_KWONLY`, as in argh; an explicit `name_mapping_policy` overrides it.
 
-* **Return type:**
-  [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
-
 ```pycon
 >>> import io
 >>> from cw import compat as argh
@@ -313,6 +310,9 @@ as in argh. `old_name_mapping_policy=False` selects
 >>> argh.dispatch_commands([add], ['add', '2', '3'], output_file=None)
 '5\n'
 ```
+
+* **Return type:**
+  [`Optional`](https://docs.python.org/3/library/typing.html#typing.Optional)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str)]
 
 ### cw.compat.set_default_command(parser, function, , name_mapping_policy=None, \*\*kwargs)
 

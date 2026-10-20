@@ -538,7 +538,10 @@ test suite:
 ```python
 def test_no_residual_argh():
     from cw.audit import assert_no_argh
-    assert_no_argh(Path(__file__).parents[1])   # raises AssertionError listing each finding
+
+    assert_no_argh(
+        Path(__file__).parents[1]
+    )  # raises AssertionError listing each finding
 ```
 
 ## Resolving a function from a string

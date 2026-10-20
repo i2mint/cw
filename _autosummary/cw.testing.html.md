@@ -206,9 +206,6 @@ the *rendering* is part of what the migration promised not to change – swappin
 formatter for argparse’s stock one is invisible to the tier-3 fields, because it moves
 only the help column and the description block.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> a = {'tier': 1, 'returncode': 0, 'stdout': 'hi\n', 'stderr': '', 'usage': ''}
 >>> compare_case(a, dict(a))
@@ -231,6 +228,9 @@ version-dependent rendering is forgiven, and it is forgiven on both sides (see
 ''
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### cw.testing.diff_help(golden, , prog=None, timeout=30, env=None, cwd=None)
 
 The advisory tier-3 diff: how every `--help` body changed. Never asserted.
@@ -247,9 +247,6 @@ nothing moved.
 
 A golden, from a dict or the path of one, validated enough to fail usefully.
 
-* **Return type:**
-  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
-
 ```pycon
 >>> load_golden({'cw_golden': 1, 'cases': []})['cases']
 []
@@ -258,6 +255,9 @@ Traceback (most recent call last):
   ...
 ValueError: not a cw golden (no 'cw_golden' key): a dict
 ```
+
+* **Return type:**
+  [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)
 
 ### cw.testing.local_path_hits(text, , home='~')
 
@@ -304,15 +304,15 @@ Newline-normalise `text` so a Mac recording asserts on a Windows runner.
 
 This is the whole of the Windows decision (option A) as it applies to tier 1.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> normalise_text('one\r\ntwo\rthree\n')
 'one\ntwo\nthree\n'
 >>> normalise_text(None) is None
 True
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### cw.testing.normalise_usage(text)
 
@@ -322,9 +322,6 @@ The `usage:` block of `text`, whitespace-collapsed and width-independent.
 over two lines at `COLUMNS=100` and five at `COLUMNS=50`. Collapsing every run of
 whitespace to one space makes the two equal while keeping what actually matters: which
 options exist, in which order, with which metavars.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> normalise_usage('usage: prog [-h] [-v]\n\npositional arguments:\n  x')
@@ -341,6 +338,9 @@ fact worth asserting too:
 >>> normalise_usage('hello world\n')
 ''
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### cw.testing.parity(goldens_dir=None, , out=None, verbose=False)
 
@@ -462,13 +462,13 @@ that recorded it. It is applied at record time as well as at replay time, so the
 committed golden shows what is actually being asserted rather than hiding it in the
 comparator.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> scrub_addresses('<map object at 0x104f2b910>')
 '<map object at 0xADDR>'
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ### cw.testing.scrub_exe_suffix(text, program)
 
@@ -497,9 +497,6 @@ template string, because a Windows path reaches this on a POSIX host – through
 golden’s recorded `prog` – where `os.path.basename` does not split on a backslash
 and `re.sub` would read the remaining `\p` as a bad escape.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> scrub_exe_suffix('usage: opsward.EXE [-h]', r'C:\Scripts\opsward.exe')
 'usage: opsward [-h]'
@@ -510,3 +507,6 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 >>> scrub_exe_suffix('run setup.exe first', '/usr/local/bin/opsward')
 'run setup.exe first'
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)

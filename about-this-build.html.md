@@ -2,18 +2,18 @@
 
 # About this build
 
-This documentation was built on **2026-10-13 23:32 UTC** from commit <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a</code></a> on branch <code>master</code>, for **cw 0.1.10** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-10-20 02:54 UTC** from commit <a href="https://github.com/i2mint/cw/commit/c892cc0a1b65df70452bdd4992f07960309bcfda"><code>c892cc0</code></a> on branch <code>master</code>, for **cw 0.1.11** (from <code>pyproject.toml</code>).
 
 #### WARNING
 The documentation and the package may be misaligned:
 
-- The documented version (0.1.10) is behind the latest release on PyPI (0.1.11): `pip install cw` gives newer code than these docs describe.
+- The documented version (0.1.11) is behind the latest release on PyPI (0.1.12): `pip install cw` gives newer code than these docs describe.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/8078d1a9ec4e8feec67ea1ac57ef1680da8493f7"><code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/c892cc0a1b65df70452bdd4992f07960309bcfda"><code>c892cc0a1b65df70452bdd4992f07960309bcfda</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -24,16 +24,16 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/38484674380">38484674380</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/39361336298">39361336298</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>8078d1a9ec4e8feec67ea1ac57ef1680da8493f7</code> (in the history of the built commit) |
+| Event commit | <code>c892cc0a1b65df70452bdd4992f07960309bcfda</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.17  |
-| Sphinx   | 9.1.0   |
+| epythet  | 0.2.18  |
+| Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
 | Python   | 3.12.15 |
 
@@ -51,14 +51,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.11/">0.1.11</a>, newer than the documented version (0.1.10).
+Latest release: <a href="https://pypi.org/project/cw/0.1.12/">0.1.12</a>, newer than the documented version (0.1.11).
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 8078d1a9ec4e8feec67ea1ac57ef1680da8493f7
-pip install "epythet==0.2.17"
+git checkout c892cc0a1b65df70452bdd4992f07960309bcfda
+pip install "epythet==0.2.18"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

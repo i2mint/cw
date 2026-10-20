@@ -68,7 +68,7 @@ Bases: [`TypeError`](https://docs.python.org/3/builtins/exceptions.html#TypeErro
   * **convention** – Supplies `hyphenate_commands` and `hyphenate_groups`. Defaults to
     `cw.ARGH`.
 * **Return type:**
-  [`Dict`](https://docs.python.org/3/library/typing.html#typing.Dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), `Union`[[`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
+  [`Dict`](https://docs.python.org/3/library/typing.html#typing.Dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 * **Returns:**
   A mapping of command-line name to callable, whose values may themselves be such a
   mapping – one level deep, no further.
@@ -129,9 +129,6 @@ The house spelling – `py2mcp.mk_mcp_from_refs(['pkg.tools:verb'])` uses the sa
 one. The colon is required: it is what separates the module path from the attribute
 path without guessing where one ends.
 
-* **Return type:**
-  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)
-
 ```pycon
 >>> import_object('collections:OrderedDict')
 <class 'collections.OrderedDict'>
@@ -143,3 +140,6 @@ Traceback (most recent call last):
 ValueError: bad object reference 'collections.OrderedDict': expected 'pkg.mod:name',
 with a colon between the module and the attribute.
 ```
+
+* **Return type:**
+  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)

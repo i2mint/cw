@@ -69,7 +69,7 @@ shared one; and every help string is `'%(default)s'`, which
 | [`GrammarError`](#cw.grammar.GrammarError)   | A signature and its overrides cannot be reconciled into a CLI.   |
 |-----------------------------------------------------------------|------------------------------------------------------------------|
 
-### *class* cw.grammar.ArgSpec(param_name, flags, required=cw.MISSING, default=cw.MISSING, nargs=None, extra=<factory>, codec=None, hidden=False, completer=None)
+### *class* cw.grammar.ArgSpec(param_name, flags, required=cw.MISSING, default=cw.MISSING, nargs=None, extra=dict(), codec=None, hidden=False, completer=None)
 
 Bases: [`object`](https://docs.python.org/3/builtins/functions.html#object)
 
@@ -103,9 +103,6 @@ The price is a `dest` with a hyphen in it, which no Python call can use.
 [`argparse_dest`](#cw.grammar.ArgSpec.argparse_dest) names it and [`cw.cli`](cw.cli.html.md#module-cw.cli) renames it back on the way into
 the call – one dictionary lookup, in one place.
 
-* **Return type:**
-  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)
-
 ```pycon
 >>> spec = ArgSpec('project_dir', ['project-dir'])
 >>> spec.add_argument_args()
@@ -113,6 +110,9 @@ the call – one dictionary lookup, in one place.
 >>> spec.argparse_dest
 'project-dir'
 ```
+
+* **Return type:**
+  [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)
 
 #### add_argument_kwargs()
 
@@ -139,7 +139,7 @@ argparse derives it from the first long option (`--project-dir` ->
 'project-dir'
 ```
 
-#### codec *: [Codec](cw.base.html.md#cw.base.Codec) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### codec *: [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)[[Codec](cw.base.html.md#cw.base.Codec)]* *= None*
 
 The optional post-parse decoder (`cw.ingress`’s site, not argparse’s `type=`).
 
@@ -173,15 +173,15 @@ argh hyphenates `@arg`’s), `codec` (the post-parse decoder), and the whole
 leaf being `cw.HIDE`, which [`specs_for_function()`](#cw.grammar.specs_for_function) handles before it
 gets here.
 
-* **Return type:**
-  [`ArgSpec`](#cw.grammar.ArgSpec)
-
 ```pycon
 >>> ArgSpec.from_override(
 ...     'synth', {'flags': ['-s'], 'nargs': '?'})
 ArgSpec(param_name='synth', flags=['-s'], required=cw.MISSING, default=cw.MISSING,
         nargs='?', extra={}, codec=None, hidden=False, completer=None)
 ```
+
+* **Return type:**
+  [`ArgSpec`](#cw.grammar.ArgSpec)
 
 #### hidden *: [bool](https://docs.python.org/3/builtins/functions.html#bool)* *= False*
 
@@ -199,7 +199,7 @@ Is this a positional argument (as opposed to an option)?
 True
 ```
 
-#### nargs *: [str](https://docs.python.org/3/builtins/stdtypes.html#str) | [None](https://docs.python.org/3/builtins/constants.html#None)* *= None*
+#### nargs *: [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)[[str](https://docs.python.org/3/builtins/stdtypes.html#str)]* *= None*
 
 `add_argument(nargs=...)`; `None` means “do not pass it”.
 
@@ -280,9 +280,6 @@ A type implies more than a converter, which is why this returns a mapping of
 `bool`, `list`, `list[T]`, `Literal[...]` and `Union`/`Optional` – and
 nothing else, because argh recognises nothing else.
 
-* **Return type:**
-  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
-
 ```pycon
 >>> p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)
 >>> argh_decode(p, int)
@@ -297,6 +294,9 @@ True
 {}
 ```
 
+* **Return type:**
+  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
 ### cw.grammar.cli_name(name, , , hyphenate=True)
 
 The one name-mangling rule, applied to commands, groups, flags and config keys.
@@ -305,20 +305,17 @@ ADR-0004 rule 2: derived names and the keys you address them by must go through 
 *same* function, or a `config` written in one spelling silently misses a command
 named in the other.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> cli_name('git_ops'), cli_name('git_ops', hyphenate=False)
 ('git-ops', 'git_ops')
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### cw.grammar.command_name(func, , , hyphenate=True)
 
 The command word for a callable: its `__name__`, with `_` becoming `-`.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> def pack_go(): ...
@@ -338,6 +335,9 @@ TypeError: cannot derive a command name from functools.partial(...): it has no
 __name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### cw.grammar.modern_decode(param, hint)
 
 Seam 1’s shipped alternative: `Optional[X]`, `Enum` and `pathlib` support.
@@ -348,9 +348,6 @@ Composition is fall-through, not a registry: three `if`s and then
 `Optional[X]` is unwrapped to `X` rather than read as “the first member wins”,
 which is the single most useful difference: under argh, `n: int | None = None`
 quietly becomes `nargs='?'`.
-
-* **Return type:**
-  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ```pycon
 >>> p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)
@@ -383,6 +380,9 @@ True
 {}
 ```
 
+* **Return type:**
+  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
 ### cw.grammar.specs_for_function(func, , , convention=None, config=None, decode=None, parser_adds_help=True)
 
 The whole grammar: one function in, its command-line arguments out.
@@ -407,9 +407,6 @@ inference back on.
 A `config` leaf of `cw.HIDE` removes the argument from the command line while
 leaving the parameter to its own default:
 
-* **Return type:**
-  [`List`](https://docs.python.org/3/library/typing.html#typing.List)[[`ArgSpec`](#cw.grammar.ArgSpec)]
-
 ```pycon
 >>> def serve(host='0.0.0.0', port=8080, pool=None):
 ...     ...
@@ -431,3 +428,6 @@ Traceback (most recent call last):
 cw.grammar.GrammarError: serve: override for 'prot' matches no parameter. This
 function's parameters are: host, port, pool
 ```
+
+* **Return type:**
+  [`List`](https://docs.python.org/3/library/typing.html#typing.List)[[`ArgSpec`](#cw.grammar.ArgSpec)]

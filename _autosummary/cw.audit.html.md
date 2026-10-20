@@ -132,15 +132,13 @@ build. Keyword arguments go to [`audit()`](#cw.audit.audit).
 
 Audit a file or a source tree; return every residual `argh` finding.
 
-`path` may be a directory (walked), a `.py` / `.pyi` file, or a metadata file.
+`path` may be a directory (walked), a Python file (any suffix when named explicitly; `.py`/`.pyi`/`.pyw` or a python
+shebang when walked), or a metadata file.
 `exclude_dirs` are skipped at any depth; `exclude_top_dirs` only directly under
 `path` (`build`, `dist`, `.venv`…). Symlinked directories are not followed,
 and a directory with a `pyvenv.cfg` is a virtualenv. Paths in the findings are
 relative to `path` when it is a directory. A file that cannot be read or parsed is an
 `unparsable` finding, not silence.
-
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
 
 ```pycon
 >>> import tempfile, pathlib
@@ -152,14 +150,14 @@ relative to `path` when it is a directory. A file that cannot be read or parsed 
 [('m.py', 'command-error'), ('m.py', 'import'), ('pyproject.toml', 'dependency')]
 ```
 
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
+
 ### cw.audit.audit_dependencies(text, , path='<string>', always=False)
 
 Findings for `argh` declared as a requirement in one metadata file’s text.
 
 `always` treats every line as a candidate (a `requirements.txt`).
-
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
 
 ```pycon
 >>> text = '[project]\nname = "argh"\ndependencies = ["argh>=0.31", "x"]\n'
@@ -177,6 +175,9 @@ Findings for `argh` declared as a requirement in one metadata file’s text.
 [2]
 ```
 
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
+
 ### cw.audit.audit_source(source, , path='<string>')
 
 Findings for one Python source (text or bytes), sorted by line.
@@ -184,9 +185,6 @@ Findings for one Python source (text or bytes), sorted by line.
 A file that cannot be analysed yields a single `unparsable` finding rather than an
 exception or silence: an audit that crashes on one bad file reports nothing about the
 rest, and one that skips it cannot vouch for it.
-
-* **Return type:**
-  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
 
 ```pycon
 >>> audit_source("import argh as a\na.CommandError('x')")[1].code
@@ -205,14 +203,17 @@ rest, and one that skips it cannot vouch for it.
 'unparsable'
 ```
 
+* **Return type:**
+  [`list`](https://docs.python.org/3/builtins/stdtypes.html#list)[[`Finding`](#cw.audit.Finding)]
+
 ### cw.audit.format_findings(findings)
 
 The report: one `path:line: code: message` per finding, or the all-clear.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> format_findings([])
 'no residual argh found.'
 ```
+
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)

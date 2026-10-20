@@ -378,9 +378,6 @@ When `group_name` is given, `config` is keyed by *command* name – `config` alw
 has the same shape as the `obj` beside it, and here that `obj` is the group’s
 members.
 
-* **Return type:**
-  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
-
 ```pycon
 >>> import argparse, cw
 >>> from cw.cli import add_commands
@@ -411,6 +408,9 @@ The group’s row in the **parent’s** `--help` is fed by `group_kwargs['title'
 only by that. `help` is accepted, forwarded to `add_subparsers` and rendered
 nowhere – see `_add_group()`, which is where that is implemented and explained.
 
+* **Return type:**
+  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
+
 ### cw.argh_decode(param, hint)
 
 Seam 1’s default: argh’s annotation guesser, if-branch for if-branch.
@@ -421,9 +421,6 @@ A type implies more than a converter, which is why this returns a mapping of
 `required=False`. The covered set is exactly argh’s – `str`, `int`, `float`,
 `bool`, `list`, `list[T]`, `Literal[...]` and `Union`/`Optional` – and
 nothing else, because argh recognises nothing else.
-
-* **Return type:**
-  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ```pycon
 >>> p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)
@@ -439,6 +436,9 @@ True
 {}
 ```
 
+* **Return type:**
+  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
+
 ### cw.argh_egress(result, , out=None, err=None)
 
 Seam 2’s default: argh’s type **whitelist**, footguns included.
@@ -446,9 +446,6 @@ Seam 2’s default: argh’s type **whitelist**, footguns included.
 `None` writes nothing. A generator, `list` or `tuple` writes one line per item.
 *Everything else* – including a `dict`, a `set` and a `map` object – writes one
 line, which is its `str`.
-
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ```pycon
 >>> import io
@@ -469,6 +466,9 @@ line, which is its `str`.
 `err` is accepted and unused: it is part of the `cw.Egress` contract, so that
 an egress which *does* write to the error stream is a drop-in replacement.
 
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
+
 ### cw.cli_name(name, , , hyphenate=True)
 
 The one name-mangling rule, applied to commands, groups, flags and config keys.
@@ -477,20 +477,17 @@ ADR-0004 rule 2: derived names and the keys you address them by must go through 
 *same* function, or a `config` written in one spelling silently misses a command
 named in the other.
 
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
-
 ```pycon
 >>> cli_name('git_ops'), cli_name('git_ops', hyphenate=False)
 ('git-ops', 'git_ops')
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### cw.command_name(func, , , hyphenate=True)
 
 The command word for a callable: its `__name__`, with `_` becoming `-`.
-
-* **Return type:**
-  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
 
 ```pycon
 >>> def pack_go(): ...
@@ -510,6 +507,9 @@ TypeError: cannot derive a command name from functools.partial(...): it has no
 __name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": obj})
 ```
 
+* **Return type:**
+  [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)
+
 ### cw.commands_from(obj, , , convention=None, \_depth=0)
 
 `obj` -> `{name: callable}`, with a nested mapping for each group.
@@ -519,7 +519,7 @@ __name__. Pass it explicitly with the mapping form: cw.dispatch({"my-command": o
   * **convention** – Supplies `hyphenate_commands` and `hyphenate_groups`. Defaults to
     `cw.ARGH`.
 * **Return type:**
-  [`Dict`](https://docs.python.org/3/library/typing.html#typing.Dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), `Union`[[`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
+  [`Dict`](https://docs.python.org/3/library/typing.html#typing.Dict)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`Callable`](https://docs.python.org/3/library/typing.html#typing.Callable), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]
 * **Returns:**
   A mapping of command-line name to callable, whose values may themselves be such a
   mapping – one level deep, no further.
@@ -633,9 +633,6 @@ nothing – is [`functools.partial()`](https://docs.python.org/3/library/functoo
 dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog='priv')
 ```
 
-* **Return type:**
-  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)
-
 ```pycon
 >>> import cw, io
 >>> def add(a: int, b: int):
@@ -655,6 +652,9 @@ checks it:
 >>> cw.dispatch(add, ['nope'], out=io.StringIO(), err=io.StringIO())
 2
 ```
+
+* **Return type:**
+  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)
 
 ### cw.enable_completion(parser, , , silent=True)
 
@@ -690,9 +690,6 @@ True
 A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 `bytes` or `Mapping` – writes one line per item.
 
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
-
 ```pycon
 >>> import io
 >>> def show(result):
@@ -707,6 +704,9 @@ A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 'one line\n'
 ```
 
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
+
 ### cw.json_egress(result, , out=None, err=None, indent=2)
 
 One JSON document, for a command whose result is data rather than lines.
@@ -714,9 +714,6 @@ One JSON document, for a command whose result is data rather than lines.
 An iterator is materialised first (JSON has no streaming form), and anything JSON does
 not know is rendered with `str` rather than raising – which is what
 `t/xa/xa/cli.py`’s hand-rolled version does, and it is the behaviour a CLI wants.
-
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ```pycon
 >>> import io
@@ -733,6 +730,9 @@ not know is rendered with `str` rather than raising – which is what
 >>> buffer.getvalue()
 '["a", "b"]\n'
 ```
+
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ### cw.mk_parser(obj, /, \*, config=None, convention=Convention(naming='by_name_if_has_default', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>), decode=None, \*\*parser_kwargs)
 
@@ -785,9 +785,6 @@ Composition is fall-through, not a registry: three `if`s and then
 which is the single most useful difference: under argh, `n: int | None = None`
 quietly becomes `nargs='?'`.
 
-* **Return type:**
-  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
-
 ```pycon
 >>> p = inspect.Parameter('x', inspect.Parameter.KEYWORD_ONLY)
 >>> modern_decode(p, typing.Optional[int]) == {'type': int}
@@ -818,6 +815,9 @@ True
 >>> argh_decode(p, typing.Sequence[str])
 {}
 ```
+
+* **Return type:**
+  [`Mapping`](https://docs.python.org/3/library/typing.html#typing.Mapping)[[`str`](https://docs.python.org/3/builtins/stdtypes.html#str), [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)]
 
 ### cw.parse_ast_spec(func_spec)
 
@@ -973,10 +973,10 @@ This is the main entry point for function resolution. It handles:
 - Parameter binding via functools.partial
 
 * **Parameters:**
-  * **func_spec** (`Union`[[`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), [`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncSpec`)]) – Function specification (callable, string, etc.)
-  * **func_key_and_kwargs** ([`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncSpec`)], [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)), [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]) – Parser function to extract key and params from spec.
+  * **func_spec** ([`Union`](https://docs.python.org/3/library/typing.html#typing.Union)[[`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable), `FuncSpec`]) – Function specification (callable, string, etc.)
+  * **func_key_and_kwargs** ([`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[`FuncSpec`], [`tuple`](https://docs.python.org/3/builtins/stdtypes.html#tuple)[`FuncKey`, [`dict`](https://docs.python.org/3/builtins/stdtypes.html#dict)]]) – Parser function to extract key and params from spec.
     By default, will parse dot-path function names and call expressions.
-  * **get_func** ([`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str)), [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)] | [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[[`TypeVar`](https://docs.python.org/3/library/typing.html#typing.TypeVar)(`FuncKey`, bound= [`str`](https://docs.python.org/3/builtins/stdtypes.html#str))], [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]) – Function or mapping to resolve function keys to callables
+  * **get_func** ([`Mapping`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping)[`FuncKey`, [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)] | [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)[[`FuncKey`], [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)]) – Function or mapping to resolve function keys to callables
 * **Return type:**
   [`Callable`](https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable)
 * **Returns:**
@@ -1146,9 +1146,6 @@ This is what makes `run`’s reason for existing true – a repo can hand-build 
 parser, `add_argument` to it, bind a function here, and still get cw’s ingress and
 egress:
 
-* **Return type:**
-  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
-
 ```pycon
 >>> import argparse, cw, io
 >>> from cw.cli import set_default_command
@@ -1171,6 +1168,9 @@ only in messages – it is what lets the `functools.partial` warning print the
 `config` key you would actually paste rather than a `'<command>'` placeholder – so
 a caller binding a single command has no reason to pass it.
 
+* **Return type:**
+  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
+
 ### cw.write_lines(lines, , , out=None, flush=True)
 
 Write `str(line) + '\n'` for each item, **lazily**.
@@ -1179,9 +1179,6 @@ Laziness is observable and is D2 row 18: a generator command that yields two lin
 then prompts must have those two lines on screen before the prompt. So the iterable is
 never materialised, and each line is flushed as it is written (argh’s `always_flush`,
 which defaults on).
-
-* **Return type:**
-  [`None`](https://docs.python.org/3/builtins/constants.html#None)
 
 ```pycon
 >>> import io
@@ -1203,6 +1200,9 @@ second one has been computed:
 >>> write_lines(two_lines(), out=buffer)
 (the stream already holds 'first\n')
 ```
+
+* **Return type:**
+  [`None`](https://docs.python.org/3/builtins/constants.html#None)
 
 ### Modules
 

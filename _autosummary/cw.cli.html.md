@@ -92,9 +92,6 @@ When `group_name` is given, `config` is keyed by *command* name – `config` alw
 has the same shape as the `obj` beside it, and here that `obj` is the group’s
 members.
 
-* **Return type:**
-  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
-
 ```pycon
 >>> import argparse, cw
 >>> from cw.cli import add_commands
@@ -125,6 +122,9 @@ The group’s row in the **parent’s** `--help` is fed by `group_kwargs['title'
 only by that. `help` is accepted, forwarded to `add_subparsers` and rendered
 nowhere – see `_add_group()`, which is where that is implemented and explained.
 
+* **Return type:**
+  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
+
 ### cw.cli.dispatch(obj, argv=None, \*, config=None, convention=Convention(naming='by_name_if_has_default', short_flags=True, hyphenate_commands=True, hyphenate_groups=False, default_in_help=True, hints_when_declared=False, resolve_hints=False, decode=<function argh_decode>, egress=<function argh_egress>), decode=None, egress=None, out=None, err=None, standalone=True, completion=True, \*\*parser_kwargs)
 
 The front door: `dispatch == run o mk_parser`.
@@ -143,9 +143,6 @@ nothing – is [`functools.partial()`](https://docs.python.org/3/library/functoo
 ```default
 dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog='priv')
 ```
-
-* **Return type:**
-  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)
 
 ```pycon
 >>> import cw, io
@@ -166,6 +163,9 @@ checks it:
 >>> cw.dispatch(add, ['nope'], out=io.StringIO(), err=io.StringIO())
 2
 ```
+
+* **Return type:**
+  [`Any`](https://docs.python.org/3/library/typing.html#typing.Any)
 
 ### cw.cli.enable_completion(parser, , , silent=True)
 
@@ -295,9 +295,6 @@ This is what makes `run`’s reason for existing true – a repo can hand-build 
 parser, `add_argument` to it, bind a function here, and still get cw’s ingress and
 egress:
 
-* **Return type:**
-  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)
-
 ```pycon
 >>> import argparse, cw, io
 >>> from cw.cli import set_default_command
@@ -319,3 +316,6 @@ has one – argh’s rule, and it is what lets `description=` override it.
 only in messages – it is what lets the `functools.partial` warning print the
 `config` key you would actually paste rather than a `'<command>'` placeholder – so
 a caller binding a single command has no reason to pass it.
+
+* **Return type:**
+  [`ArgumentParser`](https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser)

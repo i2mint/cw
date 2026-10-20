@@ -34,6 +34,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/epythet.css?v=70da82a8" />
   
@@ -43,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=bafade30"></script>
+    <script src="../_static/documentation_options.js?v=1e825a29"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +58,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.1.10" />
+  <meta name="docsearch:version" content="0.1.11" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -572,7 +573,7 @@ reader can see what was intended alongside what was not, but they never cause a 
 An <code class="docutils literal notranslate"><span class="pre">unexpected-match</span></code> does: it means the migration note is wrong.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,11 +666,6 @@ return code and both streams in full, tier 3 asserts the return code and the nor
 the <em>rendering</em> is part of what the migration promised not to change – swapping argh’s
 formatter for argparse’s stock one is invisible to the tier-3 fields, because it moves
 only the help column and the description block.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'tier'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'returncode'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'stdout'</span><span class="p">:</span> <span class="s1">'hi</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="s1">'stderr'</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span> <span class="s1">'usage'</span><span class="p">:</span> <span class="s1">''</span><span class="p">}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">compare_case</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
 <span class="go">''</span>
@@ -689,6 +685,11 @@ version-dependent rendering is forgiven, and it is forgiven on both sides (see
 <span class="go">''</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -710,11 +711,6 @@ nothing moved.</p>
 <dt class="sig sig-object py" id="cw.testing.load_golden">
 <span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">load_golden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">golden</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/testing.html#load_golden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.load_golden" title="Link to this definition">#</a></dt>
 <dd><p>A golden, from a dict or the path of one, validated enough to fail usefully.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">load_golden</span><span class="p">({</span><span class="s1">'cw_golden'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'cases'</span><span class="p">:</span> <span class="p">[]})[</span><span class="s1">'cases'</span><span class="p">]</span>
 <span class="go">[]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">load_golden</span><span class="p">({</span><span class="s1">'cases'</span><span class="p">:</span> <span class="p">[]})</span>
@@ -723,6 +719,11 @@ nothing moved.</p>
 <span class="gr">ValueError</span>: <span class="n">not a cw golden (no 'cw_golden' key): a dict</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -779,17 +780,17 @@ text is clean – so it reads as a predicate too.</p>
 <span class="sig-prename descclassname"><span class="pre">cw.testing.</span></span><span class="sig-name descname"><span class="pre">normalise_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cw/testing.html#normalise_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cw.testing.normalise_text" title="Link to this definition">#</a></dt>
 <dd><p>Newline-normalise <code class="docutils literal notranslate"><span class="pre">text</span></code> so a Mac recording asserts on a Windows runner.</p>
 <p>This is the whole of the Windows decision (option A) as it applies to tier 1.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="s1">'one</span><span class="se">\r\n</span><span class="s1">two</span><span class="se">\r</span><span class="s1">three</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 <span class="go">'one\ntwo\nthree\n'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_text</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
 <span class="go">True</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -800,11 +801,6 @@ text is clean – so it reads as a predicate too.</p>
 over two lines at <code class="docutils literal notranslate"><span class="pre">COLUMNS=100</span></code> and five at <code class="docutils literal notranslate"><span class="pre">COLUMNS=50</span></code>. Collapsing every run of
 whitespace to one space makes the two equal while keeping what actually matters: which
 options exist, in which order, with which metavars.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog [-h] [-v]</span><span class="se">\n\n</span><span class="s1">positional arguments:</span><span class="se">\n</span><span class="s1">  x'</span><span class="p">)</span>
 <span class="go">'usage: prog [-h] [-v]'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">normalise_usage</span><span class="p">(</span><span class="s1">'usage: prog</span><span class="se">\n</span><span class="s1">       [--a]</span><span class="se">\n</span><span class="s1">       [--b] x'</span><span class="p">)</span>
@@ -818,6 +814,11 @@ fact worth asserting too:</p>
 <span class="go">''</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -955,15 +956,15 @@ records <code class="docutils literal notranslate"><span class="pre">&lt;list_it
 that recorded it. It is applied at record time as well as at replay time, so the
 committed golden shows what is actually being asserted rather than hiding it in the
 comparator.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_addresses</span><span class="p">(</span><span class="s1">'&lt;map object at 0x104f2b910&gt;'</span><span class="p">)</span>
+<span class="go">'&lt;map object at 0xADDR&gt;'</span>
+</pre></div>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_addresses</span><span class="p">(</span><span class="s1">'&lt;map object at 0x104f2b910&gt;'</span><span class="p">)</span>
-<span class="go">'&lt;map object at 0xADDR&gt;'</span>
-</pre></div>
-</div>
 </dd></dl>
 
 <dl class="py function">
@@ -989,11 +990,6 @@ that appears nowhere in the text, so considering it costs nothing.</p>
 template string, because a Windows path reaches this on a POSIX host – through a
 golden’s recorded <code class="docutils literal notranslate"><span class="pre">prog</span></code> – where <code class="docutils literal notranslate"><span class="pre">os.path.basename</span></code> does not split on a backslash
 and <code class="docutils literal notranslate"><span class="pre">re.sub</span></code> would read the remaining <code class="docutils literal notranslate"><span class="pre">\p</span></code> as a bad escape.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'usage: opsward.EXE [-h]'</span><span class="p">,</span> <span class="sa">r</span><span class="s1">'C:\Scripts\opsward.exe'</span><span class="p">)</span>
 <span class="go">'usage: opsward [-h]'</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">scrub_exe_suffix</span><span class="p">(</span><span class="s1">'usage: toy.EXE [-h]'</span><span class="p">,</span> <span class="p">[</span><span class="s1">'/usr/bin/python'</span><span class="p">,</span> <span class="s1">'/tmp/toy.exe'</span><span class="p">])</span>
@@ -1004,6 +1000,11 @@ and <code class="docutils literal notranslate"><span class="pre">re.sub</span></
 <span class="go">'run setup.exe first'</span>
 </pre></div>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

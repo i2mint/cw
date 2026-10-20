@@ -70,9 +70,6 @@ Seam 2’s default: argh’s type **whitelist**, footguns included.
 *Everything else* – including a `dict`, a `set` and a `map` object – writes one
 line, which is its `str`.
 
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
-
 ```pycon
 >>> import io
 >>> def show(result):
@@ -91,6 +88,9 @@ line, which is its `str`.
 
 `err` is accepted and unused: it is part of the `cw.Egress` contract, so that
 an egress which *does* write to the error stream is a drop-in replacement.
+
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ### cw.egress.confirm(action, , , default=None, skip=False, in_=None, out=None)
 
@@ -144,9 +144,6 @@ an error, so this is a deliberate, documented divergence from D2 rather than a g
 it. It lives at the *call site* ([`cw.cli.run()`](cw.cli.html.md#cw.cli.run)) instead of inside one egress, so
 that selecting a different egress cannot switch it off.
 
-* **Return type:**
-  [`None`](https://docs.python.org/3/builtins/constants.html#None)
-
 ```pycon
 >>> async def fetch(): ...
 >>> guard_no_coroutine(fetch())
@@ -156,15 +153,15 @@ TypeError: fetch returned a coroutine, and cw does not run event loops. Wrap the
 in asyncio.run(...), or make the command synchronous.
 ```
 
+* **Return type:**
+  [`None`](https://docs.python.org/3/builtins/constants.html#None)
+
 ### cw.egress.iterable_egress(result, , out=None, err=None)
 
 `cw.MODERN`’s egress: the `Iterable` protocol instead of argh’s whitelist.
 
 A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 `bytes` or `Mapping` – writes one line per item.
-
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ```pycon
 >>> import io
@@ -180,6 +177,9 @@ A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 'one line\n'
 ```
 
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
+
 ### cw.egress.json_egress(result, , out=None, err=None, indent=2)
 
 One JSON document, for a command whose result is data rather than lines.
@@ -187,9 +187,6 @@ One JSON document, for a command whose result is data rather than lines.
 An iterator is materialised first (JSON has no streaming form), and anything JSON does
 not know is rendered with `str` rather than raising – which is what
 `t/xa/xa/cli.py`’s hand-rolled version does, and it is the behaviour a CLI wants.
-
-* **Return type:**
-  [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
 ```pycon
 >>> import io
@@ -207,6 +204,9 @@ not know is rendered with `str` rather than raising – which is what
 '["a", "b"]\n'
 ```
 
+* **Return type:**
+  [`int`](https://docs.python.org/3/builtins/functions.html#int)
+
 ### cw.egress.write_lines(lines, , , out=None, flush=True)
 
 Write `str(line) + '\n'` for each item, **lazily**.
@@ -215,9 +215,6 @@ Laziness is observable and is D2 row 18: a generator command that yields two lin
 then prompts must have those two lines on screen before the prompt. So the iterable is
 never materialised, and each line is flushed as it is written (argh’s `always_flush`,
 which defaults on).
-
-* **Return type:**
-  [`None`](https://docs.python.org/3/builtins/constants.html#None)
 
 ```pycon
 >>> import io
@@ -239,3 +236,6 @@ second one has been computed:
 >>> write_lines(two_lines(), out=buffer)
 (the stream already holds 'first\n')
 ```
+
+* **Return type:**
+  [`None`](https://docs.python.org/3/builtins/constants.html#None)
