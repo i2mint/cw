@@ -148,6 +148,7 @@ class CommandError(Exception):
     """
 
     def __init__(self, message: str = "", *, code: int = DFLT_ERROR_CODE):
+        """Store the exit ``code`` alongside the message."""
         self.code = code
         super().__init__(message)
 
@@ -201,6 +202,7 @@ class Codec:
     passthrough: Container = ()
 
     def __call__(self, value: Any) -> Any:
+        """Decode a string, recurse into lists, and leave anything else untouched."""
         if isinstance(value, str):
             return value if value in self.passthrough else self.decode(value)
         if isinstance(value, list):

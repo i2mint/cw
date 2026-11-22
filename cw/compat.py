@@ -522,6 +522,7 @@ class ArghParser(argparse.ArgumentParser):
     """
 
     def __init__(self, *args, **kwargs):
+        """Build an ``argparse`` parser that defaults to ``ArghHelpFormatter``."""
         kwargs.setdefault("formatter_class", ArghHelpFormatter)
         super().__init__(*args, **kwargs)
 

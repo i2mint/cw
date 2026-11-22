@@ -253,3 +253,17 @@ class TestNameCollisionsAreRefused:
 
         tree = commands_from({"list": ls, "archive": {"list": ls}})
         assert sorted(tree) == ["archive", "list"]
+
+
+def test_label_falls_back_to_repr_for_a_nameless_value():
+    from cw.commands import _label
+
+    class Nameless:
+        def __repr__(self):
+            return "<nameless>"
+
+    nameless = Nameless()
+    nameless.__dict__["__qualname__"] = None
+    nameless.__dict__["__name__"] = None
+    assert _label(nameless) == "<nameless>"
+    assert _label(len) == "builtins.len"
