@@ -10,7 +10,7 @@ def greet(name, *, loudly=False):
 
 
 if __name__ == "__main__":
-    raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
+    raise SystemExit(cw.dispatch(greet))
 ```
 
 ```console
@@ -20,13 +20,13 @@ HELLO world
 
 `pip install cw` — no dependencies, MIT, and `import cw` costs stdlib only.
 
+An MIT replacement for `argh`: the same grammar and the same `--help`, so an argh CLI migrates with one import line ([Migrating from argh](https://github.com/i2mint/cw#migrating-from-argh)).
+
 ---
 
 ## What it does
 
-You hand `cw.dispatch` a function, a list of functions, a dict, or a module. It reads the
-signatures, builds an `argparse` parser, calls the function you asked for, prints what it
-returned, and returns an exit code. Nothing to decorate, nothing to declare.
+You hand `cw.dispatch` a function, a list of functions, a dict, or a module. It reads the signatures, builds an `argparse` parser, calls the function you asked for, prints what it returned, and returns an exit code. Nothing to decorate, nothing to declare.
 
 ```console
 $ python greet.py --help
@@ -48,15 +48,11 @@ $ echo $?
 2
 ```
 
-The parser `cw` builds is a **plain `argparse.ArgumentParser`**, never a subclass. That is
-deliberate and load-bearing: `argcomplete.autocomplete()` is argparse-typed at its
-signature, so shell completion works on a cw CLI with the same
-`# PYTHON_ARGCOMPLETE_OK` marker and no adapter.
+That help column (`-` for a parameter without help, the default's repr for an option) is argh's output, reproduced byte for byte; `config` help strings or `convention=cw.MODERN` change it (both below). The parser is a plain `argparse.ArgumentParser`, so `argcomplete` works on it unchanged.
 
 ### More than one command
 
-Pass anything with several functions in it. A **callable value is a command**; a **mapping
-or iterable value is a group**:
+Pass anything with several functions in it. A **callable value is a command**; a **mapping or iterable value is a group**:
 
 ```python
 import cw
@@ -97,7 +93,7 @@ $ tool list -p /tmp
 /tmp/two
 ```
 
-Six forms of `obj`, each decided by the **value**, never by a string DSL:
+Six things `cw.dispatch(obj)` accepts, each decided by the value of `obj`:
 
 | `obj` | becomes |
 |---|---|
@@ -108,14 +104,11 @@ Six forms of `obj`, each decided by the **value**, never by a string DSL:
 | a module, or any object | its public callable attributes; `__all__`, if present, is the name list |
 | `'pkg.mod:name'` — a string | **always exactly one command**, imported lazily |
 
-A name from a key or `__all__` beats `__name__`, and is then hyphenated:
-`{'parse_pth_paths': f}` gives you `parse-pth-paths`.
+A name from a key or `__all__` beats `__name__`, and is then hyphenated: `{'parse_pth_paths': f}` gives you `parse-pth-paths`.
 
 ### What a command's return value does
 
-`None` prints nothing. A list, a tuple or a **generator** prints one line per item — lazily,
-flushing as it goes, so a long-running command streams. Anything else prints as one line,
-`dict`s included. `0`, `False` and `''` do print.
+`None` prints nothing. A list, a tuple or a **generator** prints one line per item — lazily, flushing as it goes, so a long-running command streams. Anything else prints as one line, `dict`s included. `0`, `False` and `''` do print.
 
 ```python
 >>> import cw
@@ -127,13 +120,11 @@ b
 0
 ```
 
-Raise `cw.CommandError` for an expected failure: one line to stderr, no traceback, and an
-exit code you choose. Any other exception keeps its traceback, because a bug deserves one.
+Raise `cw.CommandError` for an expected failure: one line to stderr, no traceback, and an exit code you choose. Any other exception keeps its traceback, because a bug deserves one.
 
 ## `config` — this call's particulars
 
-`config` is a plain dict, **shaped exactly like `obj`** and keyed the way you type it on the
-command line. Its leaves are `add_argument` keyword arguments:
+`config` is a plain dict, **shaped exactly like `obj`** and keyed the way you type it on the command line. Its leaves are `add_argument` keyword arguments:
 
 ```python
 CONFIG = {
@@ -155,19 +146,12 @@ options:
   -l, --long          one line per entry (default: False)
 ```
 
-For several commands it nests the same way `obj` does —
-`{'git-ops': {'add': {'a': {'help': '...'}}}}` — and **a key that names no command, group or
-parameter is a startup error**, listing the names that do exist. That is on purpose: a
-mis-keyed config entry that silently does nothing is the failure mode this rule exists to
-kill.
+For several commands it nests the same way `obj` does — `{'git-ops': {'add': {'a': {'help': '...'}}}}` — and **a key that names no command, group or parameter is a startup error**, listing the names that do exist. That is on purpose: a mis-keyed config entry that silently does nothing is the failure mode this rule exists to kill.
 
 Two leaf values are not `add_argument` kwargs:
 
-- `cw.HIDE` removes a parameter from the command line entirely, leaving it to its own
-  default. This is how you keep a dependency-injection parameter out of the CLI.
-- `{'codec': callable}` decodes a parsed token *after* parsing — the place for a `str -> object`
-  conversion that `argparse`'s `type=` would get wrong, because argparse applies `type=` to
-  defaults and to `const` too.
+- `cw.HIDE` removes a parameter from the command line entirely, leaving it to its own default. This is how you keep a dependency-injection parameter out of the CLI.
+- `{'codec': callable}` decodes a parsed token *after* parsing — the place for a `str -> object` conversion that `argparse`'s `type=` would get wrong, because argparse applies `type=` to defaults and to `const` too.
 
 ```python
 >>> def serve(host='0.0.0.0', port=8080, pool=None):
@@ -179,18 +163,14 @@ Two leaf values are not `add_argument` kwargs:
 
 ## `convention` — what the defaults ARE
 
-`config` is per call; `convention` is per **context** — a repo, a house style, the fleet.
-It is a frozen dataclass of nine fields, and two values ship.
+`config` is per call; `convention` is per **context** — a repo, a house style, the fleet. It is a frozen dataclass of nine fields, and two values ship.
 
-**`cw.ARGH` is the default, and it reproduces `argh` 0.31.3 bit-for-bit** — footguns
-included. That is the point: a repo swaps its dispatcher for cw and its `--help` does not
-move. Concretely, under `ARGH`:
+**`cw.ARGH` is the default, and it reproduces `argh` 0.31.3 bit-for-bit** — footguns included. That is the point: a repo swaps its dispatcher for cw and its `--help` does not move. Concretely, under `ARGH`:
 
 - a parameter **with a default becomes an option**, one without becomes a positional;
 - `bool=True` becomes `store_false` (so `--loudly` on `loudly=True` turns it *off*);
 - an option's help column is `repr(default)` unless you give it one;
-- short flags come from the first character, and **if two parameters share one, neither gets
-  a short flag** — `-h` is always lost to `--help`;
+- short flags come from the first character, and **if two parameters share one, neither gets a short flag** — `-h` is always lost to `--help`;
 - a `dict` return value is **not** iterated; a `map` object prints as `<map object at 0x...>`;
 - `**kwargs` is silently dropped from the parser.
 
@@ -200,10 +180,7 @@ move. Concretely, under `ARGH`:
 cw.dispatch(COMMANDS, convention=cw.MODERN)
 ```
 
-It makes a parameter positional only when the signature says so (`*`-keyword-only becomes an
-option), resolves type annotations even when you have overridden something, hyphenates group
-names, iterates anything iterable that is not a `str`/`bytes`/`Mapping`, and unwraps
-`Optional[X]`, `Enum` and `pathlib.Path`.
+It makes a parameter positional only when the signature says so (`*`-keyword-only becomes an option), resolves type annotations even when you have overridden something, hyphenates group names, iterates anything iterable that is not a `str`/`bytes`/`Mapping`, and unwraps `Optional[X]`, `Enum` and `pathlib.Path`.
 
 ```python
 >>> import cw
@@ -218,9 +195,7 @@ names, iterates anything iterable that is not a `str`/`bytes`/`Mapping`, and unw
 0
 ```
 
-Every improvement cw has ships as a named convention value that **defaults off**. There is
-no third value and no `Convention(...)` you are expected to build; if you want one,
-`dataclasses.replace(cw.ARGH, short_flags=False)` is a `Convention`.
+Every improvement cw has ships as a named convention value that **defaults off**. There is no third value and no `Convention(...)` you are expected to build; if you want one, `dataclasses.replace(cw.ARGH, short_flags=False)` is a `Convention`.
 
 **The house idiom is `functools.partial`**, not a cw-specific binder:
 
@@ -230,20 +205,13 @@ import functools, cw
 dispatch = functools.partial(cw.dispatch, convention=cw.MODERN, prog="mytool")
 ```
 
-**One `ARGH` behaviour worth knowing before it surprises you:** under `cw.ARGH`, *any*
-`config` entry (or `@compat.arg`) on a function switches type-annotation inference off for
-**the whole function** — so adding a `help` string to one parameter can change another
-parameter's coercion from `int` to `str`. That is argh's rule (`can_use_hints =
-not declared_args`), reproduced deliberately; see [ADR-0003](docs/adr/0003-the-merge-ladder.md).
-`convention=cw.MODERN` is the way out.
+**One `ARGH` behaviour worth knowing before it surprises you:** under `cw.ARGH`, *any* `config` entry (or `@compat.arg`) on a function switches type-annotation inference off for **the whole function** — so adding a `help` string to one parameter can change another parameter's coercion from `int` to `str`. That is argh's rule (`can_use_hints = not declared_args`), reproduced deliberately; see [ADR-0003](https://github.com/i2mint/cw/blob/master/docs/adr/0003-the-merge-ladder.md). `convention=cw.MODERN` is the way out.
 
 ## Escape hatches
 
-Everything above is `cw.dispatch`, which is the composition of two functions you can use
-separately.
+Everything above is `cw.dispatch`, which is the composition of two functions you can use separately.
 
-**Build a parser, run it later.** `mk_parser` is pure — no parsing, no I/O, no side
-effects — which is what makes it inspectable from a test:
+**Build a parser, run it later.** `mk_parser` is pure — no parsing, no I/O, no side effects — which is what makes it inspectable from a test:
 
 ```python
 >>> parser = cw.mk_parser(COMMANDS, prog='tool')
@@ -254,10 +222,7 @@ True
 0
 ```
 
-The convention travels *with* the parser, so `convention=cw.MODERN` stays one act even
-when build and run are two calls. (How that works — one reserved `set_defaults` key on a
-parser that is deliberately not a subclass — is
-[ADR-0002](docs/adr/0002-the-ingress-stash.md).)
+The convention travels *with* the parser, so `convention=cw.MODERN` stays one act even when build and run are two calls. (How that works — one reserved `set_defaults` key on a parser that is deliberately not a subclass — is [ADR-0002](https://github.com/i2mint/cw/blob/master/docs/adr/0002-the-ingress-stash.md).)
 
 **Bind a function to a parser you built yourself:**
 
@@ -274,9 +239,7 @@ hi
 0
 ```
 
-**Grow a parser one group at a time.** The shape `t/priv` and `i/wads` use — a parser
-object, then repeated `add_commands` — is `cw.add_commands`, and it is the only way to pass
-per-group `add_subparsers` keywords such as `title`:
+**Grow a parser one group at a time.** The shape `t/priv` and `i/wads` use — a parser object, then repeated `add_commands` — is `cw.add_commands`, and it is the only way to pass per-group `add_subparsers` keywords such as `title`:
 
 ```python
 >>> parser = cw.mk_parser([], prog='priv')
@@ -287,15 +250,9 @@ per-group `add_subparsers` keywords such as `title`:
 0
 ```
 
-`cw.mk_parser([], prog=...)` is the empty-parser seed. A plain `argparse.ArgumentParser()`
-works too and renders identically — `add_commands` gives every subparser
-`cw.ArghHelpFormatter` when the parent still carries argparse's stock one, which is exactly
-what argh does — but then the *root* parser's own `--help` uses argparse's formatter, again
-exactly as under argh. Pass `formatter_class=cw.ArghHelpFormatter` yourself if you want the
-root to match too.
+`cw.mk_parser([], prog=...)` is the empty-parser seed. A plain `argparse.ArgumentParser()` works too and renders identically — `add_commands` gives every subparser `cw.ArghHelpFormatter` when the parent still carries argparse's stock one, which is exactly what argh does — but then the *root* parser's own `--help` uses argparse's formatter, again exactly as under argh. Pass `formatter_class=cw.ArghHelpFormatter` yourself if you want the root to match too.
 
-**`add_commands` takes any `obj` `dispatch` takes, a mapping included** — so a group whose
-members you want to name yourself is a mapping, exactly as it would be inside `dispatch`:
+**`add_commands` takes any `obj` `dispatch` takes, a mapping included** — so a group whose members you want to name yourself is a mapping, exactly as it would be inside `dispatch`:
 
 ```python
 >>> parser = cw.mk_parser([], prog='priv')
@@ -307,13 +264,7 @@ members you want to name yourself is a mapping, exactly as it would be inside `d
 
 ### Wanting a group `title` from the mapping form
 
-`cw.dispatch({'archive': {...}})` builds the group, but a single mapping has nowhere to put
-the group's own `add_subparsers` keywords. **That is deliberate, not a gap**: `add_commands`
-already takes a mapping *and* `group_kwargs`, so the answer is two calls rather than a
-fourth behaviour-carrying keyword on `dispatch`
-([#31](https://github.com/i2mint/cw/issues/31),
-[ADR-0008](docs/adr/0008-no-fourth-channel-for-group-kwargs.md)). The console-script idiom
-is:
+`cw.dispatch({'archive': {...}})` builds the group, but a single mapping has nowhere to put the group's own `add_subparsers` keywords. **That is deliberate, not a gap**: `add_commands` already takes a mapping *and* `group_kwargs`, so the answer is two calls rather than a fourth behaviour-carrying keyword on `dispatch` ([#31](https://github.com/i2mint/cw/issues/31), [ADR-0008](https://github.com/i2mint/cw/blob/master/docs/adr/0008-no-fourth-channel-for-group-kwargs.md)). The console-script idiom is:
 
 <!-- wads-docs: skip - fragment: list_cmd, info_cmd and the other commands are the reader's own -->
 ```python
@@ -338,16 +289,8 @@ def main():
 
 Two things bite people here, and cw's error messages now name both:
 
-- **`group_kwargs['help']` is silently inert; you want `'title'`.** The group's row in the
-  *parent's* `--help` is fed by `add_parser(help=...)`, which both argh and cw source from
-  `group_kwargs['title']`. `help` is forwarded to `add_subparsers()`, where argparse
-  accepts it and renders it nowhere a reader looks. cw reproduces argh exactly — that is
-  the product — but it is a trap that shipped a group description nobody ever saw in at
-  least one fleet repo.
-- **`cw.run` *returns* an exit code where argh's `parser.dispatch()` raised it.** Splitting
-  the build from the run is precisely when the `raise SystemExit(...)` gets dropped, and a
-  console script that starts exiting `0` on a usage error breaks every CI step that checks
-  `$?`. Nothing else catches it: unit tests pass, and a `--help` diff shows nothing.
+- **`group_kwargs['help']` is silently inert; you want `'title'`.** The group's row in the *parent's* `--help` is fed by `add_parser(help=...)`, which both argh and cw source from `group_kwargs['title']`. `help` is forwarded to `add_subparsers()`, where argparse accepts it and renders it nowhere a reader looks. cw reproduces argh exactly — that is the product — but it is a trap that shipped a group description nobody ever saw in at least one fleet repo.
+- **`cw.run` *returns* an exit code where argh's `parser.dispatch()` raised it.** Splitting the build from the run is precisely when the `raise SystemExit(...)` gets dropped, and a console script that starts exiting `0` on a usage error breaks every CI step that checks `$?`. Nothing else catches it: unit tests pass, and a `--help` diff shows nothing.
 
 Trying it any of the other three ways is an error that names this one:
 
@@ -359,9 +302,7 @@ TypeError: 'group_kwargs' cannot be passed here. cw's group keywords belong to
 cw.add_commands, ...
 ```
 
-**A mapping value must be the commands, not the factory that returns them.** A callable
-value is always a *command*, because there is no way to tell a zero-argument factory from a
-command that takes no arguments — so write the parentheses:
+**A mapping value must be the commands, not the factory that returns them.** A callable value is always a *command*, because there is no way to tell a zero-argument factory from a command that takes no arguments — so write the parentheses:
 
 ```python
 >>> def dispatch_funcs():
@@ -372,12 +313,9 @@ command that takes no arguments — so write the parentheses:
 ['git-ops']
 ```
 
-Note the hyphen in the second one: `{'git_ops': dispatch_funcs}` — no parentheses — gives
-you a *command* called `git-ops` that prints the reprs of the group's members, exit 0.
+Note the hyphen in the second one: `{'git_ops': dispatch_funcs}` — no parentheses — gives you a *command* called `git-ops` that prints the reprs of the group's members, exit 0.
 
-**Capture the output.** `out=` and `err=` are plain parameters resolved at *call* time, so a
-test can pass a `StringIO` — something an `argh` CLI cannot do, because argh binds
-`output_file=sys.stdout` in a signature default:
+**Capture the output.** `out=` and `err=` are plain parameters resolved at *call* time, so a test can pass a `StringIO` — something an `argh` CLI cannot do, because argh binds `output_file=sys.stdout` in a signature default:
 
 ```python
 >>> import io
@@ -388,12 +326,9 @@ test can pass a `StringIO` — something an `argh` CLI cannot do, because argh b
 'a\nb\n'
 ```
 
-They capture argparse's own `--help`, `usage:` and `error:` output. They do **not** capture a
-command body's own `print()`, which goes where the process's `print` goes — as it does under
-argh.
+They capture argparse's own `--help`, `usage:` and `error:` output. They do **not** capture a command body's own `print()`, which goes where the process's `print` goes — as it does under argh.
 
-**Skip the CLI entirely.** `standalone=False` makes the same call an ordinary function call:
-nothing printed, nothing caught, the function's own return value:
+**Skip the CLI entirely.** `standalone=False` makes the same call an ordinary function call: nothing printed, nothing caught, the function's own return value:
 
 ```python
 >>> cw.dispatch(greet, ['world', '--loudly'], standalone=False)
@@ -410,16 +345,11 @@ nothing printed, nothing caught, the function's own return value:
 0
 ```
 
-`cw.argh_egress` (the default), `cw.iterable_egress` (MODERN's) and `cw.json_egress` ship;
-an egress is any `(result, *, out, err) -> int`.
+`cw.argh_egress` (the default), `cw.iterable_egress` (MODERN's) and `cw.json_egress` ship; an egress is any `(result, *, out, err) -> int`.
 
-**Change how types are inferred** — `decode=` is one keyword, taking
-`(inspect.Parameter, hint) -> add_argument kwargs | callable | None`. `cw.argh_decode` and
-`cw.modern_decode` ship.
+**Change how types are inferred** — `decode=` is one keyword, taking `(inspect.Parameter, hint) -> add_argument kwargs | callable | None`. `cw.argh_decode` and `cw.modern_decode` ship.
 
-Those three — `decode=`, `egress=`, `convention=` — are cw's only seams, and the list of
-things that are deliberately **not** seams is as binding as the list that are. Both are in
-[ADR-0001](docs/adr/0001-the-v1-seam-table.md).
+Those three — `decode=`, `egress=`, `convention=` — are cw's only seams, and the list of things that are deliberately **not** seams is as binding as the list that are. Both are in [ADR-0001](https://github.com/i2mint/cw/blob/master/docs/adr/0001-the-v1-seam-table.md).
 
 **Shell completion:**
 
@@ -427,13 +357,11 @@ things that are deliberately **not** seams is as binding as the list that are. B
 pip install 'cw[completion]'
 ```
 
-then put `# PYTHON_ARGCOMPLETE_OK` at the top of your console script. `cw.run` calls
-`argcomplete` for you when it is installed, and does nothing when it is not.
+then put `# PYTHON_ARGCOMPLETE_OK` at the top of your console script. `cw.run` calls `argcomplete` for you when it is installed, and does nothing when it is not.
 
 ## Migrating from `argh`
 
-`cw` replaces `argh` (LGPL-3.0-or-later) with an MIT package that reproduces its grammar.
-There are two steps and you can stop after the first for as long as you like.
+`cw` replaces `argh` (LGPL-3.0-or-later) with an MIT package that reproduces its grammar. There are two steps and you can stop after the first for as long as you like.
 
 **Step 1 — one line.** `cw.compat` implements argh's eleven measured names:
 
@@ -442,15 +370,13 @@ There are two steps and you can stop after the first for as long as you like.
 +from cw import compat as argh
 ```
 
-Everything warns once, on first use; `CW_COMPAT_QUIET=1` silences it for a repo that has
-decided to live here for a while. Declare the dependency as:
+Everything warns once, on first use; `CW_COMPAT_QUIET=1` silences it for a repo that has decided to live here for a while. Declare the dependency as:
 
 ```toml
 dependencies = ["cw>=0.1,<0.2"]
 ```
 
-**Grep for three import forms before you do it.** The one-line change rewrites `import
-argh`; it cannot rewrite a name or a submodule somebody imported directly.
+**Grep for three import forms before you do it.** The one-line change rewrites `import argh`; it cannot rewrite a name or a submodule somebody imported directly.
 
 | grep for | why it breaks | write instead |
 |---|---|---|
@@ -458,8 +384,7 @@ argh`; it cannot rewrite a name or a submodule somebody imported directly.
 | `from argh.assembling import NameMappingPolicy` | `cw.compat` is a module, not a package, so there is no `cw.compat.assembling` | `from cw.compat import NameMappingPolicy` |
 | `argh.interaction.confirm` | same reason — there is no `interaction` namespace | `argh.confirm` (i.e. `cw.confirm`) |
 
-Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a
-startup failure rather than a silent change.
+Each of the last two raises an `AttributeError` naming the replacement, so a missed one is a startup failure rather than a silent change.
 
 **Check which argh entry point the repo used.** `cw.ARGH` reproduces argh's *explicit* `BY_NAME_IF_HAS_DEFAULT` policy, which is what `argh.dispatch_commands` / `dispatch_command` use (their `old_name_mapping_policy=True` default; `old_name_mapping_policy=False` selects `BY_NAME_IF_KWONLY`, as in argh). `ArghParser()` + `add_commands()` (or `set_default_command`) with no `name_mapping_policy` is argh's *legacy* mode (policy `None`), which is a third grammar: it decides **per function**. A function with a defaulted positional parameter is read as `BY_NAME_IF_HAS_DEFAULT`; any other function (required positionals and/or keyword-only parameters) as `BY_NAME_IF_KWONLY`. (argh raises `ArgumentNameMappingError` for a function that has both a defaulted positional and a keyword-only parameter; cw reads it as `BY_NAME_IF_HAS_DEFAULT` instead of crashing.) They diverge on a **keyword-only parameter with no default**:
 
@@ -484,12 +409,9 @@ cw.dispatch(funcs, convention=cw.ARGH_LEGACY)
 Or choose a single grammar for every command, with `convention=cw.MODERN` or `dataclasses.replace(cw.ARGH, naming=cw.BY_NAME_IF_KWONLY)`. That changes `def plain(x, y=1)` from `plain [-h] [-y Y] x` to `plain [-h] x [y]`, so diff `--help` for every command either way (`cw.testing` below does exactly that).
 
 
-**Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes
-`cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`'s
-`__name__`-mutation trick for renaming a command becomes a mapping key.
+**Step 2 — delete the compat import.** `dispatch_commands(funcs)` becomes `cw.dispatch(funcs)`; `@argh.arg(...)` decorators become one `config` dict; `argh`'s `__name__`-mutation trick for renaming a command becomes a mapping key.
 
-**Prove the migration did nothing.** `cw.testing` records a CLI's behaviour before the change
-and replays it after:
+**Prove the migration did nothing.** `cw.testing` records a CLI's behaviour before the change and replays it after:
 
 ```bash
 # on the old code -- this half imports no cw
@@ -501,22 +423,14 @@ python -m cw.testing replay before.json --prog 'mytool' --strict-help
 python -m cw.testing diff-help before.json --prog 'mytool'   # read it, do not assert it
 ```
 
-`replay` asserts the exit code and both streams in full for every non-`--help` case, and the
-normalised `usage:` line for a `--help` one. A `--help` **body** that moved is reported as
-the non-fatal `help-differs` — never as `identical` — because a change of *formatter* moves
-only the help column and the description block and would otherwise be invisible.
-`--strict-help` makes it fatal; `diff-help` prints it for a human.
+`replay` asserts the exit code and both streams in full for every non-`--help` case, and the normalised `usage:` line for a `--help` one. A `--help` **body** that moved is reported as the non-fatal `help-differs` — never as `identical` — because a change of *formatter* moves only the help column and the description block and would otherwise be invisible. `--strict-help` makes it fatal; `diff-help` prints it for a human.
 
-The recording half **imports no `cw`** — it is one file you can copy into a repo that will
-never depend on cw, which is most of them.
+The recording half **imports no `cw`** — it is one file you can copy into a repo that will never depend on cw, which is most of them.
 
 Two things to expect, both argh's rules that cw reproduces:
 
-- `config` keys are spelled the way the **command line** reads (`parse-pth-paths`), while
-  `obj` keys and `__all__` entries are Python identifiers. Adjacent dicts, two spellings.
-  A wrong key is a startup error, not a silent drop.
-- Under `cw.ARGH`, one `config` entry disables annotation inference for the whole function
-  (above, and [ADR-0003](docs/adr/0003-the-merge-ladder.md)).
+- `config` keys are spelled the way the **command line** reads (`parse-pth-paths`), while `obj` keys and `__all__` entries are Python identifiers. Adjacent dicts, two spellings. A wrong key is a startup error, not a silent drop.
+- Under `cw.ARGH`, one `config` entry disables annotation inference for the whole function (above, and [ADR-0003](https://github.com/i2mint/cw/blob/master/docs/adr/0003-the-merge-ladder.md)).
 
 ## cw's own CLI
 
@@ -528,19 +442,14 @@ python -m cw parity                    # cw's own migration gate, 8 shapes / 137
 python -m cw audit .                   # is any argh left in this migrated tree? (exit 1 if so)
 ```
 
-`specs` is the one that earns its place day to day — it answers *"why did that parameter not
-get a short flag?"* without building, running or importing anybody's `__main__`.
+`specs` is the one that earns its place day to day — it answers *"why did that parameter not get a short flag?"* without building, running or importing anybody's `__main__`.
 
-`audit` is the gate for the part of a migration no `--help` golden can see. It reads the
-source (stdlib only, `argh` need not be installed) and reports `path:line: code: message` for
-`import argh` / `from argh import ...`, `from argh import CommandError` (a different class from
-`cw.CommandError`, so its raise sites escape `cw.run` as tracebacks), live `argh.dispatch*` /
-`ArghParser` calls (including under `if __name__ == "__main__"`), `argh` declared in
-`pyproject.toml` / `setup.cfg` / `setup.py` / `requirements*.txt`, and a bare `cw.dispatch(...)`
-statement that drops the exit code. A file it cannot parse is reported as `unparsable` (it fails the gate: an audit cannot vouch for what it did not read — exclude the directory instead). A line can opt out with a `# cw-audit: ignore` comment. In a consumer's
-test suite:
+`audit` is the gate for the part of a migration no `--help` golden can see. It reads the source (stdlib only, `argh` need not be installed) and reports `path:line: code: message` for `import argh` / `from argh import ...`, `from argh import CommandError` (a different class from `cw.CommandError`, so its raise sites escape `cw.run` as tracebacks), live `argh.dispatch*` / `ArghParser` calls (including under `if __name__ == "__main__"`), `argh` declared in `pyproject.toml` / `setup.cfg` / `setup.py` / `requirements*.txt`, and a bare `cw.dispatch(...)` statement that drops the exit code. A file it cannot parse is reported as `unparsable` (it fails the gate: an audit cannot vouch for what it did not read — exclude the directory instead). A line can opt out with a `# cw-audit: ignore` comment. In a consumer's test suite:
 
 ```python
+from pathlib import Path
+
+
 def test_no_residual_argh():
     from cw.audit import assert_no_argh
 
@@ -551,9 +460,7 @@ def test_no_residual_argh():
 
 ## Resolving a function from a string
 
-`cw.resolution` is older than the dispatcher and independent of it: it turns a string
-specification into a callable, which is what lets a CLI accept *a function* as a parameter
-value.
+`cw.resolution` is older than the dispatcher and independent of it: it turns a string specification into a callable, which is what lets a CLI accept *a function* as a parameter value.
 
 ```python
 >>> from cw import resolve_to_function, parse_ast_spec
@@ -563,8 +470,7 @@ value.
 'HELLO'
 ```
 
-Both spellings of a reference work — the dot path above, and the `'pkg.mod:name'` colon
-form the rest of cw uses (`python -m cw`, `mk_parser`'s `obj:`, `commands_from`):
+Both spellings of a reference work — the dot path above, and the `'pkg.mod:name'` colon form the rest of cw uses (`python -m cw`, `mk_parser`'s `obj:`, `commands_from`):
 
 ```python
 >>> import os.path
@@ -572,9 +478,7 @@ form the rest of cw uses (`python -m cw`, `mk_parser`'s `obj:`, `commands_from`)
 True
 ```
 
-`parse_json_spec`, `parse_ast_spec` and `parse_spec_with_dot_path` are the three spec
-grammars; `resource_inputs` wraps a function so that named parameters are resolved on the
-way in. It is the one place cw touches a third-party package, and it is an optional extra:
+`parse_json_spec`, `parse_ast_spec` and `parse_spec_with_dot_path` are the three spec grammars; `resource_inputs` wraps a function so that named parameters are resolved on the way in. It is the one place cw touches a third-party package, and it is an optional extra:
 
 ```bash
 pip install 'cw[resource]'
@@ -593,19 +497,17 @@ Python 3.10+.
 
 ## Design notes
 
-Eight decisions, with their evidence, in [`docs/adr/`](docs/adr/):
+Eight decisions, with their evidence, in [`docs/adr/`](https://github.com/i2mint/cw/blob/master/docs/adr/):
 
 | | |
 |---|---|
-| [ADR-0001](docs/adr/0001-the-v1-seam-table.md) | The three seams, and everything that is deliberately not one |
-| [ADR-0002](docs/adr/0002-the-ingress-stash.md) | How a plain `ArgumentParser` carries its convention and ingress into `run` |
-| [ADR-0003](docs/adr/0003-the-merge-ladder.md) | The four-tier merge ladder is argh's field-specific merge, not `dict.update` |
-| [ADR-0004](docs/adr/0004-grammar-errata.md) | `group_kwargs`, mapping-key naming, MODERN's help column |
-| [ADR-0005](docs/adr/0005-release-and-rollback-policy.md) | Release, pinning and rollback — `cw.ARGH` is frozen once published |
-| [ADR-0006](docs/adr/0006-the-v1-cut-list.md) | What v1 does not ship, and where each cut comes back |
-| [ADR-0007](docs/adr/0007-what-the-adversarial-review-changed.md) | What three adversarial reviews changed, and the blind spots that hid it |
-| [ADR-0008](docs/adr/0008-no-fourth-channel-for-group-kwargs.md) | Why a group's `group_kwargs` gets no channel in the mapping form |
+| [ADR-0001](https://github.com/i2mint/cw/blob/master/docs/adr/0001-the-v1-seam-table.md) | The three seams, and everything that is deliberately not one |
+| [ADR-0002](https://github.com/i2mint/cw/blob/master/docs/adr/0002-the-ingress-stash.md) | How a plain `ArgumentParser` carries its convention and ingress into `run` |
+| [ADR-0003](https://github.com/i2mint/cw/blob/master/docs/adr/0003-the-merge-ladder.md) | The four-tier merge ladder is argh's field-specific merge, not `dict.update` |
+| [ADR-0004](https://github.com/i2mint/cw/blob/master/docs/adr/0004-grammar-errata.md) | `group_kwargs`, mapping-key naming, MODERN's help column |
+| [ADR-0005](https://github.com/i2mint/cw/blob/master/docs/adr/0005-release-and-rollback-policy.md) | Release, pinning and rollback — `cw.ARGH` is frozen once published |
+| [ADR-0006](https://github.com/i2mint/cw/blob/master/docs/adr/0006-the-v1-cut-list.md) | What v1 does not ship, and where each cut comes back |
+| [ADR-0007](https://github.com/i2mint/cw/blob/master/docs/adr/0007-what-the-adversarial-review-changed.md) | What three adversarial reviews changed, and the blind spots that hid it |
+| [ADR-0008](https://github.com/i2mint/cw/blob/master/docs/adr/0008-no-fourth-channel-for-group-kwargs.md) | Why a group's `group_kwargs` gets no channel in the mapping form |
 
-Two properties worth stating because they are easy to lose and hard to get back:
-`cw.mk_parser` returns a **plain** `ArgumentParser`, and **`import cw` pulls stdlib only** —
-both are asserted by tests, not by intention.
+Two properties worth stating because they are easy to lose and hard to get back: `cw.mk_parser` returns a **plain** `ArgumentParser`, and **`import cw` pulls stdlib only** — both are asserted by tests, not by intention.
