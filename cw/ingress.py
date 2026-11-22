@@ -107,7 +107,7 @@ class _Kinds:
         "defaults",
     )
 
-    def __init__(self, func: Any):
+    def __init__(self, func: Any) -> None:
         parameters = list(inspect.signature(func).parameters.values())
         self.name = getattr(func, "__name__", repr(func))
         self.positional: List[str] = [
