@@ -218,6 +218,7 @@ class Finding:
     message: str
 
     def __str__(self) -> str:
+        """Render as ``path:line: code: message``."""
         return f"{self.path}:{self.line}: {self.code}: {self.message}"
 
 

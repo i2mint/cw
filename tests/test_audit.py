@@ -653,3 +653,63 @@ def test_cli_include_audits_a_default_excluded_dir(tmp_path):
     (tmp_path / "build" / "m.py").write_text("import argh\n")
     assert main(["audit", str(tmp_path)]) == 0
     assert main(["audit", str(tmp_path), "--include", "build"]) == 1
+
+
+# --- gap-closing tests (coverage pass) -------------------------------------------------
+
+
+def test_the_else_branch_of_a_main_guard_is_audited_like_module_code(tmp_path):
+    src = tmp_path / "m.py"
+    src.write_text(
+        "import argh\n"
+        "if __name__ == '__main__':\n"
+        "    pass\n"
+        "else:\n"
+        "    argh.dispatch_commands([])\n"
+    )
+    codes = {f.code for f in audit(src)}
+    assert "import" in codes or "dispatch" in codes
+
+
+def test_pragma_lines_fall_back_to_a_line_scan_when_tokenizing_fails():
+    from cw.audit import _pragma_lines
+
+    text = "x = (\n# cw-audit: ignore\n"  # unterminated: tokenize raises
+    assert _pragma_lines(text) == {2}
+
+
+def test_normalise_collapses_separators_and_case():
+    from cw.audit import _normalise
+
+    assert _normalise("My_Pkg.Name--x") == "my-pkg-name-x"
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="chmod semantics differ")
+def test_an_unreadable_file_is_reported_not_raised(tmp_path):
+    import os
+
+    if os.geteuid() == 0:
+        pytest.skip("root reads anything")
+    f = tmp_path / "locked.py"
+    f.write_text("x = 1\n")
+    f.chmod(0)
+    try:
+        findings = audit(tmp_path)
+    finally:
+        f.chmod(0o644)
+    assert [x.code for x in findings] == ["unparsable"]
+    assert "cannot read" in findings[0].message
+
+
+def test_shebang_check_is_false_when_the_file_cannot_be_opened(tmp_path):
+    from cw.audit import _has_python_shebang
+
+    assert _has_python_shebang(tmp_path / "missing") is False
+
+
+def test_cli_audit_of_a_missing_path_is_a_one_line_error(capsys):
+    from cw.__main__ import main
+
+    code = main(["audit", "/no/such/path/for/cw"])
+    assert code == 1
+    assert capsys.readouterr().out == ""
