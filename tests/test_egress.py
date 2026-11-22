@@ -249,3 +249,23 @@ class TestConfirm:
     def test_end_of_input_raises(self):
         with pytest.raises(EOFError):
             cw.confirm("Go", in_=io.StringIO(""), out=io.StringIO())
+
+
+def test_json_egress_dumps_and_passthrough_seams():
+    import io
+    import math
+
+    def strict(result):
+        import json
+
+        return json.dumps(result, allow_nan=False, default=lambda o: None)
+
+    buf = io.StringIO()
+    cw.json_egress({"a": 1}, out=buf, dumps=lambda r: "X")
+    cw.json_egress("/p.md", out=buf, passthrough=(str,))
+    cw.json_egress("/p.md", out=buf, indent=None)  # default: still encoded
+    assert buf.getvalue() == 'X\n/p.md\n"/p.md"\n'
+    assert math.isnan(float("nan"))  # the default encoder keeps emitting NaN today
+    buf = io.StringIO()
+    cw.json_egress({"v": float("nan")}, out=buf, indent=None)
+    assert "NaN" in buf.getvalue()
