@@ -1,4 +1,4 @@
-> built 2026-10-20 06:40 UTC from 751854a (master) · cw 0.1.13. Details: build_info.json
+> built 2026-11-22 12:17 UTC from 1ff9bad (master) · cw 0.1.14. Details: build_info.json
 
 # index.html.md
 
@@ -2174,7 +2174,7 @@ blank line:
 | [`argh_egress`](_autosummary/cw.egress.html.md#cw.egress.argh_egress)(result, \*[, out, err])               | Seam 2's default: argh's type **whitelist**, footguns included.                                                                          |
 |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | [`iterable_egress`](_autosummary/cw.egress.html.md#cw.egress.iterable_egress)(result, \*[, out, err])           | `cw.MODERN`'s egress: the `Iterable` protocol instead of argh's whitelist.                                                               |
-| [`json_egress`](_autosummary/cw.egress.html.md#cw.egress.json_egress)(result, \*[, out, err, indent])       | One JSON document, for a command whose result is data rather than lines.                                                                 |
+| [`json_egress`](_autosummary/cw.egress.html.md#cw.egress.json_egress)(result, \*[, out, err, indent, ...])  | One JSON document, for a command whose result is data rather than lines.                                                                 |
 | [`write_lines`](_autosummary/cw.egress.html.md#cw.egress.write_lines)(lines, /, \*[, out, flush])           | Write `str(line) + '\n'` for each item, **lazily**.                                                                                      |
 | [`confirm`](_autosummary/cw.egress.html.md#cw.egress.confirm)(action, /, \*[, default, skip, in_, out]) | A `y/n` prompt, reproducing `argh.confirm` -- the fleet's one interaction use.                                                           |
 | [`guard_no_coroutine`](_autosummary/cw.egress.html.md#cw.egress.guard_no_coroutine)(result)                        | Raise an informative [`TypeError`](https://docs.python.org/3/builtins/exceptions.html#TypeError) if `result` is an un-awaited coroutine. |
@@ -2297,9 +2297,16 @@ A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 * **Return type:**
   [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
-### cw.egress.json_egress(result, , out=None, err=None, indent=2)
+### cw.egress.json_egress(result, , out=None, err=None, indent=2, dumps=None, passthrough=())
 
 One JSON document, for a command whose result is data rather than lines.
+
+`dumps` is the encoder, `(result) -> str` (default `json.dumps(result,
+indent=indent, default=str)`; `indent` is ignored when you pass your own), so a
+host with a strict encoder (`NaN` as `null`, numpy values as Python) plugs it in.
+A result that is an instance of one of the `passthrough` types is printed with
+`str`, unencoded: `passthrough=(str,)` lets a command that returns a file path
+be used as `$(cli report ...)`.
 
 An iterator is materialised first (JSON has no streaming form), and anything JSON does
 not know is rendered with `str` rather than raising – which is what
@@ -2319,6 +2326,16 @@ not know is rendered with `str` rather than raising – which is what
 >>> _ = json_egress(iter('ab'), out=buffer, indent=None)
 >>> buffer.getvalue()
 '["a", "b"]\n'
+```
+
+```pycon
+>>> buffer = io.StringIO()
+>>> _ = json_egress('/p.md', out=buffer, passthrough=(str,))
+>>> buffer.getvalue()
+'/p.md\n'
+>>> _ = json_egress({'a': 1}, out=buffer, dumps=lambda r: 'custom')
+>>> buffer.getvalue()
+'/p.md\ncustom\n'
 ```
 
 * **Return type:**
@@ -2871,7 +2888,7 @@ True
 | [`argh_egress`](_autosummary/cw.html.md#cw.argh_egress)(result, \*[, out, err])               | Seam 2's default: argh's type **whitelist**, footguns included.                 |
 | [`confirm`](_autosummary/cw.html.md#cw.confirm)(action, /, \*[, default, skip, in_, out]) | A `y/n` prompt, reproducing `argh.confirm` -- the fleet's one interaction use.  |
 | [`iterable_egress`](_autosummary/cw.html.md#cw.iterable_egress)(result, \*[, out, err])           | `cw.MODERN`'s egress: the `Iterable` protocol instead of argh's whitelist.      |
-| [`json_egress`](_autosummary/cw.html.md#cw.json_egress)(result, \*[, out, err, indent])       | One JSON document, for a command whose result is data rather than lines.        |
+| [`json_egress`](_autosummary/cw.html.md#cw.json_egress)(result, \*[, out, err, indent, ...])  | One JSON document, for a command whose result is data rather than lines.        |
 | [`write_lines`](_autosummary/cw.html.md#cw.write_lines)(lines, /, \*[, out, flush])           | Write `str(line) + '\n'` for each item, **lazily**.                             |
 | [`parse_ast_spec`](_autosummary/cw.html.md#cw.parse_ast_spec)(func_spec)                         | Parse AST-formatted function call specification.                                |
 | [`parse_json_spec`](_autosummary/cw.html.md#cw.parse_json_spec)(func_spec)                        | Parse JSON-formatted function specification.                                    |
@@ -3516,9 +3533,16 @@ A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 * **Return type:**
   [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
-### cw.json_egress(result, , out=None, err=None, indent=2)
+### cw.json_egress(result, , out=None, err=None, indent=2, dumps=None, passthrough=())
 
 One JSON document, for a command whose result is data rather than lines.
+
+`dumps` is the encoder, `(result) -> str` (default `json.dumps(result,
+indent=indent, default=str)`; `indent` is ignored when you pass your own), so a
+host with a strict encoder (`NaN` as `null`, numpy values as Python) plugs it in.
+A result that is an instance of one of the `passthrough` types is printed with
+`str`, unencoded: `passthrough=(str,)` lets a command that returns a file path
+be used as `$(cli report ...)`.
 
 An iterator is materialised first (JSON has no streaming form), and anything JSON does
 not know is rendered with `str` rather than raising – which is what
@@ -3538,6 +3562,16 @@ not know is rendered with `str` rather than raising – which is what
 >>> _ = json_egress(iter('ab'), out=buffer, indent=None)
 >>> buffer.getvalue()
 '["a", "b"]\n'
+```
+
+```pycon
+>>> buffer = io.StringIO()
+>>> _ = json_egress('/p.md', out=buffer, passthrough=(str,))
+>>> buffer.getvalue()
+'/p.md\n'
+>>> _ = json_egress({'a': 1}, out=buffer, dumps=lambda r: 'custom')
+>>> buffer.getvalue()
+'/p.md\ncustom\n'
 ```
 
 * **Return type:**
@@ -5068,18 +5102,16 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-10-20 06:40 UTC** from commit <a href="https://github.com/i2mint/cw/commit/751854a6b6097891166265ac7294224f292feb71"><code>751854a</code></a> on branch <code>master</code>, for **cw 0.1.13** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 12:17 UTC** from commit <a href="https://github.com/i2mint/cw/commit/1ff9bad36156c719b1c296faafd1563b82f50713"><code>1ff9bad</code></a> on branch <code>master</code>, for **cw 0.1.14** (from <code>pyproject.toml</code>).
 
-#### WARNING
-The documentation and the package may be misaligned:
-
-- The documented version (0.1.13) is behind the latest release on PyPI (0.1.14): `pip install cw` gives newer code than these docs describe.
+#### NOTE
+Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
 
 ## Source
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/751854a6b6097891166265ac7294224f292feb71"><code>751854a6b6097891166265ac7294224f292feb71</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/1ff9bad36156c719b1c296faafd1563b82f50713"><code>1ff9bad36156c719b1c296faafd1563b82f50713</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -5090,18 +5122,18 @@ The documentation and the package may be misaligned:
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/39381622218">39381622218</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/45021348274">45021348274</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>751854a6b6097891166265ac7294224f292feb71</code> (in the history of the built commit) |
+| Event commit | <code>1ff9bad36156c719b1c296faafd1563b82f50713</code> (in the history of the built commit) |
 
 ## Tools
 
 |          |         |
 |----------|---------|
-| epythet  | 0.2.18  |
+| epythet  | 0.2.23  |
 | Sphinx   | 9.1.1   |
 | docutils | 0.22.4  |
-| Python   | 3.12.15 |
+| Python   | 3.12.16 |
 
 ## Configuration as resolved
 
@@ -5117,14 +5149,14 @@ The documentation and the package may be misaligned:
 
 ## Package on PyPI
 
-Latest release: <a href="https://pypi.org/project/cw/0.1.14/">0.1.14</a>, newer than the documented version (0.1.13).
+Latest release: <a href="https://pypi.org/project/cw/0.1.14/">0.1.14</a>, the same as the documented version.
 
 ## Reproduce
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 751854a6b6097891166265ac7294224f292feb71
-pip install "epythet==0.2.18"
+git checkout 1ff9bad36156c719b1c296faafd1563b82f50713
+pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```
 

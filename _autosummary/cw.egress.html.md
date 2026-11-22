@@ -57,7 +57,7 @@ blank line:
 | [`argh_egress`](#cw.egress.argh_egress)(result, \*[, out, err])               | Seam 2's default: argh's type **whitelist**, footguns included.                                                                          |
 |----------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | [`iterable_egress`](#cw.egress.iterable_egress)(result, \*[, out, err])           | `cw.MODERN`'s egress: the `Iterable` protocol instead of argh's whitelist.                                                               |
-| [`json_egress`](#cw.egress.json_egress)(result, \*[, out, err, indent])       | One JSON document, for a command whose result is data rather than lines.                                                                 |
+| [`json_egress`](#cw.egress.json_egress)(result, \*[, out, err, indent, ...])  | One JSON document, for a command whose result is data rather than lines.                                                                 |
 | [`write_lines`](#cw.egress.write_lines)(lines, /, \*[, out, flush])           | Write `str(line) + '\n'` for each item, **lazily**.                                                                                      |
 | [`confirm`](#cw.egress.confirm)(action, /, \*[, default, skip, in_, out]) | A `y/n` prompt, reproducing `argh.confirm` -- the fleet's one interaction use.                                                           |
 | [`guard_no_coroutine`](#cw.egress.guard_no_coroutine)(result)                        | Raise an informative [`TypeError`](https://docs.python.org/3/builtins/exceptions.html#TypeError) if `result` is an un-awaited coroutine. |
@@ -180,9 +180,16 @@ A `map`, a `set`, a `dict_keys` – anything iterable that is not a `str`,
 * **Return type:**
   [`int`](https://docs.python.org/3/builtins/functions.html#int)
 
-### cw.egress.json_egress(result, , out=None, err=None, indent=2)
+### cw.egress.json_egress(result, , out=None, err=None, indent=2, dumps=None, passthrough=())
 
 One JSON document, for a command whose result is data rather than lines.
+
+`dumps` is the encoder, `(result) -> str` (default `json.dumps(result,
+indent=indent, default=str)`; `indent` is ignored when you pass your own), so a
+host with a strict encoder (`NaN` as `null`, numpy values as Python) plugs it in.
+A result that is an instance of one of the `passthrough` types is printed with
+`str`, unencoded: `passthrough=(str,)` lets a command that returns a file path
+be used as `$(cli report ...)`.
 
 An iterator is materialised first (JSON has no streaming form), and anything JSON does
 not know is rendered with `str` rather than raising – which is what
@@ -202,6 +209,16 @@ not know is rendered with `str` rather than raising – which is what
 >>> _ = json_egress(iter('ab'), out=buffer, indent=None)
 >>> buffer.getvalue()
 '["a", "b"]\n'
+```
+
+```pycon
+>>> buffer = io.StringIO()
+>>> _ = json_egress('/p.md', out=buffer, passthrough=(str,))
+>>> buffer.getvalue()
+'/p.md\n'
+>>> _ = json_egress({'a': 1}, out=buffer, dumps=lambda r: 'custom')
+>>> buffer.getvalue()
+'/p.md\ncustom\n'
 ```
 
 * **Return type:**
