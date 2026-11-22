@@ -1,4 +1,4 @@
-> built 2026-11-22 16:40 UTC from 0c4cfd3 (master) · cw 0.1.15. Details: build_info.json
+> built 2026-11-22 19:04 UTC from 7341660 (master) · cw 0.1.15. Details: build_info.json
 
 # index.html.md
 
@@ -15,7 +15,8 @@ def greet(name, *, loudly=False):
     return f"HELLO {name}" if loudly else f"hello {name}"
 
 
-raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
+if __name__ == "__main__":
+    raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
 ```
 
 ```console
@@ -78,7 +79,8 @@ def ls(path=".", *, long=False):
 
 
 COMMANDS = {"add": add, "list": ls, "git-ops": {"add": add}}
-raise SystemExit(cw.dispatch(COMMANDS, prog="tool"))
+if __name__ == "__main__":
+    raise SystemExit(cw.dispatch(COMMANDS, prog="tool"))
 ```
 
 ```console
@@ -318,6 +320,7 @@ fourth behaviour-carrying keyword on `dispatch`
 [ADR-0008]()). The console-script idiom
 is:
 
+<!-- wads-docs: skip - fragment: list_cmd, info_cmd and the other commands are the reader's own -->
 ```python
 TOP_COMMANDS = {"list": list_cmd, "info": info_cmd}
 ARCHIVE_COMMANDS = {"list": archive_list_cmd, "log": archive_log_cmd}
@@ -475,6 +478,7 @@ def greet(*, who: str, punct: str = "!"): ...
 
 `cw.compat`’s `add_commands`, `set_default_command` and `ArghParser.add_commands` map “no policy” to `cw.ARGH_LEGACY`, so Step 1 keeps the legacy grammar exactly ([#46](https://github.com/i2mint/cw/issues/46); `tests/argh_parity/test_legacy_parity.py` diffs it against live argh over the whole shape matrix). `dispatch_*` with no policy stay on `cw.ARGH`, as in argh. After deleting the compat import, keep the legacy grammar with the convention itself:
 
+<!-- wads-docs: skip - fragment: funcs is the reader's own command collection -->
 ```python
 import cw
 
@@ -5102,7 +5106,7 @@ and `re.sub` would read the remaining `\p` as a bad escape.
 
 # About this build
 
-This documentation was built on **2026-11-22 16:40 UTC** from commit <a href="https://github.com/i2mint/cw/commit/0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886"><code>0c4cfd3</code></a> on branch <code>master</code>, for **cw 0.1.15** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 19:04 UTC** from commit <a href="https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211"><code>7341660</code></a> on branch <code>master</code>, for **cw 0.1.15** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -5111,7 +5115,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886"><code>0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211"><code>7341660508ba8afc957650706f1f4fd668b93211</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -5122,9 +5126,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/45045022675">45045022675</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/45058495489">45058495489</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886</code> (in the history of the built commit) |
+| Event commit | <code>7341660508ba8afc957650706f1f4fd668b93211</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -5155,7 +5159,7 @@ Latest release: <a href="https://pypi.org/project/cw/0.1.15/">0.1.15</a>, the sa
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886
+git checkout 7341660508ba8afc957650706f1f4fd668b93211
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

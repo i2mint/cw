@@ -345,7 +345,8 @@
     <span class="k">return</span> <span class="sa">f</span><span class="s2">"HELLO </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">loudly</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"hello </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
 
 
-<span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">greet</span><span class="p">))</span>  <span class="c1"># that is the whole CLI</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">greet</span><span class="p">))</span>  <span class="c1"># that is the whole CLI</span>
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>greet.py<span class="w"> </span>world<span class="w"> </span>--loudly
@@ -400,7 +401,8 @@ or iterable value is a group</strong>:</p>
 
 
 <span class="n">COMMANDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"add"</span><span class="p">:</span> <span class="n">add</span><span class="p">,</span> <span class="s2">"list"</span><span class="p">:</span> <span class="n">ls</span><span class="p">,</span> <span class="s2">"git-ops"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"add"</span><span class="p">:</span> <span class="n">add</span><span class="p">}}</span>
-<span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">COMMANDS</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s2">"tool"</span><span class="p">))</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">COMMANDS</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="s2">"tool"</span><span class="p">))</span>
 </pre></div>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tool<span class="w"> </span>--help
@@ -632,6 +634,7 @@ fourth behaviour-carrying keyword on <code class="docutils literal notranslate">
 (<a class="reference external" href="https://github.com/i2mint/cw/issues/31">#31</a>,
 <a class="reference internal" href="#docs/adr/0008-no-fourth-channel-for-group-kwargs.md"><span class="xref myst">ADR-0008</span></a>). The console-script idiom
 is:</p>
+<!-- wads-docs: skip - fragment: list_cmd, info_cmd and the other commands are the reader's own -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TOP_COMMANDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"list"</span><span class="p">:</span> <span class="n">list_cmd</span><span class="p">,</span> <span class="s2">"info"</span><span class="p">:</span> <span class="n">info_cmd</span><span class="p">}</span>
 <span class="n">ARCHIVE_COMMANDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"list"</span><span class="p">:</span> <span class="n">archive_list_cmd</span><span class="p">,</span> <span class="s2">"log"</span><span class="p">:</span> <span class="n">archive_log_cmd</span><span class="p">}</span>
 
@@ -790,6 +793,7 @@ startup failure rather than a silent change.</p>
 </table>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">cw.compat</span></code>’s <code class="docutils literal notranslate"><span class="pre">add_commands</span></code>, <code class="docutils literal notranslate"><span class="pre">set_default_command</span></code> and <code class="docutils literal notranslate"><span class="pre">ArghParser.add_commands</span></code> map “no policy” to <code class="docutils literal notranslate"><span class="pre">cw.ARGH_LEGACY</span></code>, so Step 1 keeps the legacy grammar exactly (<a class="reference external" href="https://github.com/i2mint/cw/issues/46">#46</a>; <code class="docutils literal notranslate"><span class="pre">tests/argh_parity/test_legacy_parity.py</span></code> diffs it against live argh over the whole shape matrix). <code class="docutils literal notranslate"><span class="pre">dispatch_*</span></code> with no policy stay on <code class="docutils literal notranslate"><span class="pre">cw.ARGH</span></code>, as in argh. After deleting the compat import, keep the legacy grammar with the convention itself:</p>
+<!-- wads-docs: skip - fragment: funcs is the reader's own command collection -->
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cw</span>
 
 <span class="n">cw</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="n">funcs</span><span class="p">,</span> <span class="n">convention</span><span class="o">=</span><span class="n">cw</span><span class="o">.</span><span class="n">ARGH_LEGACY</span><span class="p">)</span>
@@ -936,7 +940,7 @@ both are asserted by tests, not by intention.</p>
 </section>
 </section>
 
-<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 16:40 UTC from <a href="https://github.com/i2mint/cw/commit/0c4cfd363bf125c2fd2a6b3429ab5148b3ad0886">0c4cfd3</a> (master) · cw 0.1.15 · <a href="about-this-build.html">about this build</a></p>
+<p class="epythet-provenance" style="font-size:.8em;opacity:.65;margin-top:2.5em;text-align:right">built 2026-11-22 19:04 UTC from <a href="https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211">7341660</a> (master) · cw 0.1.15 · <a href="about-this-build.html">about this build</a></p>
 
                 </article>
               
