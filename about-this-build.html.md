@@ -2,7 +2,7 @@
 
 # About this build
 
-This documentation was built on **2026-11-22 19:04 UTC** from commit <a href="https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211"><code>7341660</code></a> on branch <code>master</code>, for **cw 0.1.15** (from <code>pyproject.toml</code>).
+This documentation was built on **2026-11-22 21:42 UTC** from commit <a href="https://github.com/i2mint/cw/commit/cc3d063c32e0380b6f26884a3c0e8747bea36c7e"><code>cc3d063</code></a> on branch <code>master</code>, for **cw 0.1.15** (from <code>pyproject.toml</code>).
 
 #### NOTE
 Nothing suggests a mismatch: the tree was clean at the commit above, and the documented version is the one on PyPI.
@@ -11,7 +11,7 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 
 |                     |                                                                                                                                                  |
 |---------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| Commit              | <a href="https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211"><code>7341660508ba8afc957650706f1f4fd668b93211</code></a> |
+| Commit              | <a href="https://github.com/i2mint/cw/commit/cc3d063c32e0380b6f26884a3c0e8747bea36c7e"><code>cc3d063c32e0380b6f26884a3c0e8747bea36c7e</code></a> |
 | Branch              | <code>master</code>                                                                                                                              |
 | Tags at this commit | none                                                                                                                                             |
 | Working tree        | clean                                                                                                                                            |
@@ -22,9 +22,9 @@ Nothing suggests a mismatch: the tree was clean at the commit above, and the doc
 |              |                                                                                            |
 |--------------|--------------------------------------------------------------------------------------------|
 | Repository   | <code>i2mint/cw</code>                                                                     |
-| Run          | <a href="https://github.com/i2mint/cw/actions/runs/45058495489">45058495489</a>            |
+| Run          | <a href="https://github.com/i2mint/cw/actions/runs/45073439751">45073439751</a>            |
 | Ref          | <code>refs/heads/master</code>                                                             |
-| Event commit | <code>7341660508ba8afc957650706f1f4fd668b93211</code> (in the history of the built commit) |
+| Event commit | <code>cc3d063c32e0380b6f26884a3c0e8747bea36c7e</code> (in the history of the built commit) |
 
 ## Tools
 
@@ -55,7 +55,7 @@ Latest release: <a href="https://pypi.org/project/cw/0.1.15/">0.1.15</a>, the sa
 
 ```bash
 git clone https://github.com/i2mint/cw && cd cw
-git checkout 7341660508ba8afc957650706f1f4fd668b93211
+git checkout cc3d063c32e0380b6f26884a3c0e8747bea36c7e
 pip install "epythet==0.2.23"
 epythet quickstart . --ignore tests/ scrap/ examples/
 ```

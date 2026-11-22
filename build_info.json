@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "built_at": "2026-11-22T19:04:35Z",
+  "built_at": "2026-11-22T21:42:33Z",
   "package": {
     "name": "cw",
     "version": "0.1.15",
@@ -9,24 +9,24 @@
   },
   "git": {
     "available": true,
-    "commit": "7341660508ba8afc957650706f1f4fd668b93211",
-    "short_commit": "7341660",
+    "commit": "cc3d063c32e0380b6f26884a3c0e8747bea36c7e",
+    "short_commit": "cc3d063",
     "branch": "master",
     "tags": [],
     "dirty": false,
     "remote_url": "https://github.com/i2mint/cw",
-    "commit_url": "https://github.com/i2mint/cw/commit/7341660508ba8afc957650706f1f4fd668b93211",
+    "commit_url": "https://github.com/i2mint/cw/commit/cc3d063c32e0380b6f26884a3c0e8747bea36c7e",
     "error": null
   },
   "ci": {
     "provider": "github",
     "repository": "i2mint/cw",
-    "sha": "7341660508ba8afc957650706f1f4fd668b93211",
+    "sha": "cc3d063c32e0380b6f26884a3c0e8747bea36c7e",
     "sha_in_history": true,
     "ref": "refs/heads/master",
     "ref_name": "master",
-    "run_id": "45058495489",
-    "run_url": "https://github.com/i2mint/cw/actions/runs/45058495489",
+    "run_id": "45073439751",
+    "run_url": "https://github.com/i2mint/cw/actions/runs/45073439751",
     "server_url": "https://github.com"
   },
   "tools": {
@@ -64,7 +64,7 @@
     "relation": "same",
     "error": null
   },
-  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout 7341660508ba8afc957650706f1f4fd668b93211\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
+  "reproduce": "git clone https://github.com/i2mint/cw && cd cw\ngit checkout cc3d063c32e0380b6f26884a3c0e8747bea36c7e\npip install \"epythet==0.2.23\"\nepythet quickstart . --ignore tests/ scrap/ examples/",
   "warnings": [],
   "alignment": {
     "aligned": true,
