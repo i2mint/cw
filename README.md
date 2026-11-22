@@ -9,7 +9,8 @@ def greet(name, *, loudly=False):
     return f"HELLO {name}" if loudly else f"hello {name}"
 
 
-raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
+if __name__ == "__main__":
+    raise SystemExit(cw.dispatch(greet))  # that is the whole CLI
 ```
 
 ```console
@@ -72,7 +73,8 @@ def ls(path=".", *, long=False):
 
 
 COMMANDS = {"add": add, "list": ls, "git-ops": {"add": add}}
-raise SystemExit(cw.dispatch(COMMANDS, prog="tool"))
+if __name__ == "__main__":
+    raise SystemExit(cw.dispatch(COMMANDS, prog="tool"))
 ```
 
 ```console
@@ -313,6 +315,7 @@ fourth behaviour-carrying keyword on `dispatch`
 [ADR-0008](docs/adr/0008-no-fourth-channel-for-group-kwargs.md)). The console-script idiom
 is:
 
+<!-- wads-docs: skip - fragment: list_cmd, info_cmd and the other commands are the reader's own -->
 ```python
 TOP_COMMANDS = {"list": list_cmd, "info": info_cmd}
 ARCHIVE_COMMANDS = {"list": archive_list_cmd, "log": archive_log_cmd}
@@ -471,6 +474,7 @@ def greet(*, who: str, punct: str = "!"): ...
 
 `cw.compat`'s `add_commands`, `set_default_command` and `ArghParser.add_commands` map "no policy" to `cw.ARGH_LEGACY`, so Step 1 keeps the legacy grammar exactly ([#46](https://github.com/i2mint/cw/issues/46); `tests/argh_parity/test_legacy_parity.py` diffs it against live argh over the whole shape matrix). `dispatch_*` with no policy stay on `cw.ARGH`, as in argh. After deleting the compat import, keep the legacy grammar with the convention itself:
 
+<!-- wads-docs: skip - fragment: funcs is the reader's own command collection -->
 ```python
 import cw
 
