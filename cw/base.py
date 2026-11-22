@@ -66,7 +66,7 @@ class _Sentinel:
 
     __slots__ = ("_name",)
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         self._name = name
 
     def __repr__(self) -> str:
@@ -147,7 +147,7 @@ class CommandError(Exception):
     nope -> exit 3
     """
 
-    def __init__(self, message: str = "", *, code: int = DFLT_ERROR_CODE):
+    def __init__(self, message: str = "", *, code: int = DFLT_ERROR_CODE) -> None:
         """Store the exit ``code`` alongside the message."""
         self.code = code
         super().__init__(message)

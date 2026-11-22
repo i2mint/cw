@@ -17,10 +17,12 @@ or importing anybody's ``__main__``.
 """
 
 import sys
+from collections.abc import Iterator, Sequence
 
 from cw.commands import import_object
 from cw.convention import ARGH, ARGH_LEGACY, MODERN
 from cw.grammar import specs_for_function
+from typing import NoReturn
 
 __all__ = ["specs", "help_for", "parity", "audit", "COMMANDS"]
 
@@ -40,7 +42,7 @@ def _convention_named(name: str):
         ) from None
 
 
-def specs(ref, *, convention="argh"):
+def specs(ref: str, *, convention: str = "argh") -> Iterator[str]:
     """Show the command-line arguments cw would build for a function.
 
     REF is a 'pkg.mod:name' reference, e.g. 'json:dumps'.
@@ -52,7 +54,7 @@ def specs(ref, *, convention="argh"):
         yield f"{' '.join(args):24s} {shown}"
 
 
-def help_for(ref, *, convention="argh"):
+def help_for(ref: str, *, convention: str = "argh") -> str:
     """Print the --help that cw would produce for a function.
 
     REF is a 'pkg.mod:name' reference, e.g. 'json:dumps'.
@@ -65,7 +67,7 @@ def help_for(ref, *, convention="argh"):
     return parser.format_help()
 
 
-def parity(goldens_dir=None):
+def parity(goldens_dir=None) -> NoReturn:
     """Run the recorded-golden migration test (cw.testing).
 
     Its result is an exit code rather than something to print, so it is raised rather than
@@ -80,12 +82,12 @@ def parity(goldens_dir=None):
     raise SystemExit(testing.parity(goldens_dir))
 
 
-def _names(csv):
+def _names(csv: str | None) -> set[str]:
     """``'a,b'`` -> ``{'a', 'b'}``; None -> empty."""
     return {name.strip() for name in (csv or "").split(",") if name.strip()}
 
 
-def audit(path, *, exclude=None, include=None):
+def audit(path, *, exclude=None, include=None) -> NoReturn:
     """Report any argh left in a migrated source tree; exit 1 if there is some.
 
     Checks for imports of argh (CommandError taken from argh, specially), argh dispatch
@@ -114,7 +116,7 @@ def audit(path, *, exclude=None, include=None):
 COMMANDS = {"specs": specs, "help": help_for, "parity": parity, "audit": audit}
 
 
-def main(argv=None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     """The ``python -m cw`` entry point."""
     from cw.cli import dispatch
 
