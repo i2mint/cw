@@ -50,6 +50,7 @@ import json
 import sys
 from collections.abc import Iterable, Iterator, Mapping
 from types import GeneratorType
+from collections.abc import Callable
 from typing import Any, Optional, TextIO
 
 __all__ = [
@@ -217,8 +218,17 @@ def json_egress(
     out: Optional[TextIO] = None,
     err: Optional[TextIO] = None,
     indent: int = DFLT_JSON_INDENT,
+    dumps: Optional[Callable[[Any], str]] = None,
+    passthrough: tuple = (),
 ) -> int:
     """One JSON document, for a command whose result is data rather than lines.
+
+    ``dumps`` is the encoder, ``(result) -> str`` (default ``json.dumps(result,
+    indent=indent, default=str)``; ``indent`` is ignored when you pass your own), so a
+    host with a strict encoder (``NaN`` as ``null``, numpy values as Python) plugs it in.
+    A result that is an instance of one of the ``passthrough`` types is printed with
+    ``str``, unencoded: ``passthrough=(str,)`` lets a command that returns a file path
+    be used as ``$(cli report ...)``.
 
     An iterator is materialised first (JSON has no streaming form), and anything JSON does
     not know is rendered with ``str`` rather than raising -- which is what
@@ -235,13 +245,27 @@ def json_egress(
     >>> _ = json_egress(iter('ab'), out=buffer, indent=None)
     >>> buffer.getvalue()
     '["a", "b"]\\n'
+
+    >>> buffer = io.StringIO()
+    >>> _ = json_egress('/p.md', out=buffer, passthrough=(str,))
+    >>> buffer.getvalue()
+    '/p.md\\n'
+    >>> _ = json_egress({'a': 1}, out=buffer, dumps=lambda r: 'custom')
+    >>> buffer.getvalue()
+    '/p.md\\ncustom\\n'
     """
     if result is None:
         return 0
     out = _stream(out, "stdout")
     if isinstance(result, Iterator):
         result = list(result)
-    out.write(json.dumps(result, indent=indent, default=str))
+    if passthrough and isinstance(result, passthrough):
+        text = str(result)
+    elif dumps is not None:
+        text = dumps(result)
+    else:
+        text = json.dumps(result, indent=indent, default=str)
+    out.write(text)
     out.write("\n")
     return 0
 
